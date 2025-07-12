@@ -1,0 +1,3 @@
+# Rules that were given by spring initializer
+/backend/mvnw text eol=lf
+/backend/**/*.cmd text eol=crlf
