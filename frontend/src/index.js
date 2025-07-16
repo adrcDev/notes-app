@@ -6,6 +6,9 @@ import {createBrowserRouter,RouterProvider} from "react-router";
 // import "core-js/actual";
 import "./global styles.css";
 import ErrorPage from "./components/ErrorPage/ErrorPage.js";
+import AuthPage from "./components/AuthPage/AuthPage.js";
+import LoginForm from "./components/LoginForm/LoginForm.js";
+import { ThemeProvider } from "./contexts/ThemeContext.js";
 
 let router=createBrowserRouter([
   {
@@ -13,13 +16,25 @@ let router=createBrowserRouter([
     element: <HomePage/>,
     errorElement: <ErrorPage/>
   },
+  {
+    path: "/auth",
+    element: <AuthPage />,
+    children: [
+      {
+        path: "login",
+        element: <LoginForm />
+      },
+    ] 
+  }
 ]);
 
 const container = document.getElementById("root");
 const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );
 

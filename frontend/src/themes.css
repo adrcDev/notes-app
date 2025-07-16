@@ -1,0 +1,23 @@
+
+.light {
+  --html-body-backgroundColor: white;
+  --authPage-appBar-backgroundColor: lightblue;
+  --authPage-appBar-borderColor: black;
+  --authPage-appBar-appLogo: url("./static/images/todo-app-icon-dark.svg"); /* TODO */
+  --authPage-appBar-text-color: black;
+  --authPage-appBar-lightDarkThemeToggle-image: url("./static/images/dark-mode-icon-light.svg");
+
+}
+
+.dark {
+  --html-body-backgroundColor: black;
+  --authPage-appBar-backgroundColor: rgb(53, 57, 53); 
+  --authPage-appBar-borderColor: white;
+  --authPage-appBar-appLogo: url("./static/images/todo-app-icon-dark.svg");
+  --authPage-appBar-text-color: white;
+  --authPage-appBar-lightDarkThemeToggle-image: url("./static/images/light-mode-icon-dark.svg");
+}
+
+body {
+  background-color: var(--html-body-backgroundColor);
+}
