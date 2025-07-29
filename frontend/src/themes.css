@@ -7,6 +7,25 @@
   --authPage-appBar-text-color: black;
   --authPage-appBar-lightDarkThemeToggle-image: url("./static/images/dark-mode-icon-light.svg");
 
+  /* CSS variables for login form(LoginForm.js) inside authentication page(AuthPage.js) */
+  --authPage-loginForm-backgroundColor: lightblue;
+  --authPage-loginForm-textColor: black;
+  --authPage-loginForm-textField-backgroundColor: white;
+  --authPage-loginForm-TextField-textColor: black;
+  --authPage-loginForm-textField-errorState-border-color: red;
+  --authPage-loginForm-showPasswordCheckbox-backgroundColor: blue;
+  --authPage-loginForm-formSubmitLoginButton-backgroundColor: white;
+  --authPage-loginForm-userHelperTextLink-text-color: blue;
+  --authPage-loginForm-dialog-backgroundColor:lightblue;
+  --authPage-loginForm-dialog-text-color: black;
+  --authPage-loginForm-loginProcessingSpinner-border-color: white;
+  --authPage-loginForm-loginProcessingSpinner-border-top-color: black;
+  --authPage-loginForm-invalidLoginDialog-closeButton-background-image: url("./static/images/dialog-close-icon-light.svg");
+  --authPage-loginForm-invalidLoginDialog-invalidLoginImage-background-image: url("./static/images/red-background-cross-icon-light.svg");
+  --authPage-loginForm-dialog-closeButton-background-image: url("./static/images/dialog-close-icon-light.svg");
+  
+
+
 }
 
 .dark {
@@ -16,6 +35,23 @@
   --authPage-appBar-appLogo: url("./static/images/todo-app-icon-dark.svg");
   --authPage-appBar-text-color: white;
   --authPage-appBar-lightDarkThemeToggle-image: url("./static/images/light-mode-icon-dark.svg");
+
+  /* CSS variables for login form(LoginForm.js) inside authentication page(AuthPage.js) */
+  --authPage-loginForm-backgroundColor: rgb(53, 57, 53);
+  --authPage-loginForm-textColor: white;
+  --authPage-loginForm-textField-backgroundColor: #E0E0E0;
+  --authPage-loginForm-TextField-textColor: black;
+  --authPage-loginForm-textField-errorState-border-color: red;
+  --authPage-loginForm-showPasswordCheckbox-backgroundColor: yellow;
+  --authPage-loginForm-formSubmitLoginButton-backgroundColor: #E0E0E0;
+  --authPage-loginForm-userHelperTextLink-text-color: yellow;
+  --authPage-loginForm-dialog-backgroundColor: rgb(53, 57, 53);
+  --authPage-loginForm-dialog-text-color: white;
+  --authPage-loginForm-loginProcessingSpinner-border-color: #E0E0E0;
+  --authPage-loginForm-loginProcessingSpinner-border-top-color: yellow;
+  --authPage-loginForm-invalidLoginDialog-closeButton-background-image: url("./static/images/dialog-close-icon-dark.svg");
+  --authPage-loginForm-invalidLoginDialog-invalidLoginImage-background-image: url("./static/images/red-background-cross-icon-dark.svg");
+  --authPage-loginForm-dialog-closeButton-background-image: url("./static/images/dialog-close-icon-dark.svg");
 }
 
 body {

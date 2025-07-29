@@ -40,5 +40,12 @@
   background-image: var(--authPage-appBar-lightDarkThemeToggle-image);
   background-repeat: no-repeat;
   background-size: contain;
+  cursor: pointer;
 }
 
+.authFormLayout {
+  /* border: 3px solid red; */
+  /* height: 10em; */
+  margin-top: 9em;
+  padding: 0 1em;
+}

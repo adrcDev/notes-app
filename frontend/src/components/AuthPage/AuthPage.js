@@ -6,10 +6,12 @@ import {ThemeContext} from "../../contexts/ThemeContext";
 
 export default function AuthPage() {
   return (
-    <>
-      <AppBar />
-      {/* <Outlet /> */}
-    </>
+      <>
+        <AppBar />
+        <main className={authPageStylesObj.authFormLayout}>
+          <Outlet />
+        </main>
+      </>
   );
 }
 

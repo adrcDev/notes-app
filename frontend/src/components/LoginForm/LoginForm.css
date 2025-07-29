@@ -1,0 +1,187 @@
+
+.loginForm {
+  background-color: var(--authPage-loginForm-backgroundColor);
+  /* border: 0.2em solid red; */
+  /* height: 10em; */
+  padding: 0.4em;
+  color: var(--authPage-loginForm-textColor);
+  font-size: 1.25rem;
+
+}
+
+.loginFormHeader {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/*Do flex-dir: row and justify-con:center for large screen */
+.labelAndFormControlWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  margin-top: 0.3em;
+}
+
+.textField {
+  margin-top: 0.3em;
+  outline: none;
+  background-color: var(--authPage-loginForm-textField-backgroundColor);
+  width: 100%;
+  color: var(--authPage-loginForm-TextField-textColor);
+  padding: 0 0.1em;  
+}
+
+.formControlAndErrorMessageWrapper {
+  align-self: stretch;
+}
+
+.errorStateForTextField {
+  border: 0.1em solid var(--authPage-loginForm-textField-errorState-border-color);
+}
+
+.showPasswordCheckboxAndLabelWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.3em;
+}
+
+.showPasswordCheckboxLabel {
+  margin-left: 0.2em;
+  cursor: pointer;
+}
+
+.showPasswordCheckbox {
+  accent-color: var(--authPage-loginForm-showPasswordCheckbox-backgroundColor);
+  cursor: pointer;
+}
+
+.formSubmitLoginButtonWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.formSubmitLoginButton {
+  background-color: var(--authPage-loginForm-formSubmitLoginButton-backgroundColor);
+  margin-top: 0.3em;
+  padding: 0.2em;
+  cursor: pointer;
+}
+
+.formSubmitLoginButton:active {
+  transform: scale(1.1);
+}
+
+.userHelperTextsWrapper {
+  color: var(--authPage-loginForm-textColor);
+  font-size: 1.25rem;
+  margin-top: 0.3em;  
+}
+
+.forgotPasswordUserHelperText {
+  margin-top: 0.3em;
+}
+
+.signUpUserHelperLink {
+  color: var(--authPage-loginForm-userHelperTextLink-text-color);
+}
+
+.forgotPasswordHelperLink {
+  color: var(--authPage-loginForm-userHelperTextLink-text-color);
+}
+
+.loginProcessingModalDialog {
+  background-color: var(--authPage-loginForm-dialog-backgroundColor);
+  padding: 0.3em;
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* To prevent scrollbar from showing up automatically */
+  overflow: hidden;
+}
+
+.loginProcessingSpinner {
+  border: 0.5em solid var(--authPage-loginForm-loginProcessingSpinner-border-color); 
+  border-top: 0.5em solid var(--authPage-loginForm-loginProcessingSpinner-border-top-color); 
+  border-radius: 50%;
+  width: 5em;
+  height: 5em;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+.invalidLoginDialog {
+  background-color: var(--authPage-loginForm-dialog-backgroundColor);
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.25rem;
+  width: 75%;
+  padding: 0.3em;
+}
+
+.invalidLoginDialogText {
+  color: var(--authPage-loginForm-dialog-text-color);
+  margin-top: 0.2em;
+}
+
+.invalidLoginDialogImageWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.invalidLoginDialogImage {
+  background-image: var(--authPage-loginForm-invalidLoginDialog-invalidLoginImage-background-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 2em;
+  height: 2em;
+  margin-top: 0.3em;  
+}
+
+.dialogCloseButtonWrapper {
+  display: flex;
+  justify-content: end;
+}
+
+.dialogCloseButton {
+  background-color: transparent;
+  border: none;
+  background-image: var(--authPage-loginForm-dialog-closeButton-background-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 1.5em;
+  height: 1.5em;    
+}
+
+.networkOrServerErrorDialog {
+  background-color: var(--authPage-loginForm-dialog-backgroundColor);
+  color: var(--authPage-loginForm-dialog-text-color);
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.25rem;
+  width: 75%;
+  padding: 0.3em;
+}
+
+.networkOrServerErrorDialogText {
+  margin-top: 0.2em;
+}
+
+
+
+
+
+
