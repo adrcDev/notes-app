@@ -82,22 +82,18 @@ export default function LoginForm() {
       <form className={loginFormStylesObj.loginForm}
       onSubmit={handleSubmit(handleSubmitForLoginForm)} >
         <div className={loginFormStylesObj.loginFormHeader}>Login</div>
-        <div 
-        className={loginFormStylesObj.labelAndFormControlWrapper}>
-          <label htmlFor="userNameOrEmailTextField">Username/email:</label>
-          <div className={loginFormStylesObj.formControlAndErrorMessageWrapper}>
+        <div className={loginFormStylesObj.labelAndTextFieldsWrapper}>
+          <label htmlFor="userNameOrEmailTextField" className={loginFormStylesObj.labelForTextField}>Username/email:</label>
+          <div>
             <input id="userNameOrEmailTextField" 
             className={classNamesForUserNameOrEmailTextField} {...register("userNameOrEmailTextField",userNameOrEmailTextFieldValidationRules)}> 
             </input>
             {errors.userNameOrEmailTextField 
             && <div>{errors.userNameOrEmailTextField.message}</div>}
           </div>
-        </div>
-
-        <div 
-        className={loginFormStylesObj.labelAndFormControlWrapper}>
-          <label htmlFor="passwordTextField">Password:</label>
-          <div className={loginFormStylesObj.formControlAndErrorMessageWrapper}>
+          
+          <label htmlFor="passwordTextField" className={loginFormStylesObj.labelForTextField}>Password:</label>
+          <div>
             <input id="passwordTextField" type={typeForPasswordTextField} 
             className={classNamesForPasswordTextField} {...registerWithReactHookFormObj}
             ref={(passwordTextFieldDomNode)=>{
@@ -108,8 +104,9 @@ export default function LoginForm() {
             </input>
             {errors.passwordTextField 
             && <div>{errors.passwordTextField.message}</div>}
-          </div>
+          </div>  
         </div>
+        
 
         <div className={loginFormStylesObj.showPasswordCheckboxAndLabelWrapper}>
           <input id="showPasswordCheckbox" type="checkbox" className={loginFormStylesObj.showPasswordCheckbox} onChange={handleChangeForShowPasswordCheckbox}></input>
@@ -121,6 +118,7 @@ export default function LoginForm() {
         </div>
 
       </form>
+
       <div className={loginFormStylesObj.userHelperTextsWrapper}>
         <p>If you don't have an account then&nbsp;
           <Link className={loginFormStylesObj.signUpUserHelperLink}>click here to sign up for an account.</Link>
@@ -130,36 +128,39 @@ export default function LoginForm() {
         </p>
       </div>
       
+      
       <dialog ref={loginProcessingModalDialogRef}  className={loginFormStylesObj.loginProcessingModalDialog} closedby="none">
         <div className={loginFormStylesObj.loginProcessingSpinner}>
 
         </div>
       </dialog>
 
-      <dialog ref={invalidLoginDialogRef} className={loginFormStylesObj.invalidLoginDialog}
-      closedby="any">
-        <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
-          <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForInvalidLoginDialogCloseButton}></button>
-        </div>
-        <p className={loginFormStylesObj.invalidLoginDialogText}>Provided username/email or password is invalid!</p>
-        <div className={loginFormStylesObj.invalidLoginDialogImageWrapper}>
-          <span className={loginFormStylesObj.invalidLoginDialogImage}></span>
-        </div>
-      </dialog>
+      <div className={loginFormStylesObj.dialogFontSizeSetterWrapper}>
+        <dialog ref={invalidLoginDialogRef} className={loginFormStylesObj.invalidLoginDialog}
+        closedby="any">
+          <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
+            <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForInvalidLoginDialogCloseButton}></button>
+          </div>
+          <p className={loginFormStylesObj.invalidLoginDialogText}>Provided username/email or password is invalid!</p>
+          <div className={loginFormStylesObj.invalidLoginDialogImageWrapper}>
+            <span className={loginFormStylesObj.invalidLoginDialogImage}></span>
+          </div>
+        </dialog>
 
-      <dialog  ref={networkErrorDialogRef} className={loginFormStylesObj.networkOrServerErrorDialog} closedby="any">
-        <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
-          <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForNetworkErrorDialogCloseButton}></button>
-        </div>
-        <p className={loginFormStylesObj.networkOrServerErrorDialogText}>Network error: please check your network connection!</p>
-      </dialog>
+        <dialog  ref={networkErrorDialogRef} className={loginFormStylesObj.networkOrServerErrorDialog} closedby="any">
+          <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
+            <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForNetworkErrorDialogCloseButton}></button>
+          </div>
+          <p className={loginFormStylesObj.networkOrServerErrorDialogText}>Network error: please check your network connection!</p>
+        </dialog>
 
-      <dialog ref={serverErrorDialogRef} className={loginFormStylesObj.networkOrServerErrorDialog} closedby="any">
-        <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
-          <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForServerErrorDialogCloseButton}></button>
-        </div>
-        <p className={loginFormStylesObj.networkOrServerErrorDialogText}>Server error</p>
-      </dialog>
+        <dialog ref={serverErrorDialogRef} className={loginFormStylesObj.networkOrServerErrorDialog} closedby="any">
+          <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
+            <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForServerErrorDialogCloseButton}></button>
+          </div> 
+          <p className={loginFormStylesObj.networkOrServerErrorDialogText}>Server error!</p>
+        </dialog>
+      </div>
     </>
     
     

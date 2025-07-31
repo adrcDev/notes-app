@@ -14,13 +14,7 @@
   text-align: center;
 }
 
-/*Do flex-dir: row and justify-con:center for large screen */
-.labelAndFormControlWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  margin-top: 0.3em;
-}
+
 
 .textField {
   margin-top: 0.3em;
@@ -31,9 +25,8 @@
   padding: 0 0.1em;  
 }
 
-.formControlAndErrorMessageWrapper {
-  align-self: stretch;
-}
+
+
 
 .errorStateForTextField {
   border: 0.1em solid var(--authPage-loginForm-textField-errorState-border-color);
@@ -114,8 +107,11 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+ 
 
-
+.dialogFontSizeSetterWrapper {
+  font-size: 1.25rem;
+}
 
 .invalidLoginDialog {
   background-color: var(--authPage-loginForm-dialog-backgroundColor);
@@ -124,7 +120,6 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.25rem;
   width: 75%;
   padding: 0.3em;
 }
@@ -171,7 +166,6 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.25rem;
   width: 75%;
   padding: 0.3em;
 }
@@ -180,8 +174,68 @@
   margin-top: 0.2em;
 }
 
+/* for phones in landscape and for small tablets */
+@media (min-width: 37.5em) {
 
+  .textField {
+    margin-left: 0.2em;
+  }
 
+  .labelAndTextFieldsWrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0.2em;
+    /* border: 2px solid green; */
+    justify-content: center;
+
+    
+  }
+
+  .labelForTextField {
+    justify-self: end;
+    align-self: center;
+  }
+
+  .textField {
+    width: 95%;
+  }
+
+  .invalidLoginDialog {
+    width: 50%;
+  }
+
+  .networkOrServerErrorDialog {
+    width: 50%;
+  }
+}
+
+/* for large tablets */
+@media (min-width: 62em) {
+  .loginForm {
+    font-size: 1.5rem;
+  }
+  
+  .userHelperTextsWrapper {
+    font-size: 1.5rem;    
+  }
+
+  .dialogFontSizeSetterWrapper {
+    font-size: 1.5rem;
+  }
+
+}
+
+/* for laptops and desktops */
+@media (min-width: 75em) {
+ .invalidLoginDialog {
+    width: 37.5%;
+  }
+
+  .networkOrServerErrorDialog {
+    width: 37.5%;
+  }
+
+}
 
 
 
