@@ -14,7 +14,7 @@ export default function LoginForm() {
   let serverErrorDialogRef=React.useRef(null);
   
 
-  let {ref:reactHookFormsInternalRef,...registerWithReactHookFormObj}=register("passwordTextField",{
+  let {ref:reactHookFormsInternalRef,...registerWithReactHookFormObj}=register("password",{
     required: { value:true,message: "Please enter the password"}
   });
   
@@ -47,6 +47,7 @@ export default function LoginForm() {
   }
 
   function handleSubmitForLoginForm(dataObj) {
+    console.log(dataObj);
     let loginProcessingModalDialogDomNode=loginProcessingModalDialogRef.current;
     loginProcessingModalDialogDomNode.showModal();
 
@@ -86,7 +87,7 @@ export default function LoginForm() {
           <label htmlFor="userNameOrEmailTextField" className={loginFormStylesObj.labelForTextField}>Username/email:</label>
           <div>
             <input id="userNameOrEmailTextField" 
-            className={classNamesForUserNameOrEmailTextField} {...register("userNameOrEmailTextField",userNameOrEmailTextFieldValidationRules)}> 
+            className={classNamesForUserNameOrEmailTextField} {...register("userNameOrEmail",userNameOrEmailTextFieldValidationRules)}> 
             </input>
             {errors.userNameOrEmailTextField 
             && <div>{errors.userNameOrEmailTextField.message}</div>}
