@@ -177,10 +177,6 @@
 /* for phones in landscape and for small tablets */
 @media (min-width: 37.5em) {
 
-  .textField {
-    margin-left: 0.2em;
-  }
-
   .labelAndTextFieldsWrapper {
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -211,17 +207,17 @@
 
 /* for large tablets */
 @media (min-width: 62em) {
-  .loginForm {
-    font-size: 1.5rem;
+  /* .loginForm {
+    font-size: 1.3rem;
   }
   
   .userHelperTextsWrapper {
-    font-size: 1.5rem;    
+    font-size: 1.3rem;    
   }
 
   .dialogFontSizeSetterWrapper {
-    font-size: 1.5rem;
-  }
+    font-size: 1.3rem;
+  } */
 
 }
 

@@ -3,6 +3,7 @@ package com.awesometodo;
 import com.awesometodo.entity.User;
 import com.awesometodo.repository.UserRepository;
 import com.awesometodo.service.JwtService;
+import io.jsonwebtoken.Jwts;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
@@ -17,15 +18,14 @@ public class TodoAppBackendApplication {
 
 
 	public static void main(String[] args) {
-//		SpringApplication sa=new SpringApplication(TodoAppBackendApplication.class);
-//		sa.setLogStartupInfo(false);
-//		sa.setBannerMode(Banner.Mode.OFF);
-//		sa.run(args);
-		ConfigurableApplicationContext springIOCContainer=SpringApplication.run(TodoAppBackendApplication.class, args);
-
-
+		SpringApplication sa=new SpringApplication(TodoAppBackendApplication.class);
+		sa.setLogStartupInfo(false);
+		sa.setBannerMode(Banner.Mode.OFF);
+		ConfigurableApplicationContext springIOCContainer=sa.run(args);
+//		ConfigurableApplicationContext springIOCContainer=SpringApplication.run(TodoAppBackendApplication.class, args);
 		UserRepository userRepository=springIOCContainer.getBean(UserRepository.class);
 		JwtService jwtService=springIOCContainer.getBean(JwtService.class);
+
 
 	}
 

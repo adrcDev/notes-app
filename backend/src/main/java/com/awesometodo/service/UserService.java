@@ -8,7 +8,9 @@ import com.awesometodo.repository.UserRepository;
 import io.jsonwebtoken.Jwt;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.util.Optional;
 
 @Service
@@ -16,13 +18,17 @@ public class UserService {
     private UserRepository userRepository;
     private Argon2PasswordEncoder argon2IdPasswordEncoder;
     private JwtService jwtService;
+    private JwtRefreshTokenService jwtRefreshTokenService;
 
-    public UserService(UserRepository userRepository,Argon2PasswordEncoder argon2IdPasswordEncoder,JwtService jwtService) {
+    public UserService(UserRepository userRepository,Argon2PasswordEncoder argon2IdPasswordEncoder,JwtService jwtService,JwtRefreshTokenService jwtRefreshTokenService) {
         this.userRepository=userRepository;
         this.argon2IdPasswordEncoder=argon2IdPasswordEncoder;
         this.jwtService=jwtService;
+        this.jwtRefreshTokenService=jwtRefreshTokenService;
+
     }
 
+    @Transactional
     public JwtAuthTokensDTO login(LoginDataDTO loginDataDTO) {
         String userNameOrEmail=loginDataDTO.getUserNameOrEmail().toLowerCase();
         String password=loginDataDTO.getPassword();
@@ -41,9 +47,11 @@ public class UserService {
         if(optional.isPresent()) {
             User userAccount=optional.get();
             if(isReceivedPasswordCorrectForUserAccount(userAccount,password)) {
-                String jwtAccessToken=jwtService.generateJwtAccessToken(userAccount.getId());
-
-                return new JwtAuthTokensDTO(jwtAccessToken,""); //placeholder
+                int userId=userAccount.getId();
+                String jwtAccessToken=jwtService.generateJwtAccessToken(userId);
+                String jwtRefreshToken=jwtService.generateJwtRefreshToken(userId);
+                jwtRefreshTokenService.storeJwtRefreshToken(jwtRefreshToken);
+                return new JwtAuthTokensDTO(jwtAccessToken,jwtRefreshToken);
             }
             else {
                 throw new InvalidCredentialsException(exceptionMessage);
@@ -57,7 +65,8 @@ public class UserService {
 
     private boolean isReceivedPasswordCorrectForUserAccount(User userAccount,String receivedPassword) {
         String passwordHash=userAccount.getPasswordHash();
-        boolean isReceivedPasswordCorrect=argon2IdPasswordEncoder.matches(receivedPassword,passwordHash);
+        String normalizedReceivedPassword=Normalizer.normalize(receivedPassword,Normalizer.Form.NFC);
+        boolean isReceivedPasswordCorrect=argon2IdPasswordEncoder.matches(normalizedReceivedPassword,passwordHash);
         return isReceivedPasswordCorrect;
     }
 }

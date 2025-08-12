@@ -36,6 +36,15 @@ public class UserRepository {
         }
     }
 
+    public Optional<User> findById(int id) {
+        User user=em.find(User.class,id);
+        if(user!=null)
+            return Optional.of(user);
+        else
+            return Optional.<User>empty();
+
+    }
+
 
 
 

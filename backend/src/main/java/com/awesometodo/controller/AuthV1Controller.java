@@ -6,6 +6,9 @@ import com.awesometodo.entity.User;
 import com.awesometodo.exception.InvalidCredentialsException;
 import com.awesometodo.service.JwtService;
 import com.awesometodo.service.UserService;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -16,25 +19,44 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 public class AuthV1Controller {
+    private static final String JWT_REFRESH_TOKEN_COOKIE_NAME="jwt_refresh_token";
+
     UserService userService;
     JwtService jwtService;
 
-    public void AuthV1Controller(UserService userService) {
+    public AuthV1Controller(UserService userService,JwtService jwtService) {
         this.userService=userService;
         this.jwtService=jwtService;
     }
 
     @PostMapping("/auth/v1/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginDataDTO loginDataDTO) {
+    public Map<String,String> login(@RequestBody @Valid LoginDataDTO loginDataDTO,HttpServletResponse response) {
         System.out.println("login endpoint ran");
         JwtAuthTokensDTO jwtAuthTokensDTO=userService.login(loginDataDTO);
+        String jwtRefreshToken=jwtAuthTokensDTO.getJwtRefreshToken();
+        addJwtRefreshTokenAsCookie(response,jwtRefreshToken);
 
-        return ResponseEntity.ok().build();  //placeholder
+        HashMap<String,String> responseBodyMessage=new HashMap<>();
+        String jwtAccessToken=jwtAuthTokensDTO.getJwtAccessToken();
+        responseBodyMessage.put("jwt access token",jwtAccessToken);
+        return responseBodyMessage;
 
+    }
+
+    private void addJwtRefreshTokenAsCookie(HttpServletResponse response,String jwtRefreshToken) {
+        Cookie jwtRefreshTokenCookie=new Cookie(JWT_REFRESH_TOKEN_COOKIE_NAME,jwtRefreshToken);
+        jwtRefreshTokenCookie.setHttpOnly(true);
+        jwtRefreshTokenCookie.setSecure(true);
+        jwtRefreshTokenCookie.setPath("/auth/v1");
+        int maxAgeCookieAttributeValue=jwtService.getRemainingTokenLifeTimeInSeconds(jwtRefreshToken);
+        jwtRefreshTokenCookie.setMaxAge(maxAgeCookieAttributeValue);
+        jwtRefreshTokenCookie.setAttribute("SameSite", "Strict");
+        response.addCookie(jwtRefreshTokenCookie);
     }
 
 

@@ -47,11 +47,20 @@ export default function LoginForm() {
   }
 
   function handleSubmitForLoginForm(dataObj) {
-    console.log(dataObj);
     let loginProcessingModalDialogDomNode=loginProcessingModalDialogRef.current;
     loginProcessingModalDialogDomNode.showModal();
 
+    dataObj.userNameOrEmail=dataObj.userNameOrEmail.trim();
+    dataObj.password=dataObj.password.trim();
+    console.log(dataObj);
     /* Send login request to rest api and if the username/email and password is valid then send the user to the todo page and also get the jwt access token and store it. If the credentials are invalid then show the invalid login dialog to the user. In both of these cases the login processing dialog should be closed */
+    // fetch("http:localhost:8080/auth/v1/login",{
+
+    // })
+
+    
+
+    
     
     //temporary placeholder
     setTimeout(() => {
@@ -89,8 +98,8 @@ export default function LoginForm() {
             <input id="userNameOrEmailTextField" 
             className={classNamesForUserNameOrEmailTextField} {...register("userNameOrEmail",userNameOrEmailTextFieldValidationRules)}> 
             </input>
-            {errors.userNameOrEmailTextField 
-            && <div>{errors.userNameOrEmailTextField.message}</div>}
+            {errors.userNameOrEmail
+            && <div>{errors.userNameOrEmail.message}</div>}
           </div>
           
           <label htmlFor="passwordTextField" className={loginFormStylesObj.labelForTextField}>Password:</label>
@@ -103,8 +112,8 @@ export default function LoginForm() {
             }}
             > 
             </input>
-            {errors.passwordTextField 
-            && <div>{errors.passwordTextField.message}</div>}
+            {errors.password
+            && <div>{errors.password.message}</div>}
           </div>  
         </div>
         
