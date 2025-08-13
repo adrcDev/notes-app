@@ -9,6 +9,7 @@ import ErrorPage from "./components/ErrorPage/ErrorPage.js";
 import AuthPage from "./components/AuthPage/AuthPage.js";
 import LoginForm from "./components/LoginForm/LoginForm.js";
 import { ThemeProvider } from "./contexts/ThemeContext.js";
+import { JwtAccessTokenProvider } from "./contexts/JwtAcessTokenContext.js";
 
 let router=createBrowserRouter([
   {
@@ -17,7 +18,7 @@ let router=createBrowserRouter([
     errorElement: <ErrorPage/>
   },
   {
-    path: "/auth",
+    path: "/auth", /*TODO- might have to change this path segment name */
     element: <AuthPage />,
     children: [
       {
@@ -33,7 +34,9 @@ const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <JwtAccessTokenProvider>
+        <RouterProvider router={router} />
+      </JwtAccessTokenProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

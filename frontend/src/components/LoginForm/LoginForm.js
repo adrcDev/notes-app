@@ -3,6 +3,8 @@ import ReactDOM from "react-dom";
 import * as loginFormStylesObj from "./LoginForm.css";
 import {useForm} from "react-hook-form";
 import { Link } from "react-router";
+import {validateUserNameOrEmailTextField} from "./LoginForm.internal.js"
+import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
 
 export default function LoginForm() {
   let {register,handleSubmit,getValues,formState : {errors}}=useForm();
@@ -10,8 +12,8 @@ export default function LoginForm() {
   let passwordTextFieldRef=React.useRef(null);
   let loginProcessingModalDialogRef=React.useRef(null);
   let invalidLoginDialogRef=React.useRef(null);
-  let networkErrorDialogRef=React.useRef(null);
-  let serverErrorDialogRef=React.useRef(null);
+  let networkOrServerErrorDialogRef=React.useRef(null);
+  let {setJwtAccessToken: setJwtAccessToken_Parent}=React.useContext(JwtAccessTokenContext);
   
 
   let {ref:reactHookFormsInternalRef,...registerWithReactHookFormObj}=register("password",{
@@ -35,8 +37,7 @@ export default function LoginForm() {
     classNamesForPasswordTextField=`${classNamesForPasswordTextField} ${loginFormStylesObj.errorStateForTextField}`
   }
 
-  function handleChangeForShowPasswordCheckbox(e) {
-    let showPasswordCheckboxDomNode=e.target;
+   function handleChangeForShowPasswordCheckbox(e) {
     ReactDOM.flushSync(()=>{
       setIsShowPasswordCheckboxChecked(e.target.checked);
     });
@@ -46,6 +47,8 @@ export default function LoginForm() {
     passwordTextFieldDomNode.setSelectionRange(cursorPositionToSetTo,cursorPositionToSetTo);
   }
 
+  
+
   function handleSubmitForLoginForm(dataObj) {
     let loginProcessingModalDialogDomNode=loginProcessingModalDialogRef.current;
     loginProcessingModalDialogDomNode.showModal();
@@ -53,21 +56,51 @@ export default function LoginForm() {
     dataObj.userNameOrEmail=dataObj.userNameOrEmail.trim();
     dataObj.password=dataObj.password.trim();
     console.log(dataObj);
+    let jsonToSend=JSON.stringify(dataObj);
     /* Send login request to rest api and if the username/email and password is valid then send the user to the todo page and also get the jwt access token and store it. If the credentials are invalid then show the invalid login dialog to the user. In both of these cases the login processing dialog should be closed */
-    // fetch("http:localhost:8080/auth/v1/login",{
+    fetch("http://localhost:8080/auth/v1/login",{
+      body: jsonToSend,
+      method: "post",
+      headers: {
+        "Content-Type": "application/json"
+      },
 
-    // })
+      credentials: "include" //only added for development
+    })
+    .then((response)=>{
+      console.log("response received from server");
+      if(!response.ok) {
+        loginProcessingModalDialogDomNode.close();
+        invalidLoginDialogRef.current.show();
+        throw "invalid credentials error";
+      }
+      return response.json();
+    },(err)=>{
+        console.log(`error sending request message, error: ${err}`);
+        loginProcessingModalDialogDomNode.close();
+        networkOrServerErrorDialogRef.current.show();
+    })
+    .then((parsedObjectFromJson)=>{
+      let jwtAccessToken=parsedObjectFromJson["jwt access token"];
+      // console.log(jwtAccessToken);
+      setJwtAccessToken_Parent(jwtAccessToken);
+      /* TODO-Take the user to the main home page of the todo app */
+      
+      loginProcessingModalDialogDomNode.close();
+    },(err)=>{
+      console.log(err);
+    })
 
     
 
     
     
     //temporary placeholder
-    setTimeout(() => {
-      //assume that the credentials were invalid
-      loginProcessingModalDialogDomNode.close();
-      invalidLoginDialogRef.current.show();
-    }, 4000);
+    // setTimeout(() => {
+    //   //assume that the credentials were invalid
+    //   loginProcessingModalDialogDomNode.close();
+    //   invalidLoginDialogRef.current.show();
+    // }, 4000);
 
 
   }
@@ -77,13 +110,8 @@ export default function LoginForm() {
     invalidLoginDialogDomNode.close();
   }
 
-  function handleClickForNetworkErrorDialogCloseButton(e) {
-    let networkErrorDialogDomNode=networkErrorDialogRef.current;
-    networkErrorDialogDomNode.close();
-  }
-
-  function handleClickForServerErrorDialogCloseButton(e) {
-    let serverErrorDialogDomNode=serverErrorDialogRef.current;
+  function handleClickForNetworkOrServerErrorDialogCloseButton(e) {
+    let serverErrorDialogDomNode=networkOrServerErrorDialogRef.current;
     serverErrorDialogDomNode.close();
   }
 
@@ -157,18 +185,11 @@ export default function LoginForm() {
           </div>
         </dialog>
 
-        <dialog  ref={networkErrorDialogRef} className={loginFormStylesObj.networkOrServerErrorDialog} closedby="any">
+        <dialog ref={networkOrServerErrorDialogRef} className={loginFormStylesObj.networkOrServerErrorDialog} closedby="any">
           <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
-            <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForNetworkErrorDialogCloseButton}></button>
-          </div>
-          <p className={loginFormStylesObj.networkOrServerErrorDialogText}>Network error: please check your network connection!</p>
-        </dialog>
-
-        <dialog ref={serverErrorDialogRef} className={loginFormStylesObj.networkOrServerErrorDialog} closedby="any">
-          <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
-            <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForServerErrorDialogCloseButton}></button>
+            <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForNetworkOrServerErrorDialogCloseButton}></button>
           </div> 
-          <p className={loginFormStylesObj.networkOrServerErrorDialogText}>Server error!</p>
+          <p className={loginFormStylesObj.networkOrServerErrorDialogText}>Server or network error: please check your network connection</p>
         </dialog>
       </div>
     </>
@@ -185,54 +206,7 @@ let userNameOrEmailTextFieldValidationRules={
   validate: validateUserNameOrEmailTextField
 };
 
-function validateUserNameOrEmailTextField(value) {
-  let trimmedValue=value.trim();
-  let isUserTypingInEmail=trimmedValue.includes("@");
-  if(isUserTypingInEmail) {
-    let emailRegex=/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    let inputIsValidEmail=emailRegex.test(trimmedValue);
-    if(inputIsValidEmail) {
-      return true;
-    }
-    else {
-      let errorMessage="Invalid email!";
-      return errorMessage;
-    }
-  }
-  else {
-    let inputIsValidUserName=isValidUserName(trimmedValue);
-    if(inputIsValidUserName) {
-      return true;
-    }
-    else {
-      let errorMessage="Invalid username!";
-      return errorMessage;
-    }
-  }
-  
 
-  
 
-}
 
-function isValidUserName(trimmedValue) {
-  let userNameRegex=/^[a-zA-Z0-9][a-zA-Z0-9._-]{1,28}[a-zA-Z0-9]$/;
-  let regexCheckResult=userNameRegex.test(trimmedValue);
-  
-  if(!regexCheckResult)
-    return false;
 
-  if(isStringContainsConsecutiveSpecialChar(trimmedValue))
-    return false;
-  else
-    return true;
-}
-
-function isStringContainsConsecutiveSpecialChar(trimmedValue) {
-  if(trimmedValue.includes("..") || trimmedValue.includes("__") || trimmedValue.includes("--") || trimmedValue.includes("._") || trimmedValue.includes(".-") || trimmedValue.includes("_-") ||
-  trimmedValue.includes("_.") || trimmedValue.includes("-_") ||
-  trimmedValue.includes("-."))
-    return true;
-  else
-    return false;
-}

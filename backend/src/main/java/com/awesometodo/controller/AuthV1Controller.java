@@ -14,15 +14,14 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+/* Only added for development */
+@CrossOrigin(allowCredentials = "true",origins ={"http://localhost:8081"})
 public class AuthV1Controller {
     private static final String JWT_REFRESH_TOKEN_COOKIE_NAME="jwt_refresh_token";
 
@@ -33,6 +32,7 @@ public class AuthV1Controller {
         this.userService=userService;
         this.jwtService=jwtService;
     }
+
 
     @PostMapping("/auth/v1/login")
     public Map<String,String> login(@RequestBody @Valid LoginDataDTO loginDataDTO,HttpServletResponse response) {
