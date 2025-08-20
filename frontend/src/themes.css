@@ -23,6 +23,19 @@
   --authPage-loginForm-invalidLoginDialog-closeButton-background-image: url("./static/images/dialog-close-icon-light.svg");
   --authPage-loginForm-invalidLoginDialog-invalidLoginImage-background-image: url("./static/images/red-background-cross-icon-light.svg");
   --authPage-loginForm-dialog-closeButton-background-image: url("./static/images/dialog-close-icon-light.svg");
+
+  /* CSS variables for signup form(SignupForm.js) inside authentication page(AuthPage.js) */
+  --authPage-signupForm-backgroundColor: lightblue;
+  --authPage-signupForm-textColor: black;
+  --authPage-signupForm-textField-backgroundColor: white;
+  --authPage-signupForm-TextField-textColor: black;
+  --authPage-signupForm-textField-errorState-border-color: red;
+  --authPage-signupForm-showPasswordCheckbox-backgroundColor: blue;
+  --authPage-signupForm-formSubmitCreateAccountButton-backgroundColor: white;
+  --authPage-signupForm-userHelperTextLink-text-color: blue;
+  --authPage-signupForm-userHelperText-rulesHeader-text-color: blue;
+  
+  
   
 
 
@@ -52,6 +65,20 @@
   --authPage-loginForm-invalidLoginDialog-closeButton-background-image: url("./static/images/dialog-close-icon-dark.svg");
   --authPage-loginForm-invalidLoginDialog-invalidLoginImage-background-image: url("./static/images/red-background-cross-icon-dark.svg");
   --authPage-loginForm-dialog-closeButton-background-image: url("./static/images/dialog-close-icon-dark.svg");
+
+  /* CSS variables for signup form(SignupForm.js) inside authentication page(AuthPage.js) */
+  --authPage-signupForm-backgroundColor: rgb(53, 57, 53);
+  --authPage-signupForm-textColor: white;
+  --authPage-signupForm-textField-backgroundColor: #E0E0E0;
+  --authPage-signupForm-TextField-textColor: black;
+  --authPage-signupForm-textField-errorState-border-color: red;
+  --authPage-signupForm-showPasswordCheckbox-backgroundColor: yellow;
+  --authPage-signupForm-formSubmitCreateAccountButton-backgroundColor: #E0E0E0;
+  --authPage-signupForm-userHelperTextLink-text-color: yellow;
+  --authPage-signupForm-userHelperText-rulesHeader-text-color: yellow;
+  
+
+  
 }
 
 body {

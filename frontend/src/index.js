@@ -10,6 +10,7 @@ import AuthPage from "./components/AuthPage/AuthPage.js";
 import LoginForm from "./components/LoginForm/LoginForm.js";
 import { ThemeProvider } from "./contexts/ThemeContext.js";
 import { JwtAccessTokenProvider } from "./contexts/JwtAcessTokenContext.js";
+import SignupForm from "./components/SignupForm/SignupForm.js";
 
 let router=createBrowserRouter([
   {
@@ -25,8 +26,13 @@ let router=createBrowserRouter([
         path: "login",
         element: <LoginForm />
       },
+      {
+        path: "signup",
+        element: <SignupForm />
+      }
     ] 
-  }
+  },
+
 ]);
 
 const container = document.getElementById("root");

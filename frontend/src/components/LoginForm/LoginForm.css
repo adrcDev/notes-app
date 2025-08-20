@@ -207,17 +207,21 @@
 
 /* for large tablets */
 @media (min-width: 62em) {
-  /* .loginForm {
-    font-size: 1.3rem;
+  .loginForm {
+    font-size: 1.4rem;
   }
   
   .userHelperTextsWrapper {
-    font-size: 1.3rem;    
+    font-size: 1.4rem;    
   }
 
   .dialogFontSizeSetterWrapper {
-    font-size: 1.3rem;
-  } */
+    font-size: 1.4rem;
+  }
+
+  .loginFormHeader {
+    font-size: 1.6rem;
+  }
 
 }
 

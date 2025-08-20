@@ -89,19 +89,7 @@ export default function LoginForm() {
       loginProcessingModalDialogDomNode.close();
     },(err)=>{
       console.log(err);
-    })
-
-    
-
-    
-    
-    //temporary placeholder
-    // setTimeout(() => {
-    //   //assume that the credentials were invalid
-    //   loginProcessingModalDialogDomNode.close();
-    //   invalidLoginDialogRef.current.show();
-    // }, 4000);
-
+    });
 
   }
 
@@ -159,7 +147,7 @@ export default function LoginForm() {
 
       <div className={loginFormStylesObj.userHelperTextsWrapper}>
         <p>If you don't have an account then&nbsp;
-          <Link className={loginFormStylesObj.signUpUserHelperLink}>click here to sign up for an account.</Link>
+          <Link to="../signup"className={loginFormStylesObj.signUpUserHelperLink}>click here to sign up for an account.</Link>
         </p>
         <p className={loginFormStylesObj.forgotPasswordUserHelperText}>If you have&nbsp;  
           <Link className={loginFormStylesObj.forgotPasswordHelperLink}>forgotten your password then click here.</Link>

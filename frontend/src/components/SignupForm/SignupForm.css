@@ -1,0 +1,149 @@
+.signupForm {
+  background-color: var(--authPage-signupForm-backgroundColor);
+  padding: 0.4em;
+  color: var(--authPage-signupForm-textColor);
+  font-size: 1.25rem;
+}
+
+.signupFormHeader {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.textField {
+  margin-top: 0.3em;
+  outline: none;
+  background-color: var(--authPage-signupForm-textField-backgroundColor);
+  width: 100%;
+  color: var(--authPage-signupForm-TextField-textColor);
+  padding: 0 0.1em;  
+}
+
+.errorStateForTextField {
+  border: 0.1em solid var(--authPage-signupForm-textField-errorState-border-color);
+}
+
+.showPasswordCheckboxAndLabelWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.3em;
+}
+
+.showPasswordCheckbox {
+  accent-color: var(--authPage-signupForm-showPasswordCheckbox-backgroundColor);
+  cursor: pointer;
+}
+
+.showPasswordCheckboxLabel {
+  margin-left: 0.2em;
+  cursor: pointer;
+}
+
+.securityQuestionAndAnswersIntro {
+  margin-top: 0.5em;
+}
+
+.countryCodeDropDown {
+  width: 20%;
+}
+
+.phoneNumberTextField {
+  width: 80%;
+  padding: 0 0.1em;
+}
+
+.phoneNumberLabelAndFormControlsWrapper {
+  margin-top: 0.3em;
+}
+
+.formSubmitCreateAccountButtonWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.formSubmitCreateAccountButton {
+  background-color: var(--authPage-signupForm-formSubmitCreateAccountButton-backgroundColor);
+  margin-top: 0.3em;
+  padding: 0.2em;
+  cursor: pointer;
+}
+
+.formSubmitCreateAccountButton:active {
+  transform: scale(1.1);
+}
+
+.userHelperTextsWrapper {
+  color: var(--authPage-signupForm-textColor);
+  font-size: 1.25rem;
+  margin-top: 0.3em;  
+}
+
+.loginUserHelperLink {
+  color: var(--authPage-signupForm-userHelperTextLink-text-color);
+}
+
+.forgotPasswordHelperLink {
+  color: var(--authPage-signupForm-userHelperTextLink-text-color);
+}
+
+.rulesHeaderText {
+  color: var(--authPage-signupForm-userHelperText-rulesHeader-text-color);
+}
+
+.rulesHeaderAndTextWrapper {
+  margin-top: 0.7em;
+}
+
+.rulesTextWrapperList {
+  list-style-type: none;
+}
+
+.rulesTextWrapperList > li::before {
+  content: "• ";
+}
+
+.forgotPasswordUserHelperText {
+  margin-top: 0.3em;
+}
+
+/* for phones in landscape and for small tablets */
+@media (min-width: 37.5em) {
+
+  .labelAndTextFieldsWrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0.2em;
+    /* border: 2px solid green; */
+    justify-content: center; 
+  }
+
+  .labelForTextField {
+    justify-self: end;
+    align-self: center;
+  }
+
+  .textField {
+    width: 95%;
+  }
+
+  .phoneNumberTextField {
+    width: 75%;
+    outline: none;
+    padding: 0 0.1em;
+  }
+}
+
+/* for large tablets */
+@media (min-width: 62em) {
+  .signupForm {
+    font-size: 1.4rem;
+  }
+
+  .signupFormHeader {
+    font-size: 1.6rem;
+  }
+
+  .userHelperTextsWrapper {
+    font-size: 1.4rem;    
+  }
+}
