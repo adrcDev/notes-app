@@ -42,6 +42,13 @@ public class User {
     @Column(name = "account_created_at", nullable = false,insertable = false,updatable = false)
     private OffsetDateTime accountCreatedAt;
 
+    @Column(name="phone_no",nullable = false,unique = true)
+    private String phoneNo;
+
+
+
+
+
     public enum Gender {
         MALE, FEMALE, OTHER, RATHER_NOT_SAY
     }
@@ -50,13 +57,14 @@ public class User {
     }
 
     public User(String userName, String displayName, String email, String passwordHash,
-                LocalDate dateOfBirth, Gender gender) {
+                LocalDate dateOfBirth, Gender gender,String phoneNo) {
         this.userName = userName;
         this.displayName = displayName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
+        this.phoneNo=phoneNo;
     }
 
 
@@ -93,6 +101,10 @@ public class User {
         return accountCreatedAt;
     }
 
+    public String getPhoneNo() {
+        return phoneNo;
+    }
+
     public void setUserName(String userName) {
         this.userName = userName;
     }
@@ -117,6 +129,10 @@ public class User {
         this.gender = gender;
     }
 
+    public void setPhoneNo(String phoneNo) {
+        this.phoneNo = phoneNo;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -124,10 +140,11 @@ public class User {
                 ", userName='" + userName + '\'' +
                 ", displayName='" + displayName + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + passwordHash + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
                 ", gender=" + gender +
                 ", accountCreatedAt=" + accountCreatedAt +
+                ", phoneNo='" + phoneNo + '\'' +
                 '}';
     }
 }
