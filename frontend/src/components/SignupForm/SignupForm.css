@@ -56,19 +56,19 @@
   margin-top: 0.3em;
 }
 
-.formSubmitCreateAccountButtonWrapper {
+.formSubmitContinueButtonWrapper {
   display: flex;
   justify-content: center;
 }
 
-.formSubmitCreateAccountButton {
-  background-color: var(--authPage-signupForm-formSubmitCreateAccountButton-backgroundColor);
+.formSubmitContinueButton {
+  background-color: var(--authPage-signupForm-formSubmitContinueButton-backgroundColor);
   margin-top: 0.3em;
   padding: 0.2em;
   cursor: pointer;
 }
 
-.formSubmitCreateAccountButton:active {
+.formSubmitContinueButton:active {
   transform: scale(1.1);
 }
 
@@ -106,6 +106,133 @@
   margin-top: 0.3em;
 }
 
+.otpDialog {
+  background-color: var(--authPage-signupForm-dialog-backgroundColor);
+  color: var(--authPage-signupForm-dialog-text-color);
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  padding: 0.3em;
+  padding-bottom: 0.8em;
+  font-size: 1.25rem;
+}
+
+.otpDialogHeaderText {
+  margin-left: auto;
+  margin-right: auto;
+  align-self: center;
+}
+
+.otpdialogHeaderTextAndCloseButtonWrapper {
+  display: flex;
+  justify-content: end;
+}
+
+.dialogCloseButton {
+  background-color: transparent;
+  border: none;
+  background-image: var(--authPage-signupForm-dialog-closeButton-background-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+
+
+.otpEntriesWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5em;
+  column-gap: 0.3em;
+}
+
+.otpCharEntry {
+  width: 12.5%;
+  text-align: center;
+  background-color: var(--authPage-signupForm-otpEntry-background-color);
+  color: inherit;
+  border: none;
+  border-bottom: 0.1em solid var(--authPage-signupForm-otpEntry-border-bottom-color);
+}
+
+.loginProcessingModalDialog {
+  background-color: var(--authPage-signupForm-dialog-backgroundColor);
+  padding: 0.3em;
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* To prevent scrollbar from showing up automatically */
+  overflow: hidden;
+}
+
+.loadingSpinner {
+  border: 0.5em solid var(--authPage-signupForm-loadingSpinner-border-color); 
+  border-top: 0.5em solid var(--authPage-signupForm-loadingSpinner-border-top-color); 
+  border-radius: 50%;
+  width: 5em;
+  height: 5em;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.verifyOtpAndCreateAccountButtonWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.verifyOtpAndCreateAccountButton {
+  background-color: var(--authPage-signupForm-otpDialog-verifyOtpAndCreateAccountButton-background-color);
+  cursor: pointer;
+  margin-top: 0.3em;
+}
+
+.verifyOtpAndCreateAccountButton:active {
+  transform: scale(1.1);
+}
+
+.resendBothOtpsButton {
+  color: var(--authPage-signupForm-otpDialog-resendBothOtpsButton-text-color);
+  background-color: transparent;
+  border: none;
+  margin-top: 0.1em;
+}
+
+.resendBothOtpsButton:enabled {
+  cursor: pointer;
+}
+
+.resendBothOtpsButton:enabled:active {
+  text-decoration-line:underline;
+}
+
+.resendBothOtpsButton:disabled {
+  opacity: 0.5;
+  color: inherit;
+}
+
+.emailOtpLabel {
+  margin-top: 0.5em;
+}
+
+.phoneSmsOtpLabel {
+  margin-top: 0.5em;
+}
+
+.otpTimeRemainingToExpireIndicator {
+  margin-top: 0.8em;
+}
+
+
 /* for phones in landscape and for small tablets */
 @media (min-width: 37.5em) {
 
@@ -131,7 +258,13 @@
     outline: none;
     padding: 0 0.1em;
   }
+
+  .otpDialog {
+    width: 50%;
+  }
 }
+
+
 
 /* for large tablets */
 @media (min-width: 62em) {
@@ -146,4 +279,22 @@
   .userHelperTextsWrapper {
     font-size: 1.4rem;    
   }
+
+  .otpDialog {
+    font-size: 1.4rem;
+  }
+
+  .otpCharEntry {
+     width: 9%;
+  }
+}
+
+
+/* for laptops and desktops */
+@media (min-width: 75em) {
+  .otpDialog {
+    width: 37.5%;
+  }
+
+  
 }

@@ -4,6 +4,7 @@ import * as signupFormStylesObj from "./SignupForm.css";
 import {useForm} from "react-hook-form";
 import {PhoneNumberUtil,PhoneNumber} from "google-libphonenumber";
 import { Link } from "react-router";
+import TextDialog from "./_TextDialog";
 
 export default function SignupForm() {
   let {register,handleSubmit,getValues,formState : {errors},formState,trigger}=useForm({
@@ -11,11 +12,22 @@ export default function SignupForm() {
       gender: "",
     }
   });
-  let countryCallingCodesDropDownRef=React.useRef();
 
+  let [otpDialogTimeRemainingBeforeOtpExpires,setOtpDialogTimeRemainingBeforeOtpExpires]=React.useState("5:00");
+  let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
+  let [textDialogText,setTextDialogText]=React.useState(""); 
+  let [isOtpDialogResendOtpButtonToBeDisabled,setIsOtpDialogResendOtpButtonToBeDisabled]=React.useState(true);
+  let [isOtpDialogVerifyOtpButtonToBeDisabled,setIsOtpDialogVerifyOtpButtonToBeDisabled]
+  =React.useState(false);
+
+  let countryCallingCodesDropDownRef=React.useRef();
+  let otpModalDialogRef=React.useRef();
   let [isShowPasswordCheckboxChecked,setIsShowPasswordCheckboxChecked]=React.useState(false);
   let passwordTextFieldRef=React.useRef(null);
   let confirmPasswordTextFieldRef=React.useRef(null);
+  let emailOtpInputsRef=React.useRef([]);
+  let phoneSmsOtpInputsRef=React.useRef([]);
+  let loadingModalDialogRef=React.useRef(null);
 
   let classNamesForUserNameTextField=signupFormStylesObj.textField;
   if(errors.userName!==undefined) {
@@ -62,10 +74,59 @@ export default function SignupForm() {
     typeForPasswordTextField="password";
   }
 
+  let otpDialogResendBothOtpButtonCommonPropsObj={
+    className: signupFormStylesObj.resendBothOtpsButton
+  };
+  let otpDialogResendBothOtpButton=
+    (<button {...otpDialogResendBothOtpButtonCommonPropsObj}>
+      Resend both OTP's ↺
+      </button>);
+  if(isOtpDialogResendOtpButtonToBeDisabled) {
+    otpDialogResendBothOtpButton=
+      (<button {...otpDialogResendBothOtpButtonCommonPropsObj} disabled>
+        Resend both OTP's ↺
+        </button>);
+  }
+
+  let otpDialogVerifyOtpButtonCommonPropsObj={
+    className: signupFormStylesObj.verifyOtpAndCreateAccountButton
+  };
+  let otpDialogVerifyOtpButton=
+    (
+      <button {...otpDialogVerifyOtpButtonCommonPropsObj}>Verify OTP's and create account</button>
+    );
+  if(isOtpDialogVerifyOtpButtonToBeDisabled) {
+    otpDialogVerifyOtpButton=
+      (
+        <button {...otpDialogVerifyOtpButtonCommonPropsObj} disabled>Verify OTP's and create account</button>
+      );
+  }
+    
+
+
   function handleSubmitForSignupForm(data) {
     /* note todo- .delete confirmPassword key from data object.
-    .modify data.phoneNumber to contain the string selectDropDownValue+data.phoneNumber. */
+    .modify data.phoneNumber to contain the string selectDropDownValue+data.phoneNumber.
+    .add data.displayName to contain the same value as data.username */
     console.log(data);
+
+    /*place holder code */
+    loadingModalDialogRef.current.showModal();
+    setTimeout(() => {
+      loadingModalDialogRef.current.close();
+      otpModalDialogRef.current.showModal();
+       let intervalId=setInterval(() => {
+              setOtpDialogTimeRemainingBeforeOtpExpires((prevMinutesSecondsString)=>{
+                let result=subtract1SecFromMinutesSecondsString(prevMinutesSecondsString)
+                if(result==="0:00") {
+                  clearInterval(intervalId);
+                  setIsOtpDialogResendOtpButtonToBeDisabled(false);
+                }
+              
+                return result;
+              });
+          }, 1000);
+    }, 4000);
 
   }
 
@@ -78,6 +139,175 @@ export default function SignupForm() {
       trigger("phoneNumber")
   }
 
+  function handleClickForOtpDialogCloseButton(e) {
+    let otpModalDialogDomNode=otpModalDialogRef.current;
+    otpModalDialogDomNode.close();
+  }
+
+  function handleKeyDownForEmailOtpCharEntry(e,index) {
+    let emailOtpInputsDomNodesArr=emailOtpInputsRef.current;
+    if(e.key==="ArrowLeft") {
+      if(index===0) {
+        let prevEmailOtpEntryDomNode=emailOtpInputsDomNodesArr[emailOtpInputsDomNodesArr.length-1];
+        prevEmailOtpEntryDomNode.focus();
+        let valueLengthOfPrevEmailOtpEntryDomNode=prevEmailOtpEntryDomNode.value.length;
+        setTimeout(() => {
+          prevEmailOtpEntryDomNode.setSelectionRange(valueLengthOfPrevEmailOtpEntryDomNode,valueLengthOfPrevEmailOtpEntryDomNode);  
+        }, 0);
+      }
+      else {
+        let prevEmailOtpEntryDomNode=emailOtpInputsDomNodesArr[index-1];
+        prevEmailOtpEntryDomNode.focus();
+        let valueLengthOfPrevEmailOtpEntryDomNode=prevEmailOtpEntryDomNode.value.length;
+        setTimeout(() => {
+          prevEmailOtpEntryDomNode.setSelectionRange(valueLengthOfPrevEmailOtpEntryDomNode,valueLengthOfPrevEmailOtpEntryDomNode);  
+        }, 0);
+        
+      }
+      return;
+    }
+
+    if(e.key==="ArrowRight") {
+      if(index===emailOtpInputsDomNodesArr.length-1) {
+        let nextEmailOtpEntryDomNode=emailOtpInputsDomNodesArr[0];
+        nextEmailOtpEntryDomNode.focus();
+      } 
+      else {
+          let nextEmailOtpEntryDomNode=emailOtpInputsDomNodesArr[index+1];
+        nextEmailOtpEntryDomNode.focus()
+      }
+      return;
+    }
+
+    if(e.key==="Backspace") {
+      let currentlyFocusedEmailOtpDomNode=e.target;
+      if(currentlyFocusedEmailOtpDomNode.value.length===0) {
+        let emailOtpInputsDomNodesArr=emailOtpInputsRef.current;
+        let prevEmailOtpEntryDomNode;
+        if(index===0)
+          prevEmailOtpEntryDomNode=emailOtpInputsDomNodesArr[emailOtpInputsDomNodesArr.length-1];
+        else
+          prevEmailOtpEntryDomNode=emailOtpInputsDomNodesArr[index-1];
+        setTimeout(()=>prevEmailOtpEntryDomNode.focus(),0);
+      } 
+      return;
+    }
+  }
+
+  function handleBeforeInputForEmailOtpCharEntry(e,index) {
+    let charThatIsAboutToBeInserted=e.data;
+    let regexForAllowedCharacter=/^[a-zA-Z0-9]$/;
+    let isEnteredCharacterAlphaNumeric=regexForAllowedCharacter.test(charThatIsAboutToBeInserted);
+    if(!isEnteredCharacterAlphaNumeric)
+      e.preventDefault();
+    else {
+      let emailOtpInputsDomNodesArr=emailOtpInputsRef.current;
+      let nextEmailOtpEntryDomNode;
+      if(index+1===emailOtpInputsDomNodesArr.length)
+        nextEmailOtpEntryDomNode=emailOtpInputsDomNodesArr[0];
+      else
+        nextEmailOtpEntryDomNode=emailOtpInputsDomNodesArr[index+1];
+      if(nextEmailOtpEntryDomNode.value.length===0)
+        setTimeout(()=>nextEmailOtpEntryDomNode.focus(),0);
+    }
+  }
+
+  function handlePasteForEmailOtpCharEntry(e) {
+    e.preventDefault();
+    let pastedText=e.clipboardData.getData("text").trim();
+    let regexForValidOTP=/^[a-zA-Z0-9]{6}$/;
+    let isPastedTextValidOTP=regexForValidOTP.test(pastedText);
+    if(isPastedTextValidOTP) {
+      let emailOtpInputsDomNodesArr=emailOtpInputsRef.current;
+      for(let i=0;i<emailOtpInputsDomNodesArr.length;i++) {
+        emailOtpInputsDomNodesArr[i].value=pastedText.charAt(i);
+      }
+    }
+  }
+
+  function handleKeyDownForPhoneSmsOtpCharEntry(e,index) {
+    let phoneSmsOtpInputsDomNodesArr=phoneSmsOtpInputsRef.current;
+    if(e.key==="ArrowLeft") {
+      let prevPhoneSmsOtpEntryDomNode;
+      if(index===0) {
+        prevPhoneSmsOtpEntryDomNode=phoneSmsOtpInputsDomNodesArr[phoneSmsOtpInputsDomNodesArr.length-1];
+      }
+      else {
+        prevPhoneSmsOtpEntryDomNode=phoneSmsOtpInputsDomNodesArr[index-1];
+      }
+
+      prevPhoneSmsOtpEntryDomNode.focus();
+      let valueLengthOfPrevPhoneSmsOtpEntryDomNode=prevPhoneSmsOtpEntryDomNode.value.length;
+      setTimeout(() => {
+        prevPhoneSmsOtpEntryDomNode.setSelectionRange(valueLengthOfPrevPhoneSmsOtpEntryDomNode,valueLengthOfPrevPhoneSmsOtpEntryDomNode);  
+      }, 0);
+      return;
+    }
+
+    if(e.key==="ArrowRight") {
+      if(index===phoneSmsOtpInputsDomNodesArr.length-1) {
+        let nextPhoneSmsOtpEntryDomNode=phoneSmsOtpInputsDomNodesArr[0];
+        nextPhoneSmsOtpEntryDomNode.focus();
+      } 
+      else {
+          let nextPhoneSmsOtpEntryDomNode=phoneSmsOtpInputsDomNodesArr[index+1];
+          nextPhoneSmsOtpEntryDomNode.focus()
+      }
+      return;
+    }
+
+    if(e.key==="Backspace") {
+      let currentlyFocusedPhoneSmsOtpDomNode=e.target;
+      if(currentlyFocusedPhoneSmsOtpDomNode.value.length===0) {
+        let phoneSmsOtpInputsDomNodesArr=phoneSmsOtpInputsRef.current;
+        let prevPhoneSmsOtpEntryDomNode;
+        if(index===0)
+          prevPhoneSmsOtpEntryDomNode=phoneSmsOtpInputsDomNodesArr[phoneSmsOtpInputsDomNodesArr.length-1];
+        else
+          prevPhoneSmsOtpEntryDomNode=phoneSmsOtpInputsDomNodesArr[index-1];
+        setTimeout(()=>prevPhoneSmsOtpEntryDomNode.focus(),0);
+      } 
+      return;
+    }
+  }
+
+  function handleBeforeInputForPhoneSmsOtpCharEntry(e,index) {
+    let charThatIsAboutToBeInserted=e.data;
+    let regexForAllowedCharacter=/^[a-zA-Z0-9]$/;
+    let isEnteredCharacterAlphaNumeric=regexForAllowedCharacter.test(charThatIsAboutToBeInserted);
+    if(!isEnteredCharacterAlphaNumeric)
+      e.preventDefault();
+    else {
+      let phoneSmsOtpInputsDomNodesArr=phoneSmsOtpInputsRef.current;
+      let nextPhoneSmsOtpEntryDomNode;
+      if(index+1===phoneSmsOtpInputsDomNodesArr.length)
+        nextPhoneSmsOtpEntryDomNode=phoneSmsOtpInputsDomNodesArr[0];
+      else
+        nextPhoneSmsOtpEntryDomNode=phoneSmsOtpInputsDomNodesArr[index+1];
+      if(nextPhoneSmsOtpEntryDomNode.value.length===0)
+        setTimeout(()=>nextPhoneSmsOtpEntryDomNode.focus(),0);
+    }
+  }
+
+  function handlePasteForPhoneSmsOtpCharEntry(e) {
+    e.preventDefault();
+    let pastedText=e.clipboardData.getData("text").trim();
+    let regexForValidOTP=/^[a-zA-Z0-9]{6}$/;
+    let isPastedTextValidOTP=regexForValidOTP.test(pastedText);
+    if(isPastedTextValidOTP) {
+      let phoneSmsOtpInputsDomNodesArr=phoneSmsOtpInputsRef.current;
+      for(let i=0;i<phoneSmsOtpInputsDomNodesArr.length;i++) {
+        phoneSmsOtpInputsDomNodesArr[i].value=pastedText.charAt(i);
+      }
+    }
+  }
+
+  function handleSubmitForOtpDialogForm(e) {
+    e.preventDefault();
+    
+
+  }
+  
   return (
     <>
     <form className={signupFormStylesObj.signupForm}
@@ -181,8 +411,8 @@ export default function SignupForm() {
 
       
 
-      <div className={signupFormStylesObj.formSubmitCreateAccountButtonWrapper}>
-        <button className={signupFormStylesObj.formSubmitCreateAccountButton}>Create account</button>
+      <div className={signupFormStylesObj.formSubmitContinueButtonWrapper}>
+        <button className={signupFormStylesObj.formSubmitContinueButton}>Continue</button>
       </div>
     </form>
 
@@ -219,8 +449,74 @@ export default function SignupForm() {
         </ul>
       </div>
 
-
     </div>
+
+    <dialog ref={otpModalDialogRef} className={signupFormStylesObj.otpDialog} closedby="closerequest">
+      <div className={signupFormStylesObj.otpdialogHeaderTextAndCloseButtonWrapper}>
+        <span className={signupFormStylesObj.otpDialogHeaderText}>OTP verification</span>
+        <button className={signupFormStylesObj.dialogCloseButton} onClick={handleClickForOtpDialogCloseButton}></button>
+      </div>
+      <form onSubmit={handleSubmitForOtpDialogForm}>
+        <p>This website has been created for learning purposes and does not actually send otp to your email and phone no. The valid OTP is always <strong>100000</strong>.</p>            
+        <p className={signupFormStylesObj.emailOtpLabel}>Please enter the otp received through email:</p> 
+        <div className={signupFormStylesObj.otpEntriesWrapper}>
+          {[0,1,2,3,4,5].map((index)=>
+            (
+              <input key={index} className={signupFormStylesObj.otpCharEntry} maxLength="1"
+                onKeyDown={(e)=>handleKeyDownForEmailOtpCharEntry(e,index)}
+                onBeforeInput={(e)=>handleBeforeInputForEmailOtpCharEntry(e,index)}
+                onPaste={handlePasteForEmailOtpCharEntry}
+                ref={(node)=>{
+                  let emailOtpInputsDomNodesArr=emailOtpInputsRef.current;
+                  emailOtpInputsDomNodesArr[index]=node;
+                  return ()=>{
+                    delete emailOtpInputsDomNodesArr[index];
+                  }
+                }}>
+                
+              </input>
+            ))
+          }
+        </div>
+        <p className={signupFormStylesObj.phoneSmsOtpLabel}>Please enter the otp received through phone sms:</p>
+        <div className={signupFormStylesObj.otpEntriesWrapper}>
+          {[0,1,2,3,4,5].map((index)=>
+            (
+              <input key={index} className={signupFormStylesObj.otpCharEntry} maxLength="1"
+                onKeyDown={(e)=>handleKeyDownForPhoneSmsOtpCharEntry(e,index)}
+                onBeforeInput={(e)=>handleBeforeInputForPhoneSmsOtpCharEntry(e,index)}
+                onPaste={handlePasteForPhoneSmsOtpCharEntry}
+                ref={(node)=>{
+                  let phoneSmsOtpInputsDomNodesArr=phoneSmsOtpInputsRef.current;
+                  phoneSmsOtpInputsDomNodesArr[index]=node;
+                  return ()=>{
+                    delete phoneSmsOtpInputsDomNodesArr[index];
+                  }
+                }}>
+                
+              </input>
+            ))
+          }
+        </div>
+        <div className={signupFormStylesObj.otpTimeRemainingToExpireIndicator}>
+          Both of the OTP's expire in {otpDialogTimeRemainingBeforeOtpExpires}
+        </div>
+
+        {otpDialogResendBothOtpButton}
+
+        <div className={signupFormStylesObj.verifyOtpAndCreateAccountButtonWrapper}>
+          {otpDialogVerifyOtpButton}
+        </div>
+      </form>
+    </dialog>
+
+    <dialog ref={loadingModalDialogRef}  className={signupFormStylesObj.loginProcessingModalDialog} closedby="none">
+      <div className={signupFormStylesObj.loadingSpinner}>
+      </div>
+    </dialog>
+    
+
+    {isTextDialogToBeShown && <TextDialog text={textDialogText}/>}
     </>
 
 
@@ -399,4 +695,24 @@ function getDate160yearsFromToday() {
 
 }
 
+function subtract1SecFromMinutesSecondsString(timeString) {
+  let resultMinutesPartString;
+  let resultSecondsPartString;
+  let minutesPartString=timeString.split(":")[0];
+  let secondsPartString=timeString.split(":")[1];
+  if(secondsPartString==="00") {
+    resultMinutesPartString=String(Number(minutesPartString)-1);
+    resultSecondsPartString="59";
+  }
+  else {
+    resultMinutesPartString=minutesPartString;
+    let resultSecondsPartAsNumber=Number(secondsPartString)-1;
+    if(resultSecondsPartAsNumber<10)
+      resultSecondsPartString=`0${resultSecondsPartAsNumber}`
+    else
+      resultSecondsPartString=String(resultSecondsPartAsNumber);
+  }
+
+  return `${resultMinutesPartString}:${resultSecondsPartString}`;
+}
 

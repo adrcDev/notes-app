@@ -31,9 +31,21 @@
   --authPage-signupForm-TextField-textColor: black;
   --authPage-signupForm-textField-errorState-border-color: red;
   --authPage-signupForm-showPasswordCheckbox-backgroundColor: blue;
-  --authPage-signupForm-formSubmitCreateAccountButton-backgroundColor: white;
+  --authPage-signupForm-formSubmitContinueButton-backgroundColor: white;
   --authPage-signupForm-userHelperTextLink-text-color: blue;
   --authPage-signupForm-userHelperText-rulesHeader-text-color: blue;
+  --authPage-signupForm-dialog-backgroundColor: lightblue;
+  --authPage-signupForm-dialog-text-color: black;
+  --authPage-signupForm-dialog-closeButton-background-image: url("./static/images/dialog-close-icon-light.svg");
+  --authPage-signupForm-otpEntry-background-color: lightblue;
+  --authPage-signupForm-otpEntry-border-bottom-color: black;
+  --authPage-signupForm-loadingSpinner-border-color: white;
+  --authPage-signupForm-loadingSpinner-border-top-color: black;
+  --authPage-signupForm-otpDialog-verifyOtpAndCreateAccountButton-background-color: white;
+  --authPage-signupForm-otpDialog-resendBothOtpsButton-text-color: blue;
+  
+  
+  
   
   
   
@@ -73,9 +85,20 @@
   --authPage-signupForm-TextField-textColor: black;
   --authPage-signupForm-textField-errorState-border-color: red;
   --authPage-signupForm-showPasswordCheckbox-backgroundColor: yellow;
-  --authPage-signupForm-formSubmitCreateAccountButton-backgroundColor: #E0E0E0;
+  --authPage-signupForm-formSubmitContinueButton-backgroundColor: #E0E0E0;
   --authPage-signupForm-userHelperTextLink-text-color: yellow;
   --authPage-signupForm-userHelperText-rulesHeader-text-color: yellow;
+  --authPage-signupForm-dialog-backgroundColor: rgb(53, 57, 53);
+  --authPage-signupForm-dialog-text-color: white;
+  --authPage-signupForm-dialog-closeButton-background-image:url("./static/images/dialog-close-icon-dark.svg");
+  --authPage-signupForm-otpEntry-background-color: rgb(53, 57, 53);
+  --authPage-signupForm-otpEntry-border-bottom-color: white;
+  --authPage-signupForm-loadingSpinner-border-color: #E0E0E0;
+  --authPage-signupForm-loadingSpinner-border-top-color: yellow;
+  --authPage-signupForm-otpDialog-verifyOtpAndCreateAccountButton-background-color: #E0E0E0;
+  --authPage-signupForm-otpDialog-resendBothOtpsButton-text-color: yellow;
+  
+  
   
 
   
