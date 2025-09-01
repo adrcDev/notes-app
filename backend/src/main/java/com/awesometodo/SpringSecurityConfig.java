@@ -15,7 +15,7 @@ public class SpringSecurityConfig {
     @Bean
     WebSecurityCustomizer webSecurityCustomizerBeanDef() {
         return (webSecurity) -> {
-            webSecurity.ignoring().requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/login"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/refresh"));
+            webSecurity.ignoring().requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/login"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/refresh"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/signup/init"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/signup/verify-otps"));
 
         };
     }

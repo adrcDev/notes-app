@@ -1,7 +1,6 @@
 package com.awesometodo.entity;
 
-import com.awesometodo.converter.GenderEnumToStringConverter;
-import com.awesometodo.converter.StatusEnumToStringConverter;
+import com.awesometodo.entity.converter.StatusEnumToStringConverter;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
@@ -26,7 +25,7 @@ public class JwtRefreshToken {
         VALID, INVALIDATED, COMPROMISED;
     }
 
-    @Column(name="status",nullable = false,insertable = false)
+    @Column(name="status",nullable = false)
     @Convert(converter = StatusEnumToStringConverter.class)
     private Status status;
 

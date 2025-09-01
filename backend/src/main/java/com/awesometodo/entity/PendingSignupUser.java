@@ -4,15 +4,13 @@ import com.awesometodo.entity.converter.GenderEnumToStringConverter;
 import com.awesometodo.entity.enums.Gender;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.Type;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name="pending_signup_users")
+public class PendingSignupUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -24,11 +22,11 @@ public class User {
     @Column(name = "display_name", nullable = false)
     private String displayName;
 
-     @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    @Column(name="phone_no",nullable = false,unique = true)
+    private String phoneNo;
 
     @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
@@ -37,27 +35,22 @@ public class User {
     @Convert(converter = GenderEnumToStringConverter.class)
     private Gender gender;
 
-    @Column(name = "account_created_at", nullable = false,insertable = false,updatable = false)
-    private OffsetDateTime accountCreatedAt;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    @Column(name="phone_no",nullable = false,unique = true)
-    private String phoneNo;
+    public PendingSignupUser() {
 
-    public User() {
     }
 
-    public User(String userName, String displayName, String email, String passwordHash,
-                LocalDate dateOfBirth, Gender gender,String phoneNo) {
+    public PendingSignupUser(String userName, String displayName, String email, String phoneNo, LocalDate dateOfBirth, Gender gender, String passwordHash) {
         this.userName = userName;
         this.displayName = displayName;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.phoneNo = phoneNo;
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
-        this.phoneNo=phoneNo;
+        this.passwordHash = passwordHash;
     }
-
-
 
     public int getId() {
         return id;
@@ -75,8 +68,8 @@ public class User {
         return email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPhoneNo() {
+        return phoneNo;
     }
 
     public LocalDate getDateOfBirth() {
@@ -87,12 +80,8 @@ public class User {
         return gender;
     }
 
-    public OffsetDateTime getAccountCreatedAt() {
-        return accountCreatedAt;
-    }
-
-    public String getPhoneNo() {
-        return phoneNo;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public void setUserName(String userName) {
@@ -107,8 +96,8 @@ public class User {
         this.email = email;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPhoneNo(String phoneNo) {
+        this.phoneNo = phoneNo;
     }
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
@@ -119,22 +108,21 @@ public class User {
         this.gender = gender;
     }
 
-    public void setPhoneNo(String phoneNo) {
-        this.phoneNo = phoneNo;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     @Override
     public String toString() {
-        return "User{" +
+        return "PendingSignupUser{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", displayName='" + displayName + '\'' +
                 ", email='" + email + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
+                ", phoneNo='" + phoneNo + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
                 ", gender=" + gender +
-                ", accountCreatedAt=" + accountCreatedAt +
-                ", phoneNo='" + phoneNo + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
                 '}';
     }
 }
