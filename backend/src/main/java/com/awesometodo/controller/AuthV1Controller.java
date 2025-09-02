@@ -5,6 +5,7 @@ import com.awesometodo.dto.LoginDataDTO;
 import com.awesometodo.dto.SignupDataDTO;
 import com.awesometodo.entity.User;
 import com.awesometodo.exception.InvalidCredentialsException;
+import com.awesometodo.exception.PendingSignupUserWithSameDetailsAlreadyExistsException;
 import com.awesometodo.exception.UserWithSameDetailsAlreadyExistsException;
 import com.awesometodo.service.JwtService;
 import com.awesometodo.service.UserService;
@@ -71,14 +72,15 @@ public class AuthV1Controller {
 
     }
 
-    @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class})
+    @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class})
     public void signupInitExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
     }
 
 
+
     @ExceptionHandler({MethodArgumentNotValidException.class,HttpMessageNotReadableException.class})
-    public void handleValidationAndInvalidRequestExceptions(HttpServletResponse response) {
+    public void handleValidationAndInvalidRequestExceptions(HttpServletResponse response,Exception e) {
         response.setStatus(401);
     }
 

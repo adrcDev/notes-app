@@ -52,7 +52,8 @@ public class UserRepository {
         String email=userIdentityDTO.getEmail();
         String phoneNo=userIdentityDTO.getPhoneNo();
 
-        List<User> users=em.createNativeQuery("SELECT * FROM users WHERE user_name=:username OR email=:email OR phone_no=:phoneNo",User.class).getResultList();
+        List<User> users=em.createNativeQuery("SELECT * FROM users WHERE user_name=:username OR email=:email OR phone_no=:phoneNo",User.class).setParameter("username",username).setParameter("email",email).setParameter("phoneNo",phoneNo)
+                .getResultList();
 
         if(users.isEmpty())
             return false;

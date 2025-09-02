@@ -4,6 +4,7 @@ import com.awesometodo.validation.constraint.DateOfBirth;
 import com.awesometodo.validation.constraint.Gender;
 import com.awesometodo.validation.constraint.Password;
 import com.awesometodo.validation.constraint.PhoneNumberE164;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 

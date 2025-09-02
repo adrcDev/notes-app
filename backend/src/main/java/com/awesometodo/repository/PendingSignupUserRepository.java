@@ -25,12 +25,23 @@ public class PendingSignupUserRepository {
         return pendingSignupUsers;
     }
 
-    @Transactional
     public PendingSignupUser insertAndReturn(PendingSignupUser pendingSignupUser) {
         em.persist(pendingSignupUser);
         em.refresh(pendingSignupUser);
         return pendingSignupUser;
     }
+
+
+    public void delete(PendingSignupUser user) {
+        em.remove(user);
+        em.flush();
+    }
+
+
+
+
+
+
 
 
 

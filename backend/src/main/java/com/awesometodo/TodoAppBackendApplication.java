@@ -4,6 +4,7 @@ import com.awesometodo.entity.PendingSignupUser;
 import com.awesometodo.entity.User;
 import com.awesometodo.entity.enums.Gender;
 import com.awesometodo.repository.PendingSignupUserRepository;
+import com.awesometodo.repository.SignupOtpRepository;
 import com.awesometodo.repository.UserRepository;
 import com.awesometodo.service.JwtService;
 import com.awesometodo.util.EnumUtil;
@@ -33,6 +34,13 @@ public class TodoAppBackendApplication {
 		UserRepository userRepository=springIOCContainer.getBean(UserRepository.class);
 		JwtService jwtService=springIOCContainer.getBean(JwtService.class);
 		PendingSignupUserRepository pendingSignupUserRepository=springIOCContainer.getBean(PendingSignupUserRepository.class);
+		SignupOtpRepository signupOtpRepository=springIOCContainer.getBean(SignupOtpRepository.class);
+
+
+
+
+
+
 
 
 
