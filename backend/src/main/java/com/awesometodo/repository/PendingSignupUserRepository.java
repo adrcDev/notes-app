@@ -21,7 +21,7 @@ public class PendingSignupUserRepository {
         String username=userIdentityDTO.getUsername();
         String email=userIdentityDTO.getEmail();
         String phoneNo=userIdentityDTO.getPhoneNo();
-        List<PendingSignupUser> pendingSignupUsers=em.createNativeQuery("SELECT * FROM pending_signup_users WHERE user_name=:username OR email=:email OR phone_no=:phoneNo", PendingSignupUser.class).setParameter("username",username).setParameter("email",email).setParameter("phoneNo",phoneNo).getResultList();
+        List<PendingSignupUser> pendingSignupUsers=em.createNativeQuery("SELECT * FROM pending_signup_users WHERE user_name=:username OR email=:email OR phone_no=:phoneNo ORDER BY id", PendingSignupUser.class).setParameter("username",username).setParameter("email",email).setParameter("phoneNo",phoneNo).getResultList();
         return pendingSignupUsers;
     }
 
@@ -36,6 +36,8 @@ public class PendingSignupUserRepository {
         em.remove(user);
         em.flush();
     }
+
+
 
 
 

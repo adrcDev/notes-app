@@ -15,6 +15,8 @@ import com.awesometodo.repository.PendingSignupUserRepository;
 import com.awesometodo.repository.SignupOtpRepository;
 import com.awesometodo.repository.UserRepository;
 import com.awesometodo.util.EnumUtil;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,22 +63,23 @@ public class UserService {
             optional=userRepository.findByUserName(userName);
         }
 
-        if(optional.isPresent()) {
-            User userAccount=optional.get();
-            if(isReceivedPasswordCorrectForUserAccount(userAccount,password)) {
-                int userId=userAccount.getId();
-                String jwtAccessToken=jwtService.generateJwtAccessToken(userId);
-                String jwtRefreshToken=jwtService.generateJwtRefreshToken(userId);
-                jwtRefreshTokenService.storeJwtRefreshToken(jwtRefreshToken);
-                return new JwtAuthTokensDTO(jwtAccessToken,jwtRefreshToken);
-            }
-            else {
-                throw new InvalidCredentialsException(exceptionMessage);
-            }
+        boolean isUserAccountExists=optional.isPresent();
+        if(!isUserAccountExists)
+            throw new InvalidCredentialsException(exceptionMessage);
+
+
+        User userAccount=optional.get();
+        if(isReceivedPasswordCorrectForUserAccount(userAccount,password)) {
+            int userId=userAccount.getId();
+            String jwtAccessToken=jwtService.generateJwtAccessToken(userId);
+            String jwtRefreshToken=jwtService.generateJwtRefreshToken(userId);
+            jwtRefreshTokenService.storeJwtRefreshToken(jwtRefreshToken);
+            return new JwtAuthTokensDTO(jwtAccessToken,jwtRefreshToken);
         }
         else {
             throw new InvalidCredentialsException(exceptionMessage);
         }
+
 
     }
 
@@ -103,8 +106,13 @@ public class UserService {
         boolean isNoPendingSignUserPresentWithSameDetails=pendingSignupUsers.isEmpty();
 
         if(isNoPendingSignUserPresentWithSameDetails) {
-            PendingSignupUser createdPendingSignupUser=
-                    createAndReturnPendingSignupUser(signupDataDTO);
+            PendingSignupUser createdPendingSignupUser;
+            try {
+                createdPendingSignupUser =
+                        createAndReturnPendingSignupUser(signupDataDTO);
+            } catch(DataIntegrityViolationException e) {
+                throw new PendingSignupUserWithSameDetailsAlreadyExistsException();
+            }
             createSignupOtpsForCreatedPendingSignupUser(createdPendingSignupUser);
             return;
         }
@@ -113,7 +121,11 @@ public class UserService {
             throw new PendingSignupUserWithSameDetailsAlreadyExistsException();
         }
 
-        deletePendingSignupUsersWhoseOtpsWereExpired(pendingSignupUsers);
+        try {
+            deletePendingSignupUsersWhoseOtpsWereExpired(pendingSignupUsers);
+        } catch (InvalidDataAccessApiUsageException e) {
+            throw new PendingSignupUserWithSameDetailsAlreadyExistsException();
+        }
         PendingSignupUser createdPendingSignupUser=
                 createAndReturnPendingSignupUser(signupDataDTO);
         createSignupOtpsForCreatedPendingSignupUser(createdPendingSignupUser);
