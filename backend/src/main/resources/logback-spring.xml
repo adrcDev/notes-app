@@ -3,7 +3,7 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <pattern>${CONSOLE_LOG_PATTERN}%n</pattern>
             <charset>${CONSOLE_LOG_CHARSET}</charset>
         </encoder>
     </appender>
@@ -11,7 +11,7 @@
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>application.log</file>
         <encoder>
-            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <pattern>${FILE_LOG_PATTERN}%n</pattern>
             <charset>${FILE_LOG_CHARSET}</charset>
         </encoder>
     </appender>

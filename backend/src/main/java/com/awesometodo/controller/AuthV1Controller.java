@@ -73,7 +73,9 @@ public class AuthV1Controller {
 
     @PostMapping("/auth/v1/signup/init")
     public void signupInit(@RequestBody @Valid SignupDataDTO signupDataDTO) {
+        logger.debug("/auth/v1/signup/init endpoint started running");
         userService.signupInitialization(signupDataDTO);
+        logger.debug("/auth/v1/signup/init endpoint finished running");
     }
 
     @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class})
