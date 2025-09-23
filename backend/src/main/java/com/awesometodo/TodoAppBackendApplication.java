@@ -1,5 +1,7 @@
 package com.awesometodo;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.util.StatusPrinter;
 import com.awesometodo.entity.PendingSignupUser;
 import com.awesometodo.entity.User;
 import com.awesometodo.entity.enums.Gender;
@@ -10,6 +12,7 @@ import com.awesometodo.service.JwtService;
 import com.awesometodo.util.EnumUtil;
 import io.jsonwebtoken.Jwts;
 import jakarta.persistence.EntityManager;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -30,7 +33,14 @@ public class TodoAppBackendApplication {
 		sa.setLogStartupInfo(false);
 		sa.setBannerMode(Banner.Mode.OFF);
 		ConfigurableApplicationContext springIOCContainer=sa.run(args);
-//		ConfigurableApplicationContext springIOCContainer=SpringApplication.run(TodoAppBackendApplication.class, args);
+		/*	ConfigurableApplicationContext springIOCContainer=SpringApplication.run(TodoAppBackendApplication.class, args);
+ 		*/
+		/* Print details about logback's state in order see
+		whether logback configured itself properly
+		*/
+//		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+//		StatusPrinter.print(lc);
+
 		UserRepository userRepository=springIOCContainer.getBean(UserRepository.class);
 		JwtService jwtService=springIOCContainer.getBean(JwtService.class);
 		PendingSignupUserRepository pendingSignupUserRepository=springIOCContainer.getBean(PendingSignupUserRepository.class);

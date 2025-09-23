@@ -15,6 +15,8 @@ import com.awesometodo.repository.PendingSignupUserRepository;
 import com.awesometodo.repository.SignupOtpRepository;
 import com.awesometodo.repository.UserRepository;
 import com.awesometodo.util.EnumUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
@@ -28,6 +30,7 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+    private final static Logger logger= LoggerFactory.getLogger(UserService.class);
     private UserRepository userRepository;
     private PendingSignupUserRepository pendingSignupUserRepository;
     private SignupOtpRepository signupOtpRepository;
@@ -54,29 +57,50 @@ public class UserService {
         String exceptionMessage="Invalid username or password!";
         boolean isEmail=userNameOrEmail.contains("@");
         Optional<User> optional;
+        String email="";
+        String userName="";
         if(isEmail) {
-            String email=userNameOrEmail;
+            email=userNameOrEmail;
+            logger.debug("Login is being attempted by email {}",email);
             optional=userRepository.findByEmail(email);
         }
         else {
-            String userName=userNameOrEmail;
+            userName=userNameOrEmail;
+            logger.debug("Login is being attempted by username {}",userName);
             optional=userRepository.findByUserName(userName);
         }
 
         boolean isUserAccountExists=optional.isPresent();
-        if(!isUserAccountExists)
+        if(!isUserAccountExists) {
+            String logMessage="Login attempt was unsuccessful as the received {}:{} could not be found in the database";
+            if(isEmail) {
+                logger.warn(logMessage,"email",email);
+            }
+            else {
+                logger.warn(logMessage,"username",userName);
+            }
             throw new InvalidCredentialsException(exceptionMessage);
+        }
 
 
         User userAccount=optional.get();
+        logger.debug("A user account with id:{}, username:{} and email:{} was found in the database",userAccount.getId(),userAccount.getUserName(),userAccount.getEmail());
+
         if(isReceivedPasswordCorrectForUserAccount(userAccount,password)) {
             int userId=userAccount.getId();
             String jwtAccessToken=jwtService.generateJwtAccessToken(userId);
+            logger.debug("jwt access token generated for user with id:{}, username:{} and email: {}",userId,userAccount.getUserName(),userAccount.getEmail());
+
             String jwtRefreshToken=jwtService.generateJwtRefreshToken(userId);
+            logger.debug("jwt refresh token generated for user with id:{}, username:{} and email: {}",userId,userAccount.getUserName(),userAccount.getEmail());
+
             jwtRefreshTokenService.storeJwtRefreshToken(jwtRefreshToken);
+            logger.debug("jwt refresh token was stored in database for user with id:{}, username:{} and email: {}",userId,userAccount.getUserName(),userAccount.getEmail());
+            logger.info("Login attempt was successful for user account with id:{}, username:{} and email:{} as the received password matched the stored password in the database",userAccount.getId(),userAccount.getUserName(),userAccount.getEmail());
             return new JwtAuthTokensDTO(jwtAccessToken,jwtRefreshToken);
         }
         else {
+            logger.warn("Login failed for user account with id:{}, username:{} and email:{} as the received password did not match the stored password in the database",userAccount.getId(),userAccount.getUserName(),userAccount.getEmail());
             throw new InvalidCredentialsException(exceptionMessage);
         }
 

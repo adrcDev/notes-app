@@ -14,6 +14,8 @@ import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,6 +28,7 @@ import java.util.Map;
 /* Only added for development */
 @CrossOrigin(allowCredentials = "true",origins ={"http://localhost:8081"})
 public class AuthV1Controller {
+    private static final Logger logger= LoggerFactory.getLogger(AuthV1Controller.class);
     private static final String JWT_REFRESH_TOKEN_COOKIE_NAME="jwt_refresh_token";
 
     UserService userService;
@@ -38,14 +41,17 @@ public class AuthV1Controller {
 
     @PostMapping("/auth/v1/login")
     public Map<String,String> login(@RequestBody @Valid LoginDataDTO loginDataDTO,HttpServletResponse response) {
-//        System.out.println("login endpoint ran");
+        logger.debug("/auth/v1/login endpoint started running");
         JwtAuthTokensDTO jwtAuthTokensDTO=userService.login(loginDataDTO);
         String jwtRefreshToken=jwtAuthTokensDTO.getJwtRefreshToken();
         addJwtRefreshTokenAsCookie(response,jwtRefreshToken);
+        logger.debug("jwt refresh token was added as a cookie in the http response message");
 
         HashMap<String,String> responseBodyMessage=new HashMap<>();
         String jwtAccessToken=jwtAuthTokensDTO.getJwtAccessToken();
         responseBodyMessage.put("jwt access token",jwtAccessToken);
+        logger.debug("jwt access token was added as json in the http response message's body");
+        logger.debug("/auth/v1/login endpoint finished running");
         return responseBodyMessage;
     }
 
@@ -67,9 +73,7 @@ public class AuthV1Controller {
 
     @PostMapping("/auth/v1/signup/init")
     public void signupInit(@RequestBody @Valid SignupDataDTO signupDataDTO) {
-        System.out.println(" signup init endpoint ran");
         userService.signupInitialization(signupDataDTO);
-
     }
 
     @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class})
@@ -79,9 +83,17 @@ public class AuthV1Controller {
 
 
 
-    @ExceptionHandler({MethodArgumentNotValidException.class,HttpMessageNotReadableException.class})
-    public void handleValidationAndInvalidRequestExceptions(HttpServletResponse response,Exception e) {
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public void handleMethodArguemntNotValidException(HttpServletResponse response,MethodArgumentNotValidException e) {
         response.setStatus(401);
+        logger.warn("The request message body's json which was deserialized to a java object was not considered valid by hibernate validator, so a MethodArgumentNotValidException was thrown by spring framework. The exception's message:-\n{}",e.getMessage());
+
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class})
+    public void handleValidationAndInvalidRequestExceptions(HttpServletResponse response,HttpMessageNotReadableException e) {
+        response.setStatus(401);
+        logger.warn("The request message's body could not be deserialized to the expected java object. The exception's message:-\n{} ",e.getMessage());
     }
 
 

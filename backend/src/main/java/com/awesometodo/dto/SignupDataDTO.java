@@ -10,27 +10,29 @@ import jakarta.validation.constraints.Pattern;
 
 public class SignupDataDTO {
     @NotBlank
-    @Pattern(regexp = "^(?![a-zA-Z0-9._-]+[._-]{2})[a-zA-Z0-9][a-zA-Z0-9._-]{1,28}[a-zA-Z0-9]$")
+    @Pattern(regexp = "^(?![a-zA-Z0-9._-]+[._-]{2})[a-zA-Z0-9][a-zA-Z0-9._-]{1,28}[a-zA-Z0-9]$",
+            message = "The received username did not match the required pattern")
     private String userName;
 
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+            message ="The received email did not match the required pattern" )
     private String email;
 
     @NotBlank
-    @Password
+    @Password(message = "The received password did not match the required pattern")
     private String password;
 
     @NotBlank
-    @DateOfBirth
+    @DateOfBirth(message="The received date of birth is not valid")
     private String dateOfBirth;
 
     @NotBlank
-    @Gender
+    @Gender(message="The received gender is not one of the expected values")
     private String gender;
 
     @NotBlank
-    @PhoneNumberE164
+    @PhoneNumberE164(message="The received phone number is not in a valid format")
     private String phoneNumber;
 
     public String getUserName() {
