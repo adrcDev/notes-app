@@ -43,38 +43,54 @@ public class UserSignupService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void signupVerifyOtps(SignupOtpVerificationDataDTO signupOtpVerificationDataDTO) {
         String usernameLC=signupOtpVerificationDataDTO.getUsername().toLowerCase();
+        logger.debug("Signup otp's verification process initiated with received username:{}, phone number otp and email otp",usernameLC);
+        logger.debug("Trying to find a pending sign user with the received username:{}",usernameLC);
         Optional<Integer> optional=pendingSignupUserRepository.findIdByUsername(usernameLC);
         boolean isPendingSignupUserDoesntExist=optional.isEmpty();
         if(isPendingSignupUserDoesntExist) {
+            logger.warn("No pending signup user exists who has the received username:{}",usernameLC);
             throw new PendingSignupUserDoesntExistException("No pending signup up user exists who has the received username");
         }
 
+        logger.debug("A pending signup user exists with received username:{}",usernameLC);
         int pendingSignupUserId=optional.get();
         boolean isOtpsForPendingSignupUserExpired=signupOtpRepository.isOtpsForPendingSignupUserIdExpired(pendingSignupUserId).get();
         if(isOtpsForPendingSignupUserExpired) {
+            logger.warn("The generated and stored signup phone number and email otp's for the received username:{} have already expired",usernameLC);
             throw new SignupOtpsExpiredException("Both the phone number and email otp's for the pending sign up user have expired");
         }
 
+        logger.debug("The generated and stored signup phone number and email otp's for the received username:{} are still active and not expired",usernameLC);
         String phoneNumberOtp=signupOtpRepository.findPhoneNumberOtpByPendingSignupUserId(pendingSignupUserId).get();
         String emailOtp=signupOtpRepository.findEmailOtpByPendingSignupUserId(pendingSignupUserId).get();
         String receivedPhoneNoOtp=signupOtpVerificationDataDTO.getPhoneNumberOtp();
         String receivedEmailOtp=signupOtpVerificationDataDTO.getEmailOtp();
         boolean isReceivedPhoneNoOtpCorrect=receivedPhoneNoOtp.equals(phoneNumberOtp);
         if(!isReceivedPhoneNoOtpCorrect) {
+            logger.warn("The received phone number signup otp for the received username:{} does not match the generated and stored phone number signup otp",usernameLC);
             throw new OtpMismatchException("received phone number otp did not match expected otp value");
         }
+
+        logger.debug("The received phone number signup otp for the received username:{} matches the generated and stored phone number signup otp",usernameLC);
         boolean isReceivedEmailOtpCorrect=receivedEmailOtp.equals(emailOtp);
         if(!isReceivedEmailOtpCorrect) {
+            logger.warn("The received email signup otp for the received username:{} does not match the generated and stored email signup otp",usernameLC);
             throw new OtpMismatchException("received email otp did not match expected otp value");
         }
 
+        logger.debug("The received email signup otp for the received username:{} matches the generated and stored email signup otp",usernameLC);
         PendingSignupUser pendingSignupUser=pendingSignupUserRepository.findById(pendingSignupUserId).get();
         try {
+            logger.debug("Trying to create a user account for the pending signup user with username:{}",usernameLC);
             createUserFromPendingSignupUser(pendingSignupUser);
+            logger.info("User account successfully created for pending signup user with username:{},email:{}",usernameLC,pendingSignupUser.getEmail());
         } catch(DataIntegrityViolationException e) {
+            logger.warn("User account creation for pending signup with username:{},email:{} failed due to concurrent insertion",usernameLC,pendingSignupUser.getEmail());
             throw new UserWithSameDetailsAlreadyExistsException();
         }
+        logger.debug("Trying to delete pending signup user with username:{},email:{} as corresponding user account has been created",usernameLC,pendingSignupUser.getEmail());
         pendingSignupUserRepository.delete(pendingSignupUser);
+        logger.info("Deleted pending signup user with username:{},email:{} as corresponding user account has been created",usernameLC,pendingSignupUser.getEmail());
 
     }
 
