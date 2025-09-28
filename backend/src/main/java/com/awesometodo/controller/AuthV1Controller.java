@@ -3,17 +3,18 @@ package com.awesometodo.controller;
 import com.awesometodo.dto.JwtAuthTokensDTO;
 import com.awesometodo.dto.LoginDataDTO;
 import com.awesometodo.dto.SignupDataDTO;
+import com.awesometodo.dto.SignupOtpVerificationDataDTO;
 import com.awesometodo.entity.User;
-import com.awesometodo.exception.InvalidCredentialsException;
-import com.awesometodo.exception.PendingSignupUserWithSameDetailsAlreadyExistsException;
-import com.awesometodo.exception.UserWithSameDetailsAlreadyExistsException;
+import com.awesometodo.exception.*;
 import com.awesometodo.service.JwtService;
 import com.awesometodo.service.UserService;
+import com.awesometodo.service.UserSignupService;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.hibernate.boot.model.internal.CreateKeySecondPass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +34,12 @@ public class AuthV1Controller {
 
     UserService userService;
     JwtService jwtService;
+    UserSignupService userSignupService;
 
-    public AuthV1Controller(UserService userService,JwtService jwtService) {
+    public AuthV1Controller(UserService userService,JwtService jwtService,UserSignupService userSignupService) {
         this.userService=userService;
         this.jwtService=jwtService;
+        this.userSignupService=userSignupService;
     }
 
     @PostMapping("/auth/v1/login")
@@ -80,6 +83,19 @@ public class AuthV1Controller {
 
     @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class})
     public void signupInitExceptionHandler(HttpServletResponse response) {
+        response.setStatus(401);
+    }
+
+    @PostMapping("/auth/v1/signup/verify-otps")
+    public void signupVerifyOtps(@RequestBody @Valid SignupOtpVerificationDataDTO signupOtpVerificationDataDTO) {
+        logger.debug("/auth/v1/signup/verify-otps endpoint started running");
+        userSignupService.signupVerifyOtps(signupOtpVerificationDataDTO);
+        logger.debug("/auth/v1/signup/verify-otps endpoint finished running");
+
+    }
+
+    @ExceptionHandler({PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, OtpMismatchException.class})
+    public void signupVerifyOtpsExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
     }
 

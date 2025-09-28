@@ -4,10 +4,12 @@ import com.awesometodo.dto.UserIdentityDTO;
 import com.awesometodo.entity.PendingSignupUser;
 import com.awesometodo.util.EnumUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class PendingSignupUserRepository {
@@ -35,6 +37,22 @@ public class PendingSignupUserRepository {
     public void delete(PendingSignupUser user) {
         em.remove(user);
         em.flush();
+    }
+
+    public Optional<Integer> findIdByUsername(String username) {
+        try {
+            Integer id=(Integer) em.createNativeQuery("SELECT id FROM pending_signup_users WHERE user_name=:username", Integer.class).setParameter("username", username).getSingleResult();
+            return Optional.of(id);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<PendingSignupUser> findById(int id) {
+        PendingSignupUser pendingSignupUser=em.find(PendingSignupUser.class,id);
+        if(pendingSignupUser==null)
+            return Optional.empty();
+        return Optional.of(pendingSignupUser);
     }
 
 

@@ -1,9 +1,6 @@
 package com.awesometodo.service;
 
-import com.awesometodo.dto.JwtAuthTokensDTO;
-import com.awesometodo.dto.LoginDataDTO;
-import com.awesometodo.dto.SignupDataDTO;
-import com.awesometodo.dto.UserIdentityDTO;
+import com.awesometodo.dto.*;
 import com.awesometodo.entity.PendingSignupUser;
 import com.awesometodo.entity.SignupOtp;
 import com.awesometodo.entity.User;
@@ -217,5 +214,7 @@ public class UserService {
             pendingSignupUserRepository.delete(pendingSignupUser);
         }
     }
+
+
 
 }

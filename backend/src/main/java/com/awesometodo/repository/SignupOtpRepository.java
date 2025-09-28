@@ -30,4 +30,23 @@ public class SignupOtpRepository {
             return Optional.empty();
         }
     }
+
+    public Optional<String> findPhoneNumberOtpByPendingSignupUserId(int pendingSignupUserId) {
+        try {
+            String phoneNumberOtp =(String)em.createNativeQuery("SELECT otp FROM signup_otps WHERE pending_signup_user_id=:pendingSignupUserId AND type='phone'", String.class).setParameter("pendingSignupUserId", pendingSignupUserId).getSingleResult();
+            return Optional.of(phoneNumberOtp);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<String> findEmailOtpByPendingSignupUserId(int pendingSignupUserId) {
+        try {
+            String emailOtp =(String)em.createNativeQuery("SELECT otp FROM signup_otps WHERE pending_signup_user_id=:pendingSignupUserId AND type='email'", String.class).setParameter("pendingSignupUserId", pendingSignupUserId).getSingleResult();
+            return Optional.of(emailOtp);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
 }

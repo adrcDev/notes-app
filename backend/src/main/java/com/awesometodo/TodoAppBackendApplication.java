@@ -12,6 +12,7 @@ import com.awesometodo.service.JwtService;
 import com.awesometodo.util.EnumUtil;
 import io.jsonwebtoken.Jwts;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
@@ -19,13 +20,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 @SpringBootApplication
+/* This is required by spring-retry library */
+@EnableRetry
 public class TodoAppBackendApplication {
+	private static Logger logger=LoggerFactory.getLogger(TodoAppBackendApplication.class);
 
 
 	public static void main(String[] args) {
@@ -35,6 +40,7 @@ public class TodoAppBackendApplication {
 		ConfigurableApplicationContext springIOCContainer=sa.run(args);
 		/*	ConfigurableApplicationContext springIOCContainer=SpringApplication.run(TodoAppBackendApplication.class, args);
  		*/
+
 		/* Print details about logback's state in order see
 		whether logback configured itself properly
 		*/
@@ -45,10 +51,6 @@ public class TodoAppBackendApplication {
 		JwtService jwtService=springIOCContainer.getBean(JwtService.class);
 		PendingSignupUserRepository pendingSignupUserRepository=springIOCContainer.getBean(PendingSignupUserRepository.class);
 		SignupOtpRepository signupOtpRepository=springIOCContainer.getBean(SignupOtpRepository.class);
-
-
-
-
 
 
 

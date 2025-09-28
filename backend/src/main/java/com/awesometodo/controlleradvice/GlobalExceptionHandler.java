@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({Exception.class})
     Map<String,String> globalExceptionHandler(HttpServletResponse response, Exception e) {
-        logger.error("Unexpected unhandled exception was thrown",e);
+        logger.error("Unexpected unhandled exception was thrown:-",e);
         response.setStatus(500);
         HashMap<String,String> responseMessage=new HashMap<>();
         responseMessage.put("status","500");
