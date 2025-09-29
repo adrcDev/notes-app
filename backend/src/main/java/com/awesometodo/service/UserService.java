@@ -129,6 +129,17 @@ public class UserService {
         }
 
         logger.debug("No currently present user account in the database uses the received username:{} or email:{} or phone number, so the signup process continues",receivedUserNameLC,receivedEmailLC);
+        logger.debug("Trying to find a pending signup user who exactly matches all the received details: username: {}, email: {},----",receivedUserNameLC,receivedEmailLC);
+        Optional<PendingSignupUser> optional=findExactMatchingPendingSignupUser(signupDataDTO);
+        boolean isExactMatchingPendingSignupUserExists=optional.isPresent();
+        if(isExactMatchingPendingSignupUserExists) {
+            PendingSignupUser exactMatchingPendingSignupUser=optional.get();
+            handleExactMatchingPendingSignupUser(exactMatchingPendingSignupUser);
+            logger.info("New phone number and email signup otps were generated and stored for already existing exactly matching pending signup user with username:{} and email:{}",exactMatchingPendingSignupUser.getUserName(),exactMatchingPendingSignupUser.getEmail());
+            return;
+        }
+
+        logger.debug("Couldn't find a pending signup user who exactly matches all the received details: username:{}, email:{},----",receivedUserNameLC,receivedEmailLC);
         logger.debug("Checking if any pending sign up user already exists in database who have same username or email or phone number as the received username:{}, email:{} and phone number",receivedUserNameLC,receivedEmailLC);
         List<PendingSignupUser> pendingSignupUsers=pendingSignupUserRepository.findByUsernameOrEmailOrPhoneNo(new UserIdentityDTO(receivedUserNameLC,receivedEmailLC,receivedPhoneNo));
 
@@ -213,6 +224,33 @@ public class UserService {
         for(PendingSignupUser pendingSignupUser : pendingSignupUsers) {
             pendingSignupUserRepository.delete(pendingSignupUser);
         }
+    }
+
+    private Optional<PendingSignupUser> findExactMatchingPendingSignupUser(SignupDataDTO signupDataDTO) {
+        Optional<PendingSignupUser> optional=pendingSignupUserRepository.findBySignUpDataExcludingDisplayName(signupDataDTO);
+        if(optional.isEmpty())
+            return Optional.empty();
+
+        PendingSignupUser pendingSignupUser=optional.get();
+        String receivedPassword=signupDataDTO.getPassword();
+        String unicodeNormalizedPassword= Normalizer.normalize(receivedPassword, Normalizer.Form.NFC);
+        boolean isPendingSignupUserWithExactMatchingDetailsExists=argon2IdPasswordEncoder.matches(unicodeNormalizedPassword,pendingSignupUser.getPasswordHash());
+        if(isPendingSignupUserWithExactMatchingDetailsExists)
+            return Optional.of(pendingSignupUser);
+
+        return Optional.empty();
+    }
+
+    private void handleExactMatchingPendingSignupUser(PendingSignupUser exactMatchingPendingSignupUser) {
+        logger.debug("Found a exactly matching pending signup user with username:{} and email:{}",exactMatchingPendingSignupUser.getUserName(),exactMatchingPendingSignupUser.getEmail());
+        String newPhoneNoOtp=otpService.sendOtpToPhoneNo(exactMatchingPendingSignupUser.getPhoneNo());
+        logger.debug("New phone number signup otp was sent to exactly matching pending signup user with username:{} and email:{}",exactMatchingPendingSignupUser.getUserName(),exactMatchingPendingSignupUser.getEmail());
+        String newEmailOtp=otpService.sendOtpToEmail(exactMatchingPendingSignupUser.getEmail());
+        logger.debug("New email signup otp was sent to exactly matching pending signup user with username:{} and email:{}",exactMatchingPendingSignupUser.getUserName(),exactMatchingPendingSignupUser.getEmail());
+        signupOtpRepository.updatePhoneNumberOtpByPendingSignupUserId(newPhoneNoOtp,exactMatchingPendingSignupUser.getId());
+        logger.debug("Phone number signup otp was replaced with a new one and expiry was refreshed for exactly matching pending signup user with username:{} and email:{}",exactMatchingPendingSignupUser.getUserName(),exactMatchingPendingSignupUser.getEmail());
+        signupOtpRepository.updateEmailOtpByPendingSignupUserId(newEmailOtp,exactMatchingPendingSignupUser.getId());
+        logger.debug("Email signup otp was replaced with a new one and expiry was refreshed for exactly matching pending signup user with username:{} and email:{}",exactMatchingPendingSignupUser.getUserName(),exactMatchingPendingSignupUser.getEmail());
     }
 
 

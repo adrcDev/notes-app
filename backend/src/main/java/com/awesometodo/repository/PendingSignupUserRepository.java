@@ -70,6 +70,19 @@ public class PendingSignupUserRepository {
         }
     }
 
+    public Optional<PendingSignupUser> findBySignUpDataExcludingDisplayName(SignupDataDTO signupDataDTO) {
+        String usernameLC=signupDataDTO.getUserName().toLowerCase();
+        String emailLC=signupDataDTO.getEmail().toLowerCase();
+        LocalDate dateOfBirthAsLocalDate=LocalDate.parse(signupDataDTO.getDateOfBirth());
+        try {
+            PendingSignupUser pendingSignupUser =
+                    (PendingSignupUser) em.createNativeQuery("SELECT * FROM pending_signup_users WHERE user_name=:username AND email=:email AND phone_no=:phoneNo AND date_of_birth=:dateOfBirth AND gender=:gender", PendingSignupUser.class).setParameter("username", usernameLC).setParameter("email", emailLC).setParameter("phoneNo", signupDataDTO.getPhoneNumber()).setParameter("dateOfBirth", dateOfBirthAsLocalDate).setParameter("gender", signupDataDTO.getGender()).getSingleResult();
+            return Optional.of(pendingSignupUser);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
 
 
 
