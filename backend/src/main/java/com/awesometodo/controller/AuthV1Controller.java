@@ -81,21 +81,22 @@ public class AuthV1Controller {
         logger.debug("/auth/v1/signup/init endpoint finished running");
     }
 
-    @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class})
-    public void signupInitExceptionHandler(HttpServletResponse response) {
-        response.setStatus(401);
-    }
-
     @PostMapping("/auth/v1/signup/verify-otps")
     public void signupVerifyOtps(@RequestBody @Valid SignupOtpVerificationDataDTO signupOtpVerificationDataDTO) {
         logger.debug("/auth/v1/signup/verify-otps endpoint started running");
         userSignupService.signupVerifyOtps(signupOtpVerificationDataDTO);
         logger.debug("/auth/v1/signup/verify-otps endpoint finished running");
-
     }
 
-    @ExceptionHandler({PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, OtpMismatchException.class})
-    public void signupVerifyOtpsExceptionHandler(HttpServletResponse response) {
+    @PostMapping("/auth/v1/signup/resend-otps")
+    public void signupResendOtps(@RequestBody @Valid SignupDataDTO signupDataDTO) {
+        logger.debug("/auth/v1/signup/resend-otps endpoint started running");
+        userSignupService.signupResendOtps(signupDataDTO);
+        logger.debug("/auth/v1/signup/resend-otps endpoint finished running");
+    }
+
+    @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class,PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, OtpMismatchException.class,SignupOtpsNotExpiredException.class})
+    public void signupExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
     }
 

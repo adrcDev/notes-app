@@ -49,4 +49,20 @@ public class SignupOtpRepository {
         }
     }
 
+    public int updatePhoneNumberOtpByPendingSignupUserId(String newPhoneNumberOtp,int pendingSignupUserId) {
+        int noOfRowsUpdated=em.createNativeQuery("UPDATE signup_otps SET otp=:newPhoneNumberOtp,expires_at=CURRENT_TIMESTAMP + INTERVAL '5 minutes' WHERE type='phone' AND pending_signup_user_id=:pendingSignupUserId")
+                .setParameter("newPhoneNumberOtp",newPhoneNumberOtp)
+                .setParameter("pendingSignupUserId",pendingSignupUserId)
+                .executeUpdate();
+        return noOfRowsUpdated;
+    }
+
+    public int updateEmailOtpByPendingSignupUserId(String newEmailOtp,int pendingSignupUserId) {
+        int noOfRowsUpdated=em.createNativeQuery("UPDATE signup_otps SET otp=:newEmailOtp,expires_at=CURRENT_TIMESTAMP + INTERVAL '5 minutes' WHERE type='email' AND pending_signup_user_id=:pendingSignupUserId")
+                .setParameter("newEmailOtp",newEmailOtp)
+                .setParameter("pendingSignupUserId",pendingSignupUserId)
+                .executeUpdate();
+        return noOfRowsUpdated;
+    }
+
 }
