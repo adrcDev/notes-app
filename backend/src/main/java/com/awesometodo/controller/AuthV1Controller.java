@@ -4,20 +4,15 @@ import com.awesometodo.dto.JwtAuthTokensDTO;
 import com.awesometodo.dto.LoginDataDTO;
 import com.awesometodo.dto.SignupDataDTO;
 import com.awesometodo.dto.SignupOtpVerificationDataDTO;
-import com.awesometodo.entity.User;
 import com.awesometodo.exception.*;
 import com.awesometodo.service.JwtService;
-import com.awesometodo.service.UserService;
+import com.awesometodo.service.UserLoginService;
 import com.awesometodo.service.UserSignupService;
-import io.jsonwebtoken.Jwt;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.hibernate.boot.model.internal.CreateKeySecondPass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +27,12 @@ public class AuthV1Controller {
     private static final Logger logger= LoggerFactory.getLogger(AuthV1Controller.class);
     private static final String JWT_REFRESH_TOKEN_COOKIE_NAME="jwt_refresh_token";
 
-    UserService userService;
+    UserLoginService userLoginService;
     JwtService jwtService;
     UserSignupService userSignupService;
 
-    public AuthV1Controller(UserService userService,JwtService jwtService,UserSignupService userSignupService) {
-        this.userService=userService;
+    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService) {
+        this.userLoginService = userLoginService;
         this.jwtService=jwtService;
         this.userSignupService=userSignupService;
     }
@@ -45,7 +40,7 @@ public class AuthV1Controller {
     @PostMapping("/auth/v1/login")
     public Map<String,String> login(@RequestBody @Valid LoginDataDTO loginDataDTO,HttpServletResponse response) {
         logger.debug("/auth/v1/login endpoint started running");
-        JwtAuthTokensDTO jwtAuthTokensDTO=userService.login(loginDataDTO);
+        JwtAuthTokensDTO jwtAuthTokensDTO= userLoginService.login(loginDataDTO);
         String jwtRefreshToken=jwtAuthTokensDTO.getJwtRefreshToken();
         addJwtRefreshTokenAsCookie(response,jwtRefreshToken);
         logger.debug("jwt refresh token was added as a cookie in the http response message");
@@ -77,7 +72,7 @@ public class AuthV1Controller {
     @PostMapping("/auth/v1/signup/init")
     public void signupInit(@RequestBody @Valid SignupDataDTO signupDataDTO) {
         logger.debug("/auth/v1/signup/init endpoint started running");
-        userService.signupInitialization(signupDataDTO);
+        userSignupService.signupInitialization(signupDataDTO);
         logger.debug("/auth/v1/signup/init endpoint finished running");
     }
 
