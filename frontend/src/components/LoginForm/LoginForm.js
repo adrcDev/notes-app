@@ -55,7 +55,7 @@ export default function LoginForm() {
 
     dataObj.userNameOrEmail=dataObj.userNameOrEmail.trim();
     dataObj.password=dataObj.password.trim();
-    console.log(dataObj);
+    // console.log(dataObj);
     let jsonToSend=JSON.stringify(dataObj);
     /* Send login request to rest api and if the username/email and password is valid then send the user to the todo page and also get the jwt access token and store it. If the credentials are invalid then show the invalid login dialog to the user. In both of these cases the login processing dialog should be closed */
     fetch("http://localhost:8080/auth/v1/login",{
@@ -68,7 +68,7 @@ export default function LoginForm() {
       credentials: "include" //only added for development
     })
     .then((response)=>{
-      console.log("response received from server");
+      // console.log("response received from server");
       if(!response.ok) {
         loginProcessingModalDialogDomNode.close();
         invalidLoginDialogRef.current.show();
@@ -76,7 +76,7 @@ export default function LoginForm() {
       }
       return response.json();
     },(err)=>{
-        console.log(`error sending request message, error: ${err}`);
+        // console.log(`error sending request message, error: ${err}`);
         loginProcessingModalDialogDomNode.close();
         networkOrServerErrorDialogRef.current.show();
     })

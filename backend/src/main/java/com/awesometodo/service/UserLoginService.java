@@ -40,13 +40,13 @@ public class UserLoginService {
         String userName="";
         if(isEmail) {
             email=userNameOrEmail;
-            logger.debug("Login is being attempted by email {}",email);
+            logger.debug("Login is being attempted by email:{}",email);
             logger.debug("Trying to find an existing user account with email:{}",email);
             optional=userRepository.findByEmail(email);
         }
         else {
             userName=userNameOrEmail;
-            logger.debug("Login is being attempted by username {}",userName);
+            logger.debug("Login is being attempted by username:{}",userName);
             logger.debug("Trying to find an existing user account with userName:{}",userName);
             optional=userRepository.findByUserName(userName);
         }

@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import * as signupFormStylesObj from "./SignupForm.css";
 import {useForm} from "react-hook-form";
 import {PhoneNumberUtil,PhoneNumber} from "google-libphonenumber";
-import { Link } from "react-router";
+import { data, Link } from "react-router";
 import TextDialog from "./_TextDialog";
 import TextModalDialog from "./_TextModalDialog";
 
@@ -22,10 +22,11 @@ export default function SignupForm() {
   let [isOtpDialogResendOtpButtonToBeDisabled,setIsOtpDialogResendOtpButtonToBeDisabled]=React.useState(true);
   let [isOtpDialogVerifyOtpButtonToBeDisabled,setIsOtpDialogVerifyOtpButtonToBeDisabled]
   =React.useState(false);
+  let [isShowPasswordCheckboxChecked,setIsShowPasswordCheckboxChecked]=React.useState(false);
 
   let countryCallingCodesDropDownRef=React.useRef();
   let otpModalDialogRef=React.useRef();
-  let [isShowPasswordCheckboxChecked,setIsShowPasswordCheckboxChecked]=React.useState(false);
+  let intervalIdForOtpModalDialogTimerRef=React.useRef(null);
   let passwordTextFieldRef=React.useRef(null);
   let confirmPasswordTextFieldRef=React.useRef(null);
   let emailOtpInputsRef=React.useRef([]);
@@ -151,7 +152,7 @@ export default function SignupForm() {
                 return result;
               });
           }, 1000);
-
+          intervalIdForOtpModalDialogTimerRef.current=intervalId;
       }
 
       
@@ -208,6 +209,7 @@ export default function SignupForm() {
                 return result;
               });
           }, 1000);
+          intervalIdForOtpModalDialogTimerRef.current=intervalId;
       }
 
     },(err)=>{
@@ -221,7 +223,68 @@ export default function SignupForm() {
 
   function handleSubmitForOtpDialogForm(e) {
     e.preventDefault();
-    
+    let emptyEmailOtpCharInput=findEmptyOtpCharInput(emailOtpInputsRef);
+    let isAnEmailOtpCharInputEmpty=emptyEmailOtpCharInput!==null;
+    if(isAnEmailOtpCharInputEmpty) {
+      emptyEmailOtpCharInput.focus();
+      return;
+    }
+
+    let emptyPhoneSmsOtpCharInput=findEmptyOtpCharInput(phoneSmsOtpInputsRef);
+    let isAnPhoneSmsOtpCharInputEmpty=emptyPhoneSmsOtpCharInput!==null;
+    if(isAnPhoneSmsOtpCharInputEmpty) {
+      emptyPhoneSmsOtpCharInput.focus();
+      return;
+    }
+
+    loadingModalDialogRef.current.showModal();
+    let otpVerificationDataObj={
+      username: getValues("userName"),
+      phoneNumberOtp: getOtpStringFromOtpCharInputsRef(phoneSmsOtpInputsRef),
+      emailOtp: getOtpStringFromOtpCharInputsRef(emailOtpInputsRef)
+    };
+
+    let otpVerificationDataJson=JSON.stringify(otpVerificationDataObj);
+    fetch("http://localhost:8080/auth/v1/signup/verify-otps",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body:otpVerificationDataJson
+    })
+    .then((response)=>{
+      loadingModalDialogRef.current.close();
+      if(response.status===500) {
+        otpModalDialogRef.current.close();
+        setTextDialogText("500: Internal server error!");
+        setIsTextDialogToBeShown(true);
+        return;
+      }
+
+      if(response.status===401) {
+        setTextModalDialogText("One or both of the OTP's are invalid");
+        setIsTextModalDialogToBeShown(true);
+        return;
+      }
+
+      if(response.ok) {
+        otpModalDialogRef.current.close();
+        let accountCreationSuccessMessageJsxObj=
+          (<>
+            User account successfully created. You can now login with this account. <Link className={signupFormStylesObj.loginPageLinkText} to="../login">Click here to go to the login page.</Link>
+          </>);
+        setTextDialogText(accountCreationSuccessMessageJsxObj);
+        setIsTextDialogToBeShown(true);
+      }
+
+    },(err)=>{
+      // console.log("fetch promise rejected callback ran");
+      loadingModalDialogRef.current.close();
+      otpModalDialogRef.current.close();
+      setTextDialogText("Network error: Please check your network connection");
+      setIsTextDialogToBeShown(true);
+    })
+
 
   }
 
@@ -397,6 +460,16 @@ export default function SignupForm() {
     }
   }
 
+  function handleCloseForOtpModalDialog(e) {
+    let intervalIdForOtpModalDialogTimer=intervalIdForOtpModalDialogTimerRef.current;
+    clearInterval(intervalIdForOtpModalDialogTimer);
+    setOtpDialogTimeRemainingBeforeOtpExpires("5:00");
+    clearOtpCharInputs(emailOtpInputsRef);
+    clearOtpCharInputs(phoneSmsOtpInputsRef);
+    setIsOtpDialogResendOtpButtonToBeDisabled(true);
+    setIsOtpDialogVerifyOtpButtonToBeDisabled(false);
+  }
+
   
 
   
@@ -544,7 +617,7 @@ export default function SignupForm() {
 
     </div>
 
-    <dialog ref={otpModalDialogRef} className={signupFormStylesObj.otpDialog} closedby="closerequest">
+    <dialog ref={otpModalDialogRef} className={signupFormStylesObj.otpDialog} closedby="closerequest" onClose={handleCloseForOtpModalDialog}>
       <div className={signupFormStylesObj.otpdialogHeaderTextAndCloseButtonWrapper}>
         <span className={signupFormStylesObj.otpDialogHeaderText}>OTP verification</span>
         <button className={signupFormStylesObj.dialogCloseButton} onClick={handleClickForOtpDialogCloseButton}></button>
@@ -811,3 +884,29 @@ function subtract1SecFromMinutesSecondsString(timeString) {
   return `${resultMinutesPartString}:${resultSecondsPartString}`;
 }
 
+function findEmptyOtpCharInput(otpCharInputsRef) {
+  let otpCharInputsDomNodesArr=otpCharInputsRef.current;
+  for(let otpCharInputDomNode of otpCharInputsDomNodesArr) {
+    if(otpCharInputDomNode.value==="")
+      return otpCharInputDomNode;
+  }
+
+  return null;
+}
+
+function getOtpStringFromOtpCharInputsRef(otpCharInputsRef) {
+  let otpString="";
+  let otpCharInputsDomNodesArr=otpCharInputsRef.current;
+  for(let otpCharInputDomNode of otpCharInputsDomNodesArr) {
+    let otpCharacter=otpCharInputDomNode.value;
+    otpString=`${otpString}${otpCharacter}`;
+  }
+  return otpString;
+}
+
+function clearOtpCharInputs(otpCharInputsRef) {
+  let otpCharInputsDomNodesArr=otpCharInputsRef.current;
+  for(let otpCharInputDomNode of otpCharInputsDomNodesArr) {
+    otpCharInputDomNode.value="";
+  }
+}

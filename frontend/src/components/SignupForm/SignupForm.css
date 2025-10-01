@@ -232,6 +232,10 @@
   margin-top: 0.8em;
 }
 
+.loginPageLinkText {
+  color: var(--authPage-signupForm-userHelperTextLink-text-color);
+}
+
 
 /* for phones in landscape and for small tablets */
 @media (min-width: 37.5em) {
