@@ -104,29 +104,77 @@ export default function SignupForm() {
     
 
 
-  function handleSubmitForSignupForm(data) {
-    /* note todo- .delete confirmPassword key from data object.
-    .modify data.phoneNumber to contain the string selectDropDownValue+data.phoneNumber.
-    .add data.displayName to contain the same value as data.username */
-    console.log(data);
-
-    /*place holder code */
+  function handleSubmitForSignupForm(signupData) {
     loadingModalDialogRef.current.showModal();
-    setTimeout(() => {
+    delete signupData["confirmPassword"];
+    signupData.phoneNumber=`${countryCallingCodesDropDownRef.current.value}${signupData.phoneNumber}`;
+    // console.log(signupData);
+    let signupDataJson=JSON.stringify(signupData);
+    // console.log(signupDataJson);
+    fetch("http://localhost:8080/auth/v1/signup/init",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: signupDataJson,
+    })
+    .then((response)=>{
       loadingModalDialogRef.current.close();
-      otpModalDialogRef.current.showModal();
-       let intervalId=setInterval(() => {
+      if(response.status===500) {
+        setTextDialogText("500: Internal server error!");
+        setIsTextDialogToBeShown(true);
+        return;
+      }
+
+      if(response.status===401) {
+        setTextDialogText("An user account with the provided details already exists.");
+        setIsTextDialogToBeShown(true);
+        return;
+      }
+
+      if(response.ok) {
+        otpModalDialogRef.current.showModal();
+        let intervalId=setInterval(() => {
               setOtpDialogTimeRemainingBeforeOtpExpires((prevMinutesSecondsString)=>{
                 let result=subtract1SecFromMinutesSecondsString(prevMinutesSecondsString)
                 if(result==="0:00") {
                   clearInterval(intervalId);
                   setIsOtpDialogResendOtpButtonToBeDisabled(false);
-                }
-              
+                  setIsOtpDialogVerifyOtpButtonToBeDisabled(true);
+                }   
                 return result;
               });
           }, 1000);
-    }, 4000);
+
+      }
+
+      
+    },(err) =>{
+      // console.log("fetch promise rejected callback ran");
+      loadingModalDialogRef.current.close();
+      setTextDialogText("Network error: Please check your network connection");
+      setIsTextDialogToBeShown(true);
+    });
+
+
+
+    /*place holder code */
+    // loadingModalDialogRef.current.showModal();
+    // setTimeout(() => {
+    //   loadingModalDialogRef.current.close();
+    //   otpModalDialogRef.current.showModal();
+    //    let intervalId=setInterval(() => {
+    //           setOtpDialogTimeRemainingBeforeOtpExpires((prevMinutesSecondsString)=>{
+    //             let result=subtract1SecFromMinutesSecondsString(prevMinutesSecondsString)
+    //             if(result==="0:00") {
+    //               clearInterval(intervalId);
+    //               setIsOtpDialogResendOtpButtonToBeDisabled(false);
+    //             }
+              
+    //             return result;
+    //           });
+    //       }, 1000);
+    // }, 4000);
 
   }
 
@@ -301,6 +349,8 @@ export default function SignupForm() {
       }
     }
   }
+
+  
 
   function handleSubmitForOtpDialogForm(e) {
     e.preventDefault();
@@ -516,7 +566,7 @@ export default function SignupForm() {
     </dialog>
     
 
-    {isTextDialogToBeShown && <TextDialog text={textDialogText}/>}
+    {isTextDialogToBeShown && <TextDialog text={textDialogText} parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}/>}
     </>
 
 
