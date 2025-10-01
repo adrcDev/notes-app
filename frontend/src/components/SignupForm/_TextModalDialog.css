@@ -1,0 +1,53 @@
+
+.dialogCloseButtonWrapper {
+  display: flex;
+  justify-content: end;
+}
+
+.dialogCloseButton {
+  background-color: transparent;
+  border: none;
+  background-image: var(--authPage-signupForm-dialog-closeButton-background-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 1.5em;
+  height: 1.5em;    
+}
+
+.dialogText {
+  margin-top: 0.2em;
+}
+
+.textModalDialog {
+  background-color: var(--authPage-signupForm-dialog-backgroundColor);
+  color: var(--authPage-signupForm-dialog-text-color);
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  padding: 0.3em;
+  font-size: 1.25rem;
+}
+
+/* for phones in landscape and for small tablets */
+@media (min-width: 37.5em) {
+  .textModalDialog {
+    width: 50%;
+  }
+}
+
+/* for large tablets */
+@media (min-width: 62em) {
+  .textModalDialog {
+    font-size: 1.4rem;
+  }
+}
+
+/* for laptops and desktops */
+@media (min-width: 75em) {
+  .textModalDialog {
+    width: 37.5%;
+  }
+}

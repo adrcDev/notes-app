@@ -227,7 +227,7 @@ public class UserSignupService {
             if(isSignupOtpsExpired) {
                 logger.debug("Signup otp's for exactly matching pending signup user with username:{} and email{} have expired",receivedUsernameLC,receivedEmailLC);
                 updateSignupOtpsForPendingSignupUser(pendingSignupUser);
-                logger.info("Signup otp's were replaced with new ones and the expiry was also reset for the exactly matching pending sign up user with username:{} and email{}",receivedUsernameLC,receivedEmailLC);
+                logger.info("Signup otp's were replaced with new ones and the expiry was also reset for the exactly matching pending sign up user with username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
                 return;
             }
             logger.warn("Signup otp's are not expired for the exactly matching pending signup user with username:{} and email{} and thus new signup otps are not generated,sent and stored as the current signup otp's are still active",receivedUsernameLC,receivedEmailLC);

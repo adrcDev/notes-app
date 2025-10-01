@@ -5,6 +5,7 @@ import {useForm} from "react-hook-form";
 import {PhoneNumberUtil,PhoneNumber} from "google-libphonenumber";
 import { Link } from "react-router";
 import TextDialog from "./_TextDialog";
+import TextModalDialog from "./_TextModalDialog";
 
 export default function SignupForm() {
   let {register,handleSubmit,getValues,formState : {errors},formState,trigger}=useForm({
@@ -16,6 +17,8 @@ export default function SignupForm() {
   let [otpDialogTimeRemainingBeforeOtpExpires,setOtpDialogTimeRemainingBeforeOtpExpires]=React.useState("5:00");
   let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
   let [textDialogText,setTextDialogText]=React.useState(""); 
+  let [isTextModalDialogToBeShown,setIsTextModalDialogToBeShown]=React.useState(false);
+  let [textModalDialogText,setTextModalDialogText]=React.useState(""); 
   let [isOtpDialogResendOtpButtonToBeDisabled,setIsOtpDialogResendOtpButtonToBeDisabled]=React.useState(true);
   let [isOtpDialogVerifyOtpButtonToBeDisabled,setIsOtpDialogVerifyOtpButtonToBeDisabled]
   =React.useState(false);
@@ -28,6 +31,7 @@ export default function SignupForm() {
   let emailOtpInputsRef=React.useRef([]);
   let phoneSmsOtpInputsRef=React.useRef([]);
   let loadingModalDialogRef=React.useRef(null);
+  let signupDataJsonRef=React.useRef(null);
 
   let classNamesForUserNameTextField=signupFormStylesObj.textField;
   if(errors.userName!==undefined) {
@@ -78,7 +82,7 @@ export default function SignupForm() {
     className: signupFormStylesObj.resendBothOtpsButton
   };
   let otpDialogResendBothOtpButton=
-    (<button {...otpDialogResendBothOtpButtonCommonPropsObj}>
+    (<button {...otpDialogResendBothOtpButtonCommonPropsObj} onClick={handleClickForOtpDialogResendBothOtpButtons}>
       Resend both OTP's ↺
       </button>);
   if(isOtpDialogResendOtpButtonToBeDisabled) {
@@ -111,6 +115,8 @@ export default function SignupForm() {
     // console.log(signupData);
     let signupDataJson=JSON.stringify(signupData);
     // console.log(signupDataJson);
+    /* Storing sign up data json in a ref to later use in click handler of 'resend both otps' button of the otp verification modal dialog */
+    signupDataJsonRef.current=signupDataJson;
     fetch("http://localhost:8080/auth/v1/signup/init",{
       method: "POST",
       headers: {
@@ -156,25 +162,66 @@ export default function SignupForm() {
       setIsTextDialogToBeShown(true);
     });
 
+  }
 
+  function handleClickForOtpDialogResendBothOtpButtons(e) {
+    loadingModalDialogRef.current.showModal();
+    let signupDataJson=signupDataJsonRef.current;
+    // console.log(signupDataJson);
+    fetch("http://localhost:8080/auth/v1/signup/resend-otps",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: signupDataJson
+    })
+    .then((response)=>{
+      loadingModalDialogRef.current.close();
+      if(response.status===500) {
+        otpModalDialogRef.current.close();
+        setTextDialogText("500: Internal server error!");
+        setIsTextDialogToBeShown(true);
+        return;
+      }
 
-    /*place holder code */
-    // loadingModalDialogRef.current.showModal();
-    // setTimeout(() => {
-    //   loadingModalDialogRef.current.close();
-    //   otpModalDialogRef.current.showModal();
-    //    let intervalId=setInterval(() => {
-    //           setOtpDialogTimeRemainingBeforeOtpExpires((prevMinutesSecondsString)=>{
-    //             let result=subtract1SecFromMinutesSecondsString(prevMinutesSecondsString)
-    //             if(result==="0:00") {
-    //               clearInterval(intervalId);
-    //               setIsOtpDialogResendOtpButtonToBeDisabled(false);
-    //             }
-              
-    //             return result;
-    //           });
-    //       }, 1000);
-    // }, 4000);
+      if(response.status===401) {
+        otpModalDialogRef.current.close();
+        setTextDialogText("An user account with the provided details already exists.");
+        setIsTextDialogToBeShown(true);
+        return;
+      }
+
+      if(response.ok) {
+        setTextModalDialogText("Separate new OTP's have been sent to the entered phone number and email respectively.");
+        setIsTextModalDialogToBeShown(true);
+        setIsOtpDialogResendOtpButtonToBeDisabled(true);
+        setIsOtpDialogVerifyOtpButtonToBeDisabled(false);
+        setOtpDialogTimeRemainingBeforeOtpExpires("5:00");
+        let intervalId=setInterval(() => {
+              setOtpDialogTimeRemainingBeforeOtpExpires((prevMinutesSecondsString)=>{
+                let result=subtract1SecFromMinutesSecondsString(prevMinutesSecondsString)
+                if(result==="0:00") {
+                  clearInterval(intervalId);
+                  setIsOtpDialogResendOtpButtonToBeDisabled(false);
+                  setIsOtpDialogVerifyOtpButtonToBeDisabled(true);
+                }   
+                return result;
+              });
+          }, 1000);
+      }
+
+    },(err)=>{
+      // console.log("fetch promise rejected callback ran");
+      loadingModalDialogRef.current.close();
+      otpModalDialogRef.current.close();
+      setTextDialogText("Network error: Please check your network connection");
+      setIsTextDialogToBeShown(true);
+    });
+  }
+
+  function handleSubmitForOtpDialogForm(e) {
+    e.preventDefault();
+    
 
   }
 
@@ -352,11 +399,7 @@ export default function SignupForm() {
 
   
 
-  function handleSubmitForOtpDialogForm(e) {
-    e.preventDefault();
-    
-
-  }
+  
   
   return (
     <>
@@ -567,6 +610,8 @@ export default function SignupForm() {
     
 
     {isTextDialogToBeShown && <TextDialog text={textDialogText} parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}/>}
+
+    {isTextModalDialogToBeShown && <TextModalDialog text={textModalDialogText} parent_setIsTextModalDialogToBeShown={setIsTextModalDialogToBeShown}/>}
     </>
 
 
