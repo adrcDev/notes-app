@@ -43,6 +43,28 @@
   --authPage-signupForm-loadingSpinner-border-top-color: black;
   --authPage-signupForm-otpDialog-verifyOtpAndCreateAccountButton-background-color: white;
   --authPage-signupForm-otpDialog-resendBothOtpsButton-text-color: blue;
+
+  /* CSS variables for forgot password form(ForgotPasswordForm.js) inside authentication page(AuthPage.js) */
+  --authPage-forgotPasswordForm-backgroundColor: lightblue;
+  --authPage-forgotPasswordForm-textColor: black;
+  --authPage-forgotPasswordForm-textField-backgroundColor: white;
+  --authPage-forgotPasswordForm-TextField-textColor: black;
+  --authPage-forgotPasswordForm-textField-errorState-border-color: red;
+--authPage-forgotPasswordForm-formSubmitContinueButton-backgroundColor: white;
+--authPage-forgotPasswordForm-dialog-closeButton-background-image: url("./static/images/dialog-close-icon-light.svg");--authPage-forgotPasswordForm-dialog-backgroundColor: lightblue;
+--authPage-forgotPasswordForm-dialog-text-color: black;
+--authPage-forgotPassswordForm-otpEntry-background-color: lightblue;
+--authPage-forgotPasswordForm-otpEntry-border-bottom-color: black;
+--authPage-forgotPasswordForm-otpDialog-verifyOtpAndCreateAccountButton-background-color: white;
+--authPage-forgotPasswordForm-otpDialog-resendBothOtpsButton-text-color: blue;
+--authPage-forgotPasswordForm-loadingSpinner-border-color: white;
+--authPage-forgotPasswordForm-loadingSpinner-border-top-color: black;
+--authPage-forgotPasswordForm-showPasswordCheckbox-backgroundColor: blue ;
+--authPage-forgotPasswordForm-formSubmitResetPasswordButton-backgroundColor: white;
+--authPage-forgotPasswordForm-userHelperText-rulesHeader-text-color: blue;
+--authPage-forgotPasswordForm-userHelperTextLink-text-color: blue;
+
+
   
   
   
@@ -97,7 +119,30 @@
   --authPage-signupForm-loadingSpinner-border-top-color: yellow;
   --authPage-signupForm-otpDialog-verifyOtpAndCreateAccountButton-background-color: #E0E0E0;
   --authPage-signupForm-otpDialog-resendBothOtpsButton-text-color: yellow;
+
+  /* CSS variables for forgot password form(ForgotPasswordForm.js) inside authentication page(AuthPage.js) */
+  --authPage-forgotPasswordForm-backgroundColor: rgb(53, 57, 53);
+  --authPage-forgotPasswordForm-textColor: white;
+  --authPage-forgotPasswordForm-textField-backgroundColor: #E0E0E0;
+  --authPage-forgotPasswordForm-TextField-textColor: black;
+  --authPage-forgotPasswordForm-textField-errorState-border-color: red;
+  --authPage-forgotPasswordForm-formSubmitContinueButton-backgroundColor: #E0E0E0;
+  --authPage-forgotPasswordForm-dialog-closeButton-background-image: url("./static/images/dialog-close-icon-dark.svg");
+  --authPage-forgotPasswordForm-dialog-backgroundColor: rgb(53, 57, 53);
+  --authPage-forgotPasswordForm-dialog-text-color: white;
+  --authPage-forgotPassswordForm-otpEntry-background-color: rgb(53, 57, 53);
+  --authPage-forgotPasswordForm-otpEntry-border-bottom-color: white;
+  --authPage-forgotPasswordForm-otpDialog-verifyOtpAndCreateAccountButton-background-color: #E0E0E0;
+  --authPage-forgotPasswordForm-otpDialog-resendBothOtpsButton-text-color: yellow;
+  --authPage-forgotPasswordForm-loadingSpinner-border-color: #E0E0E0;
+  --authPage-forgotPasswordForm-loadingSpinner-border-top-color: yellow;
+  --authPage-forgotPasswordForm-showPasswordCheckbox-backgroundColor: yellow;
+  --authPage-forgotPasswordForm-formSubmitResetPasswordButton-backgroundColor: #E0E0E0;
+  --authPage-forgotPasswordForm-userHelperText-rulesHeader-text-color: yellow;
+  --authPage-forgotPasswordForm-userHelperTextLink-text-color: yellow;
   
+
+
   
   
 

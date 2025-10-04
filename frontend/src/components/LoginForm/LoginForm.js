@@ -21,7 +21,7 @@ export default function LoginForm() {
   });
   
   let classNamesForUserNameOrEmailTextField=loginFormStylesObj.textField;
-  if(errors.userNameOrEmailTextField!==undefined) {
+  if(errors.userNameOrEmail!==undefined) {
     classNamesForUserNameOrEmailTextField=`${classNamesForUserNameOrEmailTextField} ${loginFormStylesObj.errorStateForTextField}`
   }
 
@@ -33,7 +33,7 @@ export default function LoginForm() {
   }
 
   let classNamesForPasswordTextField=loginFormStylesObj.textField;
-  if(errors.passwordTextField!==undefined) {
+  if(errors.password!==undefined) {
     classNamesForPasswordTextField=`${classNamesForPasswordTextField} ${loginFormStylesObj.errorStateForTextField}`
   }
 
@@ -150,7 +150,7 @@ export default function LoginForm() {
           <Link to="../signup"className={loginFormStylesObj.signUpUserHelperLink}>click here to sign up for an account.</Link>
         </p>
         <p className={loginFormStylesObj.forgotPasswordUserHelperText}>If you have&nbsp;  
-          <Link className={loginFormStylesObj.forgotPasswordHelperLink}>forgotten your password then click here.</Link>
+          <Link to="../forgot-password" className={loginFormStylesObj.forgotPasswordHelperLink}>forgotten your password then click here.</Link>
         </p>
       </div>
       
@@ -189,7 +189,7 @@ export default function LoginForm() {
 let userNameOrEmailTextFieldValidationRules={
   required: {
     value: true,
-    message: "Please enter a user name or email"
+    message: "Please enter an user name or email"
   },
   validate: validateUserNameOrEmailTextField
 };

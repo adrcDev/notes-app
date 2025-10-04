@@ -1,0 +1,25 @@
+.loginProcessingModalDialog {
+  background-color: var(--authPage-forgotPasswordForm-dialog-backgroundColor);
+  padding: 0.3em;
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* To prevent scrollbar from showing up automatically */
+  overflow: hidden;
+}
+
+.loadingSpinner {
+  border: 0.5em solid var(--authPage-forgotPasswordForm-loadingSpinner-border-color); 
+  border-top: 0.5em solid var(--authPage-forgotPasswordForm-loadingSpinner-border-top-color); 
+  border-radius: 50%;
+  width: 5em;
+  height: 5em;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

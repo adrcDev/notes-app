@@ -587,7 +587,7 @@ export default function SignupForm() {
         <Link to="../login" className={signupFormStylesObj.loginUserHelperLink}>click here to login</Link>
       </p>
       <p className={signupFormStylesObj.forgotPasswordUserHelperText}>If you already have an account but&nbsp; 
-        <Link className={signupFormStylesObj.forgotPasswordHelperLink}>forgotten your password then click here</Link>
+        <Link to="../forgot-password" className={signupFormStylesObj.forgotPasswordHelperLink}>forgotten your password then click here</Link>
       </p>
       
       <div className={signupFormStylesObj.rulesHeaderAndTextWrapper}>

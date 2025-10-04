@@ -11,6 +11,7 @@ import LoginForm from "./components/LoginForm/LoginForm.js";
 import { ThemeProvider } from "./contexts/ThemeContext.js";
 import { JwtAccessTokenProvider } from "./contexts/JwtAcessTokenContext.js";
 import SignupForm from "./components/SignupForm/SignupForm.js";
+import ForgotPasswordForm from "./components/ForgotPasswordForm/ForgotPasswordForm.js";
 
 let router=createBrowserRouter([
   {
@@ -29,6 +30,10 @@ let router=createBrowserRouter([
       {
         path: "signup",
         element: <SignupForm />
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPasswordForm/>
       }
     ] 
   },

@@ -14,37 +14,8 @@ export function validateUserNameOrEmailTextField(value) {
     }
   }
   else {
-    let inputIsValidUserName=isValidUserName(trimmedValue);
-    if(inputIsValidUserName) {
-      return true;
-    }
-    else {
-      let errorMessage="Invalid username!";
-      return errorMessage;
-    }
+    return true;
   }
-}
-
-function isValidUserName(trimmedValue) {
-  let userNameRegex=/^[a-zA-Z0-9][a-zA-Z0-9._-]{1,28}[a-zA-Z0-9]$/;
-  let regexCheckResult=userNameRegex.test(trimmedValue);
-  
-  if(!regexCheckResult)
-    return false;
-
-  if(isStringContainsConsecutiveSpecialChar(trimmedValue))
-    return false;
-  else
-    return true;
-}
-
- function isStringContainsConsecutiveSpecialChar(trimmedValue) {
-  if(trimmedValue.includes("..") || trimmedValue.includes("__") || trimmedValue.includes("--") || trimmedValue.includes("._") || trimmedValue.includes(".-") || trimmedValue.includes("_-") ||
-  trimmedValue.includes("_.") || trimmedValue.includes("-_") ||
-  trimmedValue.includes("-."))
-    return true;
-  else
-    return false;
 }
 
 
