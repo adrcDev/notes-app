@@ -7,6 +7,7 @@ import com.awesometodo.entity.PendingSignupUser;
 import com.awesometodo.entity.SignupOtp;
 import com.awesometodo.entity.User;
 import com.awesometodo.entity.enums.Gender;
+import com.awesometodo.entity.enums.OtpType;
 import com.awesometodo.exception.*;
 import com.awesometodo.repository.PendingSignupUserRepository;
 import com.awesometodo.repository.SignupOtpRepository;
@@ -319,8 +320,8 @@ public class UserSignupService {
         String emailOtp=otpService.sendOtpToEmail(createdPendingSignupUser.getEmail());
         String phoneNoOtp=otpService.sendOtpToPhoneNo(createdPendingSignupUser.getPhoneNo());
 
-        SignupOtp emailSignupOtp=new SignupOtp(emailOtp, SignupOtp.OtpType.EMAIL,createdPendingSignupUser);
-        SignupOtp phoneSignupOtp=new SignupOtp(phoneNoOtp, SignupOtp.OtpType.PHONE,createdPendingSignupUser);
+        SignupOtp emailSignupOtp=new SignupOtp(emailOtp,OtpType.EMAIL,createdPendingSignupUser);
+        SignupOtp phoneSignupOtp=new SignupOtp(phoneNoOtp,OtpType.PHONE,createdPendingSignupUser);
         signupOtpRepository.insert(emailSignupOtp);
         signupOtpRepository.insert(phoneSignupOtp);
 

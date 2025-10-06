@@ -1,40 +1,42 @@
 package com.awesometodo.entity;
 
-import com.awesometodo.entity.converter.GenderEnumToStringConverter;
 import com.awesometodo.entity.converter.OtpTypeToStringConverter;
+import com.awesometodo.entity.enums.OtpType;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
-import com.awesometodo.entity.enums.OtpType;
 
 @Entity
-@Table(name="signup_otps")
-public class SignupOtp {
+@Table(name="forgot_password_otps")
+public class ForgotPasswordOtp {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
     @Column(name="otp",nullable = false,length = 6)
-    String otp;
+    private String otp;
 
-    @Column(name="type",nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY,optional = false)
+    @JoinColumn(name="user_id",referencedColumnName = "id",nullable = false)
+    private User user;
+
     @Convert(converter = OtpTypeToStringConverter.class)
+    @Column(name="type",nullable = false)
     private OtpType type;
 
     @Column(name="expires_at",nullable = false,insertable = false)
     private OffsetDateTime expiresAt;
 
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
-    @JoinColumn(name="pending_signup_user_id",referencedColumnName = "id",nullable = false)
-    private PendingSignupUser pendingSignupUser;
+    public ForgotPasswordOtp() {
 
-    public SignupOtp() {}
+    }
 
-    public SignupOtp(String otp, OtpType type, PendingSignupUser pendingSignupUser) {
+    public ForgotPasswordOtp(String otp, User user, OtpType type) {
         this.otp = otp;
+        this.user = user;
         this.type = type;
-        this.pendingSignupUser = pendingSignupUser;
     }
 
     public int getId() {
@@ -45,6 +47,10 @@ public class SignupOtp {
         return otp;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public OtpType getType() {
         return type;
     }
@@ -53,30 +59,26 @@ public class SignupOtp {
         return expiresAt;
     }
 
-    public PendingSignupUser getPendingSignupUser() {
-        return pendingSignupUser;
-    }
-
     public void setOtp(String otp) {
         this.otp = otp;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public void setType(OtpType type) {
         this.type = type;
     }
 
-    public void setPendingSignupUser(PendingSignupUser pendingSignupUser) {
-        this.pendingSignupUser = pendingSignupUser;
-    }
-
     @Override
     public String toString() {
-        return "SignupOtp{" +
+        return "ForgotPasswordOtp{" +
                 "id=" + id +
                 ", otp='" + otp + '\'' +
+                ", user=" + user +
                 ", type=" + type +
                 ", expiresAt=" + expiresAt +
-                ", pendingSignupUser=" + pendingSignupUser +
                 '}';
     }
 }
