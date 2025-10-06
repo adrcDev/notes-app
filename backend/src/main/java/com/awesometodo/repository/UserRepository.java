@@ -66,6 +66,15 @@ public class UserRepository {
         em.persist(user);
     }
 
+    public Optional<User> findByUsernameAndEmail(String username,String email) {
+        try {
+            User user = (User) em.createNativeQuery("SELECT * FROM users WHERE user_name=:username AND email=:email", User.class).setParameter("username", username).setParameter("email", email).getSingleResult();
+            return Optional.of(user);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
 
 
 

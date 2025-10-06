@@ -13,7 +13,7 @@ public class OtpService {
 
     public String sendOtpToPhoneNo(String phoneNo) {
         String otp=generateOtp();
-        /* Code to send the otp to the received email */
+        /* Code to send the otp to the received phone number */
         return otp;
     }
 

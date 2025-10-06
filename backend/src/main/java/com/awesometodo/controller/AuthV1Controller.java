@@ -1,11 +1,9 @@
 package com.awesometodo.controller;
 
-import com.awesometodo.dto.JwtAuthTokensDTO;
-import com.awesometodo.dto.LoginDataDTO;
-import com.awesometodo.dto.SignupDataDTO;
-import com.awesometodo.dto.SignupOtpVerificationDataDTO;
+import com.awesometodo.dto.*;
 import com.awesometodo.exception.*;
 import com.awesometodo.service.JwtService;
+import com.awesometodo.service.UserForgotPasswordService;
 import com.awesometodo.service.UserLoginService;
 import com.awesometodo.service.UserSignupService;
 import jakarta.servlet.http.Cookie;
@@ -30,11 +28,13 @@ public class AuthV1Controller {
     UserLoginService userLoginService;
     JwtService jwtService;
     UserSignupService userSignupService;
+    UserForgotPasswordService userForgotPasswordService;
 
-    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService) {
+    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService,UserForgotPasswordService userForgotPasswordService) {
         this.userLoginService = userLoginService;
         this.jwtService=jwtService;
         this.userSignupService=userSignupService;
+        this.userForgotPasswordService=userForgotPasswordService;
     }
 
     @PostMapping("/auth/v1/login")
@@ -93,6 +93,24 @@ public class AuthV1Controller {
     @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class,PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, OtpMismatchException.class,SignupOtpsNotExpiredException.class})
     public void signupExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
+    }
+
+    @PostMapping("/auth/v1/forgot-password/init")
+    public void forgotPasswordInit(@RequestBody @Valid ForgotPassswordDataDTO forgotPasswordDataDTO) {
+        logger.debug("/auth/v1/forgot-password/init endpoint started running");
+        userForgotPasswordService.forgotPasswordInitialisation(forgotPasswordDataDTO);
+        logger.debug("/auth/v1/forgot-password/init endpoint finished running");
+    }
+
+    @ExceptionHandler({UserDoesntExistException.class})
+    void forgotPasswordInitExceptionHandler(HttpServletResponse response) {
+        response.setStatus(200);
+    }
+
+    @ExceptionHandler({ConcurrentOperationException.class})
+    void forgotPasswordConcurrentOperationExceptionHandler(HttpServletResponse response,ConcurrentOperationException e) {
+        response.setStatus(200);
+        logger.warn(e.getMessage(),e);
     }
 
 
