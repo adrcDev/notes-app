@@ -32,7 +32,35 @@ export default function ForgotPasswordForm() {
   }
 
   function handleSubmitForForgotPasswordForm(data) {
+    loadingModalDialogRef.current.showModal();
+    data.username=data.username.toLowerCase();
+    data.email=data.email.toLowerCase();
+    let dataAsJson=JSON.stringify(data);
+    // console.log(dataAsJson);
+    fetch("http://localhost:8080/auth/v1/forgot-password/init",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: dataAsJson
+    })
+    .then((response)=>{
+      loadingModalDialogRef.current.close();
+      if(response.status===500) {
+        setTextDialogText("500: Internal server error!");
+        setIsTextDialogToBeShown(true);  
+        return;
+      }
 
+      if(response.ok) {
+        setIsOtpModalDialogToBeShown(true);
+      }
+
+    },(err)=>{
+      loadingModalDialogRef.current.close();
+      setTextDialogText("Network error: Please check your network connection");
+      setIsTextDialogToBeShown(true);
+    })
   }
 
   return (
@@ -92,6 +120,7 @@ export default function ForgotPasswordForm() {
           parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}
           parent_setTextDialogText={setTextDialogText}
           parent_loadingModalDialogRef={loadingModalDialogRef}
+          parent_getValuesRHF={getValues}
         />}
 
       {isPasswordResetModalDialogToBeShown && 

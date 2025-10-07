@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as otpModalDialogStylesObj from "./_OtpModalDialog.css";
 
-export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_loadingModalDialogRef}) {
+export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_loadingModalDialogRef,parent_getValuesRHF}) {
   
   let [otpDialogTimeRemainingBeforeOtpExpires,setOtpDialogTimeRemainingBeforeOtpExpires]=React.useState("5:00");
   let [isOtpDialogResendOtpButtonToBeDisabled,setIsOtpDialogResendOtpButtonToBeDisabled]=React.useState(true);
@@ -78,13 +78,35 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
   }
 
   function handleClickForOtpDialogResendBothOtpButtons(e) {
-    //todo- make http request
+    parent_loadingModalDialogRef.current.showModal();
+    let forgotPasswordDataObj={
+      username: parent_getValuesRHF("username"),
+      email: parent_getValuesRHF("email")
+    };
+    let forgotPasswordDataObjAsJson=JSON.stringify(forgotPasswordDataObj);
+    fetch("http://localhost:8080/auth/v1/forgot-password/init",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: forgotPasswordDataObjAsJson
+    })
+    .then((response)=>{
+      parent_loadingModalDialogRef.current.close();
+      if(response.status===500) {
+        parent_setTextModalDialogText("500: Internal server error");
+        parent_setIsTextModalDialogToBeShown(true);
+        parent_setIsOtpModalDialogToBeShown(false); 
+        return;
+      }
 
-    
-    setIsOtpDialogVerifyOtpButtonToBeDisabled(false);
-    setIsOtpDialogResendOtpButtonToBeDisabled(true);
-    setOtpDialogTimeRemainingBeforeOtpExpires("5:00");
-    let intervalIdForOtpModalDialogTimer=setInterval(() => {
+      if(response.ok) {
+        parent_setTextModalDialogText("If the entered details match an user account in our system then new separate otp's have been sent to the email and phone number associated to this account");
+        parent_setIsTextModalDialogToBeShown(true);
+        setIsOtpDialogVerifyOtpButtonToBeDisabled(false);
+        setIsOtpDialogResendOtpButtonToBeDisabled(true);
+        setOtpDialogTimeRemainingBeforeOtpExpires("5:00");
+        let intervalIdForOtpModalDialogTimer=setInterval(() => {
               setOtpDialogTimeRemainingBeforeOtpExpires((prevMinutesSecondsString)=>{
                 let result=subtract1SecFromMinutesSecondsString(prevMinutesSecondsString)
                 if(result==="0:00") {
@@ -95,8 +117,16 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
                 return result;
               });
       }, 1000);
-      intervalIdForOtpModalDialogTimerRef.current=intervalIdForOtpModalDialogTimer;
-    
+        intervalIdForOtpModalDialogTimerRef.current=intervalIdForOtpModalDialogTimer;
+      }
+
+    },(err)=>{
+      parent_loadingModalDialogRef.current.close();
+      parent_setIsOtpModalDialogToBeShown(false);
+      parent_setIsTextDialogToBeShown(true);
+      parent_setTextDialogText("Network error: Please check your network connection");
+    });
+
   }
 
   
@@ -286,6 +316,7 @@ return (
     </div>
     <form onSubmit={handleSubmitForOtpDialogForm}>
       <p>This website has been created for learning purposes and does not actually send otp to your email and phone no. The valid OTP is always <strong>100000</strong>.</p>            
+      <p>If the entered details matched a user account in our system then separate otp's have been sent to the email and phone number associated with the account.</p>
       <p className={otpModalDialogStylesObj.emailOtpLabel}>Please enter the otp received through email:</p> 
       <div className={otpModalDialogStylesObj.otpEntriesWrapper}>
         {[0,1,2,3,4,5].map((index)=>
