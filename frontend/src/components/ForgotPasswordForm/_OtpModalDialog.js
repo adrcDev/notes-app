@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as otpModalDialogStylesObj from "./_OtpModalDialog.css";
 
-export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_loadingModalDialogRef,parent_getValuesRHF}) {
+export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_setIsPasswordResetModalDialogToBeShown,parent_loadingModalDialogRef,parent_getValuesRHF,parent_passwordResetTokenRef
+}) {
   
   let [otpDialogTimeRemainingBeforeOtpExpires,setOtpDialogTimeRemainingBeforeOtpExpires]=React.useState("5:00");
   let [isOtpDialogResendOtpButtonToBeDisabled,setIsOtpDialogResendOtpButtonToBeDisabled]=React.useState(true);
@@ -304,7 +305,60 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
         emptyPhoneSmsOtpCharInput.focus();
         return;
       }
-      
+
+      parent_loadingModalDialogRef.current.showModal();
+      let otpVerificationDataObj={
+        username: parent_getValuesRHF("username"),
+        email: parent_getValuesRHF("email"),
+        emailOtp: getOtpStringFromOtpCharInputsRef(emailOtpInputsRef),
+        phoneNumberOtp: getOtpStringFromOtpCharInputsRef(phoneSmsOtpInputsRef)
+      };
+
+      let otpVerificationDataJson=JSON.stringify(otpVerificationDataObj);
+
+      fetch("http://localhost:8080/auth/v1/forgot-password/verify-otps",{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: otpVerificationDataJson
+      })
+      .then((response)=>{
+        if(response.status===500) {
+          throw new Error("500:Internal server error!");
+        }
+
+        if(response.ok) {
+          return response.json();
+        }
+
+      },(err)=>{
+        throw new Error("Network error: Please check your network connection");
+      })
+      .then((passwordResetTokenObj)=>{
+        parent_loadingModalDialogRef.current.close();
+        let passwordResetToken=passwordResetTokenObj["password reset token"];
+        parent_passwordResetTokenRef.current=passwordResetToken;
+        parent_setIsOtpModalDialogToBeShown(false);
+        parent_setIsPasswordResetModalDialogToBeShown(true);
+      },(err)=>{
+        parent_loadingModalDialogRef.current.close();
+        if(err.message==="500:Internal server error!") {
+          parent_setIsOtpModalDialogToBeShown(false);
+          parent_setIsTextDialogToBeShown(true);
+          parent_setTextDialogText(err.message);
+        } 
+        else if(err.message==="Network error: Please check your network connection") {
+          parent_setIsOtpModalDialogToBeShown(false);
+          parent_setIsTextDialogToBeShown(true);
+          parent_setTextDialogText(err.message);
+        }
+        else { /*json parsing error*/
+          parent_setIsTextModalDialogToBeShown(true);
+          parent_setTextModalDialogText("One or both of the entered otps are invalid!");
+        }
+      });
+
     }
 
 return (
@@ -419,3 +473,4 @@ function clearOtpCharInputs(otpCharInputsRef) {
     otpCharInputDomNode.value="";
   }
 }
+

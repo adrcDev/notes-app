@@ -2,7 +2,9 @@ import * as React from "react";
 import * as passwordResetModalDialogStylesObj from "./_PasswordResetModalDialog.css";
 import { useForm } from "react-hook-form";
 
-export default function PasswordResetModalDialog({parent_setIsPasswordResetModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_loadingModalDialogRef}) {
+export default function PasswordResetModalDialog({parent_setIsPasswordResetModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_loadingModalDialogRef,
+parent_passwordResetTokenRef
+}) {
 
   let {register,handleSubmit,getValues,formState : {errors}}=useForm();
   let passwordResetModalDialogRef=React.useRef(null);
@@ -47,7 +49,7 @@ export default function PasswordResetModalDialog({parent_setIsPasswordResetModal
         <span className={passwordResetModalDialogStylesObj.header}>Password reset</span>
         <button className={passwordResetModalDialogStylesObj.closeButton} onClick={handleClickForCloseButton}></button>
       </div>
-      <div className={passwordResetModalDialogStylesObj.messageToUser}>Resetting your password will cause you to be logged out of all your current login's</div>
+      <div className={passwordResetModalDialogStylesObj.messageToUser}>Verification of Otp's was successful. Note-Resetting your password will cause you to be logged out of all your current login's</div>
       <form onSubmit={handleSubmit(handleSubmitForPasswordResetForm)}>
         <div className={passwordResetModalDialogStylesObj.labelAndTextFieldsWrapper}>
           <label htmlFor="newPassword" className={passwordResetModalDialogStylesObj.labelForTextField}>New password:</label>

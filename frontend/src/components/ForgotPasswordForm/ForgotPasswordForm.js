@@ -19,6 +19,7 @@ export default function ForgotPasswordForm() {
   let [isPasswordResetModalDialogToBeShown,setIsPasswordResetModalDialogToBeShown]=React.useState(false);
 
   let loadingModalDialogRef=React.useRef(null);
+  let passwordResetTokenRef=React.useRef("");
 
   let classNamesForUsernameTextField=forgotPasswordFormStylesObj.textField;
   if(errors.username!==undefined) {
@@ -119,8 +120,10 @@ export default function ForgotPasswordForm() {
           parent_setTextModalDialogText={setTextModalDialogText}
           parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}
           parent_setTextDialogText={setTextDialogText}
+          parent_setIsPasswordResetModalDialogToBeShown={setIsPasswordResetModalDialogToBeShown}
           parent_loadingModalDialogRef={loadingModalDialogRef}
           parent_getValuesRHF={getValues}
+          parent_passwordResetTokenRef={passwordResetTokenRef}
         />}
 
       {isPasswordResetModalDialogToBeShown && 
@@ -130,6 +133,7 @@ export default function ForgotPasswordForm() {
       parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}
       parent_setTextDialogText={setTextDialogText}
       parent_loadingModalDialogRef={loadingModalDialogRef}
+      parent_passwordResetTokenRef={passwordResetTokenRef}
       />}  
 
       <LoadingModalDialog ref={loadingModalDialogRef} />
