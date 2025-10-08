@@ -16,8 +16,8 @@ public class ForgotPasswordOtpRepository {
         this.em=em;
     }
 
-    public List<ForgotPasswordOtp> findByUserId(int userId) {
-        List<ForgotPasswordOtp> forgotPasswordOtps=em.createNativeQuery("SELECT * FROM forgot_password_otps WHERE user_id=:userId", ForgotPasswordOtp.class).setParameter("userId",userId).getResultList();
+    public List<ForgotPasswordOtp> findByUserIdAndOrderByTypeASC(int userId) {
+        List<ForgotPasswordOtp> forgotPasswordOtps=em.createNativeQuery("SELECT * FROM forgot_password_otps WHERE user_id=:userId ORDER BY type", ForgotPasswordOtp.class).setParameter("userId",userId).getResultList();
         return forgotPasswordOtps;
     }
 
@@ -28,5 +28,14 @@ public class ForgotPasswordOtpRepository {
 
     public void insert(ForgotPasswordOtp forgotPasswordOtp) {
         em.persist(forgotPasswordOtp);
+    }
+
+    public Optional<Boolean> isForgotPasswordOtpsExpiredForUserId(int userId) {
+        try {
+            Boolean result = (Boolean) em.createNativeQuery("SELECT CURRENT_TIMESTAMP>expires_at FROM forgot_password_otps WHERE user_id=:userId AND type='email'", Boolean.class).setParameter("userId", userId).getSingleResult();
+            return Optional.of(result);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
     }
 }

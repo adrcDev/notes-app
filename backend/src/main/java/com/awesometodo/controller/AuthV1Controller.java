@@ -90,7 +90,7 @@ public class AuthV1Controller {
         logger.debug("/auth/v1/signup/resend-otps endpoint finished running");
     }
 
-    @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class,PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, OtpMismatchException.class,SignupOtpsNotExpiredException.class})
+    @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class,PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, SignupOtpMismatchException.class,SignupOtpsNotExpiredException.class})
     public void signupExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
     }
@@ -102,7 +102,17 @@ public class AuthV1Controller {
         logger.debug("/auth/v1/forgot-password/init endpoint finished running");
     }
 
-    @ExceptionHandler({UserDoesntExistException.class})
+    @PostMapping("/auth/v1/forgot-password/verify-otps")
+    public Map<String,String> forgotPasswordVerifyOtps(@RequestBody @Valid ForgotPasswordOtpVerificationDataDTO forgotPasswordOtpVerificationDataDTO ) {
+        logger.debug("/auth/v1/forgot-password/verify-otps endpoint started running");
+        String passwordResetToken=userForgotPasswordService.forgotPasswordVerifyOtps(forgotPasswordOtpVerificationDataDTO);
+        HashMap<String,String> responseBodyMessageMap=new HashMap<>();
+        responseBodyMessageMap.put("password reset token",passwordResetToken);
+        logger.debug("/auth/v1/forgot-password/verify-otps endpoint finished running");
+        return responseBodyMessageMap;
+    }
+
+    @ExceptionHandler({UserDoesntExistException.class,UserDoesntHaveForgotPasswordOtpsException.class, ForgotPasswordOtpsExpiredException.class,ForgotPasswordOtpMismatchException.class})
     void forgotPasswordInitExceptionHandler(HttpServletResponse response) {
         response.setStatus(200);
     }

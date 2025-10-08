@@ -15,7 +15,6 @@ import com.awesometodo.repository.UserRepository;
 import com.awesometodo.util.EnumUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.CannotSerializeTransactionException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.dao.PessimisticLockingFailureException;
@@ -165,14 +164,14 @@ public class UserSignupService {
         boolean isReceivedPhoneNoOtpCorrect=receivedPhoneNoOtp.equals(phoneNumberOtp);
         if(!isReceivedPhoneNoOtpCorrect) {
             logger.warn("The received phone number signup otp for the received username:{} does not match the generated and stored phone number signup otp",usernameLC);
-            throw new OtpMismatchException("received phone number otp did not match expected otp value");
+            throw new SignupOtpMismatchException("received phone number otp did not match expected otp value");
         }
 
         logger.debug("The received phone number signup otp for the received username:{} matches the generated and stored phone number signup otp",usernameLC);
         boolean isReceivedEmailOtpCorrect=receivedEmailOtp.equals(emailOtp);
         if(!isReceivedEmailOtpCorrect) {
             logger.warn("The received email signup otp for the received username:{} does not match the generated and stored email signup otp",usernameLC);
-            throw new OtpMismatchException("received email otp did not match expected otp value");
+            throw new SignupOtpMismatchException("received email otp did not match expected otp value");
         }
 
         logger.debug("The received email signup otp for the received username:{} matches the generated and stored email signup otp",usernameLC);
