@@ -6,6 +6,7 @@ import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class PasswordResetTokenRepository {
@@ -33,4 +34,24 @@ public class PasswordResetTokenRepository {
         em.persist(passwordResetToken);
         em.refresh(passwordResetToken);
     }
+
+    public Optional<PasswordResetToken> findByToken(UUID token) {
+        try {
+            PasswordResetToken passwordResetToken = (PasswordResetToken) em.createNativeQuery("SELECT * FROM password_reset_tokens WHERE token=:token", PasswordResetToken.class).setParameter("token",token).getSingleResult();
+            return Optional.of(passwordResetToken);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Boolean> isExpired(PasswordResetToken passwordResetToken) {
+        try {
+            boolean result=(Boolean)em.createNativeQuery("SELECT CURRENT_TIMESTAMP>expires_at FROM password_reset_tokens WHERE token=:token", Boolean.class).setParameter("token", passwordResetToken.getToken()).getSingleResult();
+            return Optional.of(result);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
+
 }

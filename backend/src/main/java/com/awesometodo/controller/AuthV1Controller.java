@@ -65,7 +65,7 @@ public class AuthV1Controller {
     }
 
     @ExceptionHandler({InvalidCredentialsException.class})
-    public void handleInvalidLoginCredentialsException(HttpServletResponse response) {
+    public void invalidLoginCredentialsExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
     }
 
@@ -113,15 +113,30 @@ public class AuthV1Controller {
     }
 
     @ExceptionHandler({UserDoesntExistException.class,UserDoesntHaveForgotPasswordOtpsException.class, ForgotPasswordOtpsExpiredException.class,ForgotPasswordOtpMismatchException.class})
-    void forgotPasswordInitExceptionHandler(HttpServletResponse response) {
+    void forgotPasswordInitAndVerifyOtpsExceptionHandler(HttpServletResponse response) {
         response.setStatus(200);
     }
 
     @ExceptionHandler({ConcurrentOperationException.class})
-    void forgotPasswordConcurrentOperationExceptionHandler(HttpServletResponse response,ConcurrentOperationException e) {
+    void forgotPasswordInitAndVerifyOtpsConcurrentOperationExceptionHandler(HttpServletResponse response,ConcurrentOperationException e) {
         response.setStatus(200);
         logger.warn(e.getMessage(),e);
     }
+
+    @PostMapping("/auth/v1/forgot-password/reset-password")
+    public void forgotPasswordResetPassword(@RequestBody @Valid ForgotPasswordResetDataDTO forgotPasswordResetDataDTO) {
+        logger.debug("/auth/v1/forgot-password/reset-password endpoint started running");
+        userForgotPasswordService.forgotPasswordResetPassword(forgotPasswordResetDataDTO);
+        logger.debug("/auth/v1/forgot-password/reset-password endpoint finished running");
+    }
+
+    @ExceptionHandler({PasswordResetTokenDoesntExistException.class, PasswordResetTokenExpiredException.class})
+    public void forgotPasswordResetPasswordExceptionHandler(HttpServletResponse response) {
+        response.setStatus(401);
+    }
+
+
+
 
 
 

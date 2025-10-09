@@ -1,8 +1,10 @@
 package com.awesometodo.service;
 
 import com.awesometodo.dto.*;
+import com.awesometodo.entity.JwtRefreshToken;
 import com.awesometodo.entity.User;
 import com.awesometodo.exception.InvalidCredentialsException;
+import com.awesometodo.repository.JwtRefreshTokenRepository;
 import com.awesometodo.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,22 +13,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 @Service
 public class UserLoginService {
     private final static Logger logger= LoggerFactory.getLogger(UserLoginService.class);
     private UserRepository userRepository;
+    private JwtRefreshTokenRepository jwtRefreshTokenRepository;
     private Argon2PasswordEncoder argon2IdPasswordEncoder;
     private JwtService jwtService;
-    private JwtRefreshTokenService jwtRefreshTokenService;
 
 
-    public UserLoginService(UserRepository userRepository, Argon2PasswordEncoder argon2IdPasswordEncoder, JwtService jwtService, JwtRefreshTokenService jwtRefreshTokenService) {
+    public UserLoginService(UserRepository userRepository,JwtRefreshTokenRepository jwtRefreshTokenRepository, Argon2PasswordEncoder argon2IdPasswordEncoder, JwtService jwtService) {
         this.userRepository=userRepository;
+        this.jwtRefreshTokenRepository=jwtRefreshTokenRepository;
         this.argon2IdPasswordEncoder=argon2IdPasswordEncoder;
         this.jwtService=jwtService;
-        this.jwtRefreshTokenService=jwtRefreshTokenService;
     }
 
     @Transactional
@@ -75,7 +78,7 @@ public class UserLoginService {
             String jwtRefreshToken=jwtService.generateJwtRefreshToken(userId);
             logger.debug("jwt refresh token generated for user with id:{}, username:{} and email: {}",userId,userAccount.getUserName(),userAccount.getEmail());
 
-            jwtRefreshTokenService.storeJwtRefreshToken(jwtRefreshToken);
+            storeJwtRefreshToken(jwtRefreshToken);
             logger.debug("jwt refresh token was stored in database for user with id:{}, username:{} and email: {}",userId,userAccount.getUserName(),userAccount.getEmail());
             logger.info("Login attempt was successful for user account with id:{}, username:{} and email:{} as the received password matched the stored password in the database",userAccount.getId(),userAccount.getUserName(),userAccount.getEmail());
             return new JwtAuthTokensDTO(jwtAccessToken,jwtRefreshToken);
@@ -95,6 +98,17 @@ public class UserLoginService {
         return isReceivedPasswordCorrect;
     }
 
+    private void storeJwtRefreshToken(String jwtRefreshToken) {
+        int userId=Integer.parseInt(jwtService.parseSubjectClaimValue(jwtRefreshToken));
+        Optional<User> optional=userRepository.findById(userId);
+        User userAssociatedToId=optional.get();
+        OffsetDateTime refreshTokenIssuedAt=jwtService.parseIssClaimValue(jwtRefreshToken);
+        OffsetDateTime refreshTokenExpiresAt=jwtService.parseExpClaimValue(jwtRefreshToken);
+        String jwtRefreshTokenHash=argon2IdPasswordEncoder.encode(jwtRefreshToken);
+
+        JwtRefreshToken jwtRefreshTokenEntityObj=new JwtRefreshToken(userAssociatedToId,jwtRefreshTokenHash, JwtRefreshToken.Status.VALID,refreshTokenIssuedAt,refreshTokenExpiresAt);
+        jwtRefreshTokenRepository.insertJwtRefreshToken(jwtRefreshTokenEntityObj);
+    }
 
 
 

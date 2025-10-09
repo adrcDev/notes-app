@@ -2,12 +2,14 @@ package com.awesometodo.service;
 
 import com.awesometodo.dto.ForgotPassswordDataDTO;
 import com.awesometodo.dto.ForgotPasswordOtpVerificationDataDTO;
+import com.awesometodo.dto.ForgotPasswordResetDataDTO;
 import com.awesometodo.entity.ForgotPasswordOtp;
 import com.awesometodo.entity.PasswordResetToken;
 import com.awesometodo.entity.User;
 import com.awesometodo.entity.enums.OtpType;
 import com.awesometodo.exception.*;
 import com.awesometodo.repository.ForgotPasswordOtpRepository;
+import com.awesometodo.repository.JwtRefreshTokenRepository;
 import com.awesometodo.repository.PasswordResetTokenRepository;
 import com.awesometodo.repository.UserRepository;
 import org.slf4j.Logger;
@@ -18,12 +20,15 @@ import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserForgotPasswordService {
@@ -31,13 +36,17 @@ public class UserForgotPasswordService {
     private UserRepository userRepository;
     private ForgotPasswordOtpRepository forgotPasswordOtpRepository;
     private PasswordResetTokenRepository passwordResetTokenRepository;
+    private JwtRefreshTokenRepository jwtRefreshTokenRepository;
     private OtpService otpService;
+    private Argon2PasswordEncoder argon2IdPasswordEncoder;
 
-    public UserForgotPasswordService(UserRepository userRepository,ForgotPasswordOtpRepository forgotPasswordOtpRepository,PasswordResetTokenRepository passwordResetTokenRepository,OtpService otpService) {
+    public UserForgotPasswordService(UserRepository userRepository,ForgotPasswordOtpRepository forgotPasswordOtpRepository,PasswordResetTokenRepository passwordResetTokenRepository,JwtRefreshTokenRepository jwtRefreshTokenRepository,OtpService otpService,Argon2PasswordEncoder argon2IdPasswordEncoder) {
         this.userRepository=userRepository;
         this.forgotPasswordOtpRepository=forgotPasswordOtpRepository;
         this.passwordResetTokenRepository=passwordResetTokenRepository;
+        this.jwtRefreshTokenRepository=jwtRefreshTokenRepository;
         this.otpService=otpService;
+        this.argon2IdPasswordEncoder=argon2IdPasswordEncoder;
     }
 
     @Transactional
@@ -194,5 +203,51 @@ public class UserForgotPasswordService {
         return passwordResetToken;
     }
 
+
+    @Retryable(maxAttempts = 5,backoff = @Backoff(300L),retryFor = {PessimisticLockingFailureException.class},recover = "forgotPasswordResetPasswordRecoveryMethod")
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void forgotPasswordResetPassword(ForgotPasswordResetDataDTO forgotPasswordResetDataDTO) {
+        logger.debug("Password reset process started. Checking if the received password reset token is present in the database");
+        String receivedPasswordResetToken=forgotPasswordResetDataDTO.getPasswordResetToken();
+        Optional<PasswordResetToken> optional=passwordResetTokenRepository.findByToken(UUID.fromString(receivedPasswordResetToken));
+        boolean isPasswordResetTokenNotExists= optional.isEmpty();
+        if(isPasswordResetTokenNotExists) {
+            logger.warn("The received password reset token was not found in the database. Aborting the password reset process");
+            throw new PasswordResetTokenDoesntExistException();
+        }
+
+        logger.debug("The received password reset token was found in the database.Checking if the stored password reset token has expired");
+        PasswordResetToken storedPasswordResetToken=optional.get();
+
+        Optional<Boolean> optionalBoolean=passwordResetTokenRepository.isExpired(storedPasswordResetToken);
+        boolean isStoredPasswordResetTokenExpired=optionalBoolean.get();
+        if(isStoredPasswordResetTokenExpired) {
+            logger.warn("The stored password reset token has expired. Aborting password reset process");
+            throw new PasswordResetTokenExpiredException();
+        }
+
+        String receivedNewPassword= forgotPasswordResetDataDTO.getNewPassword();
+        String unicodeNormalizedNewPassword= Normalizer.normalize(receivedNewPassword, Normalizer.Form.NFC);
+        String newPaswordHash=argon2IdPasswordEncoder.encode(unicodeNormalizedNewPassword);
+        User associatedUser=storedPasswordResetToken.getUser();
+        logger.debug("The user associated to the password reset token was found and has username:{} and email:{}. Trying to replace the user's current password hash with the new password hash",associatedUser.getUserName(),associatedUser.getEmail());
+        associatedUser.setPasswordHash(newPaswordHash);
+        logger.debug("The old password hash was replaced with the new password hash for the user with username:{} and email:{}",associatedUser.getUserName(),associatedUser.getEmail());
+
+        logger.debug("Trying to set all the 'valid' status jwt refresh tokens to the status of 'invalidated', in order to log out the user with username:{} and email: {} from all existing logins",associatedUser.getUserName(),associatedUser.getEmail());
+        jwtRefreshTokenRepository.updateAllValidStatusToInvalidatedForUserId(associatedUser.getId());
+        logger.debug("All the 'valid' status jwt refresh tokens were set to the status of 'invalidated' for user with username:{} and email:{}",associatedUser.getUserName(),associatedUser.getEmail());
+
+        logger.debug("Trying to delete the stored password reset token for user with username:{} and email:{} as its purpose has been served",associatedUser.getUserName(),associatedUser.getEmail());
+        passwordResetTokenRepository.delete(storedPasswordResetToken);
+        logger.debug("Deleted the stored password reset token for user with username:{} and email:{}",associatedUser.getUserName(),associatedUser.getEmail());
+        logger.info("Password reset process completed successfully for user with username:{} and email:{} and the user was also logged out of all his existing logins",associatedUser.getUserName(),associatedUser.getEmail());
+    }
+
+    @Recover
+    private void forgotPasswordResetPasswordRecoveryMethod(PessimisticLockingFailureException e,ForgotPasswordResetDataDTO forgotPasswordResetDataDTO) {
+        logger.error("The forgotPasswordResetPassword method was retried multiple times but still a serialization anomaly kept being detected by the database. The object passed as argument to the method:{}",forgotPasswordResetDataDTO);
+        throw e;
+    }
 
 }
