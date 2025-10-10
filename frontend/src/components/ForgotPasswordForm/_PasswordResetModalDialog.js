@@ -1,8 +1,9 @@
 import * as React from "react";
 import * as passwordResetModalDialogStylesObj from "./_PasswordResetModalDialog.css";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router";
 
-export default function PasswordResetModalDialog({parent_setIsPasswordResetModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_loadingModalDialogRef,
+export default function PasswordResetModalDialog({parent_setIsPasswordResetModalDialogToBeShown,parent_setIsOtpModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_loadingModalDialogRef,
 parent_passwordResetTokenRef
 }) {
 
@@ -36,15 +37,73 @@ parent_passwordResetTokenRef
   }
 
   function handleClickForCloseButton(e) {
+    passwordResetModalDialogRef.current.close();
+  }
+
+  function handleCloseForPasswordResetModalDialog(e) {
     parent_setIsPasswordResetModalDialogToBeShown(false);
   }
 
-  function handleSubmitForPasswordResetForm(data) {
+  function handleSubmitForPasswordResetForm(passwordResetDataObj) {
+    parent_loadingModalDialogRef.current.showModal();
+    delete passwordResetDataObj["confirmNewPassword"];
+    let passwordResetToken=parent_passwordResetTokenRef.current;
+    passwordResetDataObj.passwordResetToken=passwordResetToken;
+    let passwordResetDataJson=JSON.stringify(passwordResetDataObj);
+    // console.log(passwordResetDataJson);
+
+    fetch("http://localhost:8080/auth/v1/forgot-password/reset-password",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: passwordResetDataJson
+    })
+    .then((response)=>{
+      if(response.status===500) {
+        throw new Error("500: Internal server error!");
+      }
+
+      if(response.status===401) {
+        throw new Error("Password reset session expired, please start the process from the beginning");
+      }
+
+      if(response.ok) {
+        parent_loadingModalDialogRef.current.close();
+        parent_setIsPasswordResetModalDialogToBeShown(false);
+        parent_setIsOtpModalDialogToBeShown(false);
+        parent_setIsTextDialogToBeShown(true);
+        let messageJsxObj=(
+          <div>You have successfully set a new password for your account. You can now login to your account using the new password. <Link to="../login" className={passwordResetModalDialogStylesObj.userHelperLink}>Click here to go to the login page</Link></div>
+        )
+        parent_setTextDialogText(messageJsxObj);
+      }
+
+    },(err)=>{
+      throw new Error("Network error: Please check your network connection");
+    })
+    .catch((err)=>{
+      parent_loadingModalDialogRef.current.close();
+      parent_setIsPasswordResetModalDialogToBeShown(false);
+      parent_setIsOtpModalDialogToBeShown(false);
+      parent_setIsTextDialogToBeShown(true);
+      if(err.message==="500: Internal server error!") {  
+        parent_setTextDialogText(err.message);
+      }
+      else if(err.message==="Network error: Please check your network   connection") {
+        parent_setTextModalDialogText(err.message);
+      } 
+      else if(err.message==="Password reset session expired, please start the process from the beginning") {
+        parent_setTextDialogText(err.message);
+      }
+
+  
+    });
 
   }
 
   return (
-    <dialog className={passwordResetModalDialogStylesObj.passwordResetModalDialog}ref={passwordResetModalDialogRef}>
+    <dialog className={passwordResetModalDialogStylesObj.passwordResetModalDialog} ref={passwordResetModalDialogRef} onClose={handleCloseForPasswordResetModalDialog} closedby="closerequest">
       <div className={passwordResetModalDialogStylesObj.headerAndCloseButtonWrapper}>
         <span className={passwordResetModalDialogStylesObj.header}>Password reset</span>
         <button className={passwordResetModalDialogStylesObj.closeButton} onClick={handleClickForCloseButton}></button>

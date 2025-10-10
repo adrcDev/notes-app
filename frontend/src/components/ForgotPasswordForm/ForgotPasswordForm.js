@@ -128,6 +128,7 @@ export default function ForgotPasswordForm() {
 
       {isPasswordResetModalDialogToBeShown && 
       <PasswordResetModalDialog       parent_setIsPasswordResetModalDialogToBeShown={setIsPasswordResetModalDialogToBeShown}
+      parent_setIsOtpModalDialogToBeShown={setIsOtpModalDialogToBeShown}
       parent_setIsTextModalDialogToBeShown={setIsTextModalDialogToBeShown}
       parent_setTextModalDialogText={setTextModalDialogText}
       parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}

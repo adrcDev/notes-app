@@ -63,19 +63,12 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
         );
     }
 
-  function handleCloseForOtpModalDialog(e) {
-    let intervalIdForOtpModalDialogTimer=intervalIdForOtpModalDialogTimerRef.current;
-    clearInterval(intervalIdForOtpModalDialogTimer);
-    parent_setIsOtpModalDialogToBeShown(false);
-    setIsOtpDialogResendOtpButtonToBeDisabled(true);
-    setIsOtpDialogVerifyOtpButtonToBeDisabled(false);
-    setOtpDialogTimeRemainingBeforeOtpExpires("5:00");
-    clearOtpCharInputs(emailOtpInputsRef);
-    clearOtpCharInputs(phoneSmsOtpInputsRef);
-  }
-
   function handleClickForOtpDialogCloseButton(e) {
     otpModalDialogRef.current.close();
+  }
+
+  function handleCloseForOtpModalDialog(e) {
+    parent_setIsOtpModalDialogToBeShown(false);
   }
 
   function handleClickForOtpDialogResendBothOtpButtons(e) {
@@ -362,8 +355,7 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
     }
 
 return (
-  <dialog ref={otpModalDialogRef} className={otpModalDialogStylesObj.otpDialog} closedby="closerequest" 
-  onClose={handleCloseForOtpModalDialog}>
+  <dialog ref={otpModalDialogRef} className={otpModalDialogStylesObj.otpDialog} closedby="closerequest" onClose={handleCloseForOtpModalDialog}>
     <div className={otpModalDialogStylesObj.otpdialogHeaderTextAndCloseButtonWrapper}>
       <span className={otpModalDialogStylesObj.otpDialogHeaderText}>OTP verification</span>
       <button className={otpModalDialogStylesObj.dialogCloseButton} onClick={handleClickForOtpDialogCloseButton}></button>

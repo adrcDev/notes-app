@@ -109,71 +109,6 @@
 }
  
 
-.dialogFontSizeSetterWrapper {
-  font-size: 1.25rem;
-}
-
-.invalidLoginDialog {
-  background-color: var(--authPage-loginForm-dialog-backgroundColor);
-  border: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 75%;
-  padding: 0.3em;
-}
-
-.invalidLoginDialogText {
-  color: var(--authPage-loginForm-dialog-text-color);
-  margin-top: 0.2em;
-}
-
-.invalidLoginDialogImageWrapper {
-  display: flex;
-  justify-content: center;
-}
-
-.invalidLoginDialogImage {
-  background-image: var(--authPage-loginForm-invalidLoginDialog-invalidLoginImage-background-image);
-  background-repeat: no-repeat;
-  background-size: contain;
-  width: 2em;
-  height: 2em;
-  margin-top: 0.3em;  
-}
-
-.dialogCloseButtonWrapper {
-  display: flex;
-  justify-content: end;
-}
-
-.dialogCloseButton {
-  background-color: transparent;
-  border: none;
-  background-image: var(--authPage-loginForm-dialog-closeButton-background-image);
-  background-repeat: no-repeat;
-  background-size: contain;
-  width: 1.5em;
-  height: 1.5em;    
-}
-
-.networkOrServerErrorDialog {
-  background-color: var(--authPage-loginForm-dialog-backgroundColor);
-  color: var(--authPage-loginForm-dialog-text-color);
-  border: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 75%;
-  padding: 0.3em;
-}
-
-.networkOrServerErrorDialogText {
-  margin-top: 0.2em;
-}
-
 /* for phones in landscape and for small tablets */
 @media (min-width: 37.5em) {
 
@@ -183,8 +118,6 @@
     gap: 0.2em;
     /* border: 2px solid green; */
     justify-content: center;
-
-    
   }
 
   .labelForTextField {
@@ -195,14 +128,7 @@
   .textField {
     width: 95%;
   }
-
-  .invalidLoginDialog {
-    width: 50%;
-  }
-
-  .networkOrServerErrorDialog {
-    width: 50%;
-  }
+  
 }
 
 /* for large tablets */
@@ -215,27 +141,13 @@
     font-size: 1.4rem;    
   }
 
-  .dialogFontSizeSetterWrapper {
-    font-size: 1.4rem;
-  }
-
   .loginFormHeader {
     font-size: 1.6rem;
   }
 
 }
 
-/* for laptops and desktops */
-@media (min-width: 75em) {
- .invalidLoginDialog {
-    width: 37.5%;
-  }
 
-  .networkOrServerErrorDialog {
-    width: 37.5%;
-  }
-
-}
 
 
 

@@ -5,14 +5,16 @@ import {useForm} from "react-hook-form";
 import { Link } from "react-router";
 import {validateUserNameOrEmailTextField} from "./LoginForm.internal.js"
 import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
+import TextDialog from "./_TextDialog.js";
 
 export default function LoginForm() {
   let {register,handleSubmit,getValues,formState : {errors}}=useForm();
   let [isShowPasswordCheckboxChecked,setIsShowPasswordCheckboxChecked]=React.useState(false);
+  let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
+  let [textDialogText,setTextDialogText]=React.useState("");
+
   let passwordTextFieldRef=React.useRef(null);
   let loginProcessingModalDialogRef=React.useRef(null);
-  let invalidLoginDialogRef=React.useRef(null);
-  let networkOrServerErrorDialogRef=React.useRef(null);
   let {setJwtAccessToken: setJwtAccessToken_Parent}=React.useContext(JwtAccessTokenContext);
   
 
@@ -68,17 +70,18 @@ export default function LoginForm() {
       credentials: "include" //only added for development
     })
     .then((response)=>{
-      // console.log("response received from server");
-      if(!response.ok) {
-        loginProcessingModalDialogDomNode.close();
-        invalidLoginDialogRef.current.show();
-        throw "invalid credentials error";
+      loginProcessingModalDialogDomNode.close();
+      if(response.status===500) {
+        throw new Error("500: Internal server error!");
+      }
+
+      if(response.status===401) {
+        throw new Error("Provided username/email or password is invalid!");
       }
       return response.json();
     },(err)=>{
-        // console.log(`error sending request message, error: ${err}`);
         loginProcessingModalDialogDomNode.close();
-        networkOrServerErrorDialogRef.current.show();
+        throw new Error("Network error: Please check your network connection");
     })
     .then((parsedObjectFromJson)=>{
       let jwtAccessToken=parsedObjectFromJson["jwt access token"];
@@ -88,20 +91,13 @@ export default function LoginForm() {
       
       loginProcessingModalDialogDomNode.close();
     },(err)=>{
-      console.log(err);
+      loginProcessingModalDialogDomNode.close();
+      setIsTextDialogToBeShown(true);
+      setTextDialogText(err.message);
     });
 
   }
 
-  function handleClickForInvalidLoginDialogCloseButton(e) {
-    let invalidLoginDialogDomNode=invalidLoginDialogRef.current;
-    invalidLoginDialogDomNode.close();
-  }
-
-  function handleClickForNetworkOrServerErrorDialogCloseButton(e) {
-    let serverErrorDialogDomNode=networkOrServerErrorDialogRef.current;
-    serverErrorDialogDomNode.close();
-  }
 
   return (
     <>
@@ -153,36 +149,14 @@ export default function LoginForm() {
           <Link to="../forgot-password" className={loginFormStylesObj.forgotPasswordHelperLink}>forgotten your password then click here.</Link>
         </p>
       </div>
-      
-      
+
       <dialog ref={loginProcessingModalDialogRef}  className={loginFormStylesObj.loginProcessingModalDialog} closedby="none">
         <div className={loginFormStylesObj.loginProcessingSpinner}>
-
         </div>
       </dialog>
 
-      <div className={loginFormStylesObj.dialogFontSizeSetterWrapper}>
-        <dialog ref={invalidLoginDialogRef} className={loginFormStylesObj.invalidLoginDialog}
-        closedby="any">
-          <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
-            <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForInvalidLoginDialogCloseButton}></button>
-          </div>
-          <p className={loginFormStylesObj.invalidLoginDialogText}>Provided username/email or password is invalid!</p>
-          <div className={loginFormStylesObj.invalidLoginDialogImageWrapper}>
-            <span className={loginFormStylesObj.invalidLoginDialogImage}></span>
-          </div>
-        </dialog>
-
-        <dialog ref={networkOrServerErrorDialogRef} className={loginFormStylesObj.networkOrServerErrorDialog} closedby="any">
-          <div className={loginFormStylesObj.dialogCloseButtonWrapper}>
-            <button className={loginFormStylesObj.dialogCloseButton} onClick={handleClickForNetworkOrServerErrorDialogCloseButton}></button>
-          </div> 
-          <p className={loginFormStylesObj.networkOrServerErrorDialogText}>Server or network error: please check your network connection</p>
-        </dialog>
-      </div>
+      {isTextDialogToBeShown && <TextDialog text={textDialogText} parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}/>}
     </>
-    
-    
   );
 }
 
