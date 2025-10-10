@@ -75,6 +75,13 @@ public class UserRepository {
         }
     }
 
+    public boolean isExistsById(int userId) {
+        User user=em.find(User.class,userId);
+        if(user==null)
+            return false;
+        return true;
+    }
+
 
 
 

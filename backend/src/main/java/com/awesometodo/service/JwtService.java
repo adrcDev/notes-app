@@ -1,16 +1,15 @@
 package com.awesometodo.service;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
+import com.awesometodo.repository.UserRepository;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class JwtService {
@@ -23,6 +22,11 @@ public class JwtService {
             (long) JWT_REFRESH_TOKEN_EXPIRY_TIME_IN_DAYS *24*60*60*1000;
     private static final String HMAC_SHA_256_SECRET_KEY=System.getenv("HMAC_SHA_256_SECRET_KEY");
     private static final byte[] hmacSHA256SecretKeyBytes = Base64.getDecoder().decode(HMAC_SHA_256_SECRET_KEY);
+    private UserRepository userRepository;
+
+    public JwtService(UserRepository userRepository) {
+        this.userRepository=userRepository;
+    }
 
     public String generateJwtAccessToken(int userIdToUseAsSubjectClaimValue) {
         String jwtAccessToken= Jwts.builder().header().type("JWT")
@@ -80,6 +84,47 @@ public class JwtService {
         String jwtTokenPayload=jwtTokenWithoutSignature.substring(jwtTokenWithoutSignature.indexOf('.')+1);
         String jwtConstructedForParsingClaims= dummyJwtHeader+'.'+jwtTokenPayload+'.';
         return jwtConstructedForParsingClaims;
+    }
+
+    public Optional<Jws<Claims>> checkIfStringIsValidJwtAccessTokenAndReturnJwsObj(String stringToBeChecked) {
+        JwtParser jwtAccessTokenParser=Jwts.parser().requireIssuer(DOMAIN_NAME_ALONG_WITH_HTTP_SCHEME).requireAudience(DOMAIN_NAME_ALONG_WITH_HTTP_SCHEME).require("token_type","access").verifyWith(Keys.hmacShaKeyFor(hmacSHA256SecretKeyBytes)).build();
+        Jws<Claims> parsedToken;
+        try {
+            parsedToken=jwtAccessTokenParser.parseSignedClaims(stringToBeChecked);
+        } catch(Exception e) {
+            return Optional.empty();
+        }
+
+        boolean isContainsTypKeyWithValueJwtInHeader=parsedToken.getHeader().getType().equals("JWT");
+        if(!isContainsTypKeyWithValueJwtInHeader) {
+            return Optional.empty();
+        }
+
+        boolean isContainsAlgKeyWithValueHS256InHeader=parsedToken.getHeader().getAlgorithm().equals("HS256");
+        if(!isContainsAlgKeyWithValueHS256InHeader) {
+            return Optional.empty();
+        }
+
+        String subClaimValue=parsedToken.getPayload().getSubject();
+        int userId=0;
+        boolean isSubjectClaimContainsNo;
+        try {
+            userId=Integer.parseInt(subClaimValue);
+            isSubjectClaimContainsNo=true;
+        } catch(NumberFormatException e) {
+            isSubjectClaimContainsNo=false;
+        }
+
+        if(!isSubjectClaimContainsNo)
+            return Optional.empty();
+
+        boolean isSubjectClaimValueAnActualUserId=userRepository.isExistsById(userId);
+        boolean isValidJwtAccessToken=isSubjectClaimValueAnActualUserId;
+
+        if(!isValidJwtAccessToken)
+            return  Optional.empty();
+
+        return Optional.of(parsedToken);
     }
 
 

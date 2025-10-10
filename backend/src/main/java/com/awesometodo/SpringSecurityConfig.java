@@ -1,15 +1,22 @@
 package com.awesometodo;
 
+import com.awesometodo.service.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
 public class SpringSecurityConfig {
+    JwtService jwtService;
+
+    public SpringSecurityConfig(JwtService jwtService) {
+        this.jwtService=jwtService;
+    }
 
     /* Configuring url paths for which the http request message  should not pass through spring security's security filter chain. Basically you can deactivate spring security for any url path. */
     @Bean
@@ -31,13 +38,14 @@ public class SpringSecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
-                        authorizationManagerRequestMatcherRegistry.anyRequest().authenticated());
+                        authorizationManagerRequestMatcherRegistry.anyRequest().authenticated())
+                .addFilterAfter(new JwtAuthenticationFilter(jwtService), LogoutFilter.class);
 
-
-//        httpSecurity.addFilterAfter(new JwtAuthFilter(), LogoutFilter.class);
 
         return httpSecurity.build();
 
 
     }
+
+
 }
