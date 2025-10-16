@@ -17,7 +17,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         String resourcePathSegement=request.getRequestURI();
-        logger.warn("Authentication failed for the http request message so the requested resource: "+resourcePathSegement+" was not allowed to be accessed");
+        logger.warn("Jwt authentication failed for the http request message so the requested protected resource was not allowed to be accessed");
         response.setStatus(401);
     }
 }

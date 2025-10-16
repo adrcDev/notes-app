@@ -20,6 +20,9 @@
         <appender-ref ref="FILE"/>
     </logger>
 
+    <logger name="com.awesometodo.JwtAuthenticationFilter" level="OFF">
+    </logger>
+
 <!--    <logger name="com.awesometodo.controlleradvice.GlobalExceptionHandler" additivity="false">-->
 <!--        <appender-ref ref="CONSOLE"/>-->
 <!--    </logger>-->
