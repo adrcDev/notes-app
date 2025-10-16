@@ -38,33 +38,44 @@ public class UserJwtRefreshTokenService {
     @Retryable(maxAttempts = 5,backoff = @Backoff(300L),retryFor = {PessimisticLockingFailureException.class},recover = "refreshRecoveryMethod")
     @Transactional(isolation = Isolation.REPEATABLE_READ,noRollbackFor = {JwtRefreshTokenStatusNotValidException.class})
     public JwtAuthTokensDTO refresh(String cookieValue) {
-        if(!jwtService.isValidJwtRefreshToken(cookieValue))
+        logger.debug("Checking if the cookie's value is a valid jwt refresh token");
+        if(!jwtService.isValidJwtRefreshToken(cookieValue)) {
+            logger.warn("The cookie's value is not a valid jwt refresh token. Aborting jwt authentication refresh process");
             throw new InvalidJwtRefreshTokenException();
+        }
 
+        logger.debug("The cookie's value is a valid jwt refresh token");
         String validJwtRefreshToken=cookieValue;
         String jtiClaimValue=jwtService.parseJtiClaimValue(validJwtRefreshToken);
         int associatedUserId=Integer.parseInt(jwtService.parseSubjectClaimValue(validJwtRefreshToken));
         UUID jtiClaimValueAsUUID=UUID.fromString(jtiClaimValue);
-        //need to do row lock in this query
         Optional<JwtRefreshToken> optional=jwtRefreshTokenRepository.findByJtiClaimValueUUIDAndUserId(jtiClaimValueAsUUID,associatedUserId,true);
         JwtRefreshToken storedJwtRefreshToken=optional.get();
+        logger.debug("Obtained the corresponding jwt refresh token row using the received jwt refresh token. It is associated to user with id:{}, username:{}, email:{}",storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getId(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getUserName(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getEmail());
 
         JwtRefreshToken.Status jwtRefreshTokenStatus=storedJwtRefreshToken.getStatus();
         boolean isJwtRefreshTokenStatusNotValid=
                 (jwtRefreshTokenStatus==JwtRefreshToken.Status.INVALIDATED) || (jwtRefreshTokenStatus==JwtRefreshToken.Status.COMPROMISED);
         if(isJwtRefreshTokenStatusNotValid) {
             User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
+            logger.warn("The jwt refresh token row's status is not 'valid' so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{},username:{} and email:{}",associatedUser.getId(),associatedUser.getUserName(),associatedUser.getEmail());
             jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
             /* You can use a external service here to send an sms or email here to the user notifying them that a person was trying to access their account and so therefore as a security measure all of their existing logins were auto logged out
             */
+            logger.warn("All stored jwt refresh tokens belong to user with id:{}, username:{} and email:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the jwt authentication refresh process",associatedUser.getId(),associatedUser.getUserName(),associatedUser.getEmail());
             throw new JwtRefreshTokenStatusNotValidException();
         }
 
+        logger.debug("The jwt refresh token row for user with id:{}, username:{} and email:{} has a status value of 'valid'. Trying to change the status value to 'invalidated'",associatedUserId,storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getUserName(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getEmail());
         storedJwtRefreshToken.setStatus(JwtRefreshToken.Status.INVALIDATED);
         User assoicatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
+        logger.debug("The status value of the jwt refresh token row for user with id:{}, username:{} and email:{} has been changed to 'invalidated'.",assoicatedUser.getId(),assoicatedUser.getUserName(),assoicatedUser.getEmail());
         int associatedUsersId=assoicatedUser.getId();
+        logger.debug("Trying to create and store a new jwt refresh token for user with id:{},username:{} and email:{}",assoicatedUser.getId(),assoicatedUser.getUserName(),assoicatedUser.getEmail());
         String newStoredJwtRefreshToken=createAndReturnJwtRefreshTokenForUser(assoicatedUser);
+        logger.debug("New jwt refresh token was created and stored for user with id:{},username:{} and email:{}",assoicatedUser.getId(),assoicatedUser.getUserName(),assoicatedUser.getEmail());
         String jwtAccessToken=jwtService.generateJwtAccessToken(associatedUsersId);
+        logger.debug("A jwt access token was generated for user with id:{},username:{} and email:{}",assoicatedUser.getId(),assoicatedUser.getUserName(),assoicatedUser.getEmail());
         JwtAuthTokensDTO jwtAuthTokensDTO=new JwtAuthTokensDTO(jwtAccessToken,newStoredJwtRefreshToken);
         return jwtAuthTokensDTO;
     }
@@ -74,7 +85,7 @@ public class UserJwtRefreshTokenService {
         logger.error("The refresh method was retried multiple times but still a serialization anomaly kept being detected by the database");
         throw e;
     }
-    
+
     private String createAndReturnJwtRefreshTokenForUser(User user) {
         int userId=user.getId();
         String jwtRefreshTokenString=jwtService.generateJwtRefreshToken(userId);

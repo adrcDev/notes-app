@@ -140,35 +140,46 @@ public class AuthV1Controller {
     @PostMapping("/auth/v1/refresh")
     public Map<String,String> refresh(HttpServletRequest request,HttpServletResponse response) {
         logger.debug("/auth/v1/refresh endpoint started running");
+        logger.debug("Jwt authentication refresh process started. Checking if the http request message contains any cookies in the Cookie request header");
         Cookie[] cookies=request.getCookies();
         boolean isRequestMessageNotContainCookies=cookies==null;
         if(isRequestMessageNotContainCookies) {
             String exceptionMessage="The http request message didn't contain any cookies within Cookie header";
+            logger.warn("{}. Aborting the jwt authentication refresh process.",exceptionMessage);
             throw new HttpRequestCookiesException(exceptionMessage);
         }
 
+        logger.debug("The http request message contains atleast one cookie in the Cookie request header. Checking if it contains more than one cookie");
         boolean isRequestMessageContainsMoreThanOneCookie=cookies.length>1;
         if(isRequestMessageContainsMoreThanOneCookie) {
-            String exceptionMessage="The http request message contained multiple cookies within Cookie header but only one cookie is expected";
+            String exceptionMessage="The http request message contained multiple cookies within the Cookie request header but only one cookie is expected";
+            logger.warn("{}. Aborting the jwt authentication refresh process.",exceptionMessage);
             throw new HttpRequestCookiesException(exceptionMessage);
         }
 
+        logger.debug("The http request message contains only a single cookie within the Cookie request header. Checking if the cookie's name matches the name that is expected for carrying the jwt refresh token value");
         Cookie singleCookiePresentInRequestMessage=cookies[0];
         String singleCookieName=singleCookiePresentInRequestMessage.getName();
         boolean isCookieNameNotMatchExpectedName=!singleCookieName.equals(JWT_REFRESH_TOKEN_COOKIE_NAME);
         if(isCookieNameNotMatchExpectedName) {
-            String exceptionMessage="The name of the received cookie in the http request message didn't match the expected name: "+JWT_REFRESH_TOKEN_COOKIE_NAME;
+            String exceptionMessage="The name of the received cookie in the http request message didn't match the name that is expected to carry the jwt refresh token value";
+            logger.warn("{}. Aborting the jwt authentication refresh process.",exceptionMessage);
             throw new HttpRequestCookiesException(exceptionMessage);
         }
 
+        logger.debug("The name of the received cookie matched the name expected to carry the jwt refresh token value");
         String cookieValue=singleCookiePresentInRequestMessage.getValue().trim();
         JwtAuthTokensDTO jwtAuthTokensDTO=userJwtRefreshTokenService.refresh(cookieValue);
         String newJwtRefreshToken=jwtAuthTokensDTO.getJwtRefreshToken();
         String jwtAccessToken=jwtAuthTokensDTO.getJwtAccessToken();
         addJwtRefreshTokenAsCookie(response,newJwtRefreshToken);
+        logger.debug("The new stored jwt refresh token assoicated to user with id:{} was added as a cookie along with cookie attributes to the Set-Cookie response header of the http response message",jwtService.parseSubjectClaimValue(newJwtRefreshToken));
+
 
         Map<String,String> responseBodyMessage=new HashMap<>();
         responseBodyMessage.put(JWT_ACCESS_TOKEN_JSON_KEY_NAME,jwtAccessToken);
+        logger.debug("The generated jwt access token associated to user with id:{} was put in the response message's body",jwtService.parseSubjectClaimValue(jwtAccessToken));
+        logger.info("The jwt authentication refresh process completed successfully. New jwt refresh token was generated and stored. A jwt access token was generated and sent in the response message's body. Both tokens are associated to user with id:{}",jwtService.parseSubjectClaimValue(newJwtRefreshToken));
         logger.debug("/auth/v1/refresh endpoint finished running");
         return responseBodyMessage;
     }
