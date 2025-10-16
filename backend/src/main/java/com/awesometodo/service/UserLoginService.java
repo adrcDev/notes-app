@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.Normalizer;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserLoginService {
@@ -102,12 +103,14 @@ public class UserLoginService {
         int userId=Integer.parseInt(jwtService.parseSubjectClaimValue(jwtRefreshToken));
         Optional<User> optional=userRepository.findById(userId);
         User userAssociatedToId=optional.get();
+        String jtiClaimValue=jwtService.parseJtiClaimValue(jwtRefreshToken);
+        UUID jtiClaimValueAsUUID=UUID.fromString(jtiClaimValue);
         OffsetDateTime refreshTokenIssuedAt=jwtService.parseIssClaimValue(jwtRefreshToken);
         OffsetDateTime refreshTokenExpiresAt=jwtService.parseExpClaimValue(jwtRefreshToken);
         String jwtRefreshTokenHash=argon2IdPasswordEncoder.encode(jwtRefreshToken);
 
-        JwtRefreshToken jwtRefreshTokenEntityObj=new JwtRefreshToken(userAssociatedToId,jwtRefreshTokenHash, JwtRefreshToken.Status.VALID,refreshTokenIssuedAt,refreshTokenExpiresAt);
-        jwtRefreshTokenRepository.insertJwtRefreshToken(jwtRefreshTokenEntityObj);
+        JwtRefreshToken jwtRefreshTokenEntityObj=new JwtRefreshToken(userAssociatedToId,jtiClaimValueAsUUID,jwtRefreshTokenHash, JwtRefreshToken.Status.VALID,refreshTokenIssuedAt,refreshTokenExpiresAt);
+        jwtRefreshTokenRepository.insert(jwtRefreshTokenEntityObj);
     }
 
 

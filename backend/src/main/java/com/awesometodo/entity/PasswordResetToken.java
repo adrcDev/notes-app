@@ -13,7 +13,7 @@ public class PasswordResetToken {
     @Column(name = "id")
     private int id;
 
-    @Column(name="token",nullable = false,insertable = false)
+    @Column(name="token",nullable = false,insertable = false,unique = true)
     private UUID token;
 
     @OneToOne(optional = false,fetch = FetchType.LAZY)

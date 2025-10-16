@@ -2,13 +2,11 @@ package com.awesometodo;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.util.StatusPrinter;
+import com.awesometodo.entity.JwtRefreshToken;
 import com.awesometodo.entity.PendingSignupUser;
 import com.awesometodo.entity.User;
 import com.awesometodo.entity.enums.Gender;
-import com.awesometodo.repository.PasswordResetTokenRepository;
-import com.awesometodo.repository.PendingSignupUserRepository;
-import com.awesometodo.repository.SignupOtpRepository;
-import com.awesometodo.repository.UserRepository;
+import com.awesometodo.repository.*;
 import com.awesometodo.service.JwtService;
 import com.awesometodo.util.EnumUtil;
 import io.jsonwebtoken.Jwts;
@@ -34,7 +32,7 @@ import java.util.UUID;
 /* This is required by spring-retry library */
 @EnableRetry
 public class TodoAppBackendApplication {
-	private static Logger logger=LoggerFactory.getLogger(TodoAppBackendApplication.class);
+	private static final Logger logger=LoggerFactory.getLogger(TodoAppBackendApplication.class);
 
 
 	public static void main(String[] args) {
@@ -57,12 +55,17 @@ public class TodoAppBackendApplication {
 		PendingSignupUserRepository pendingSignupUserRepository=springIOCContainer.getBean(PendingSignupUserRepository.class);
 		SignupOtpRepository signupOtpRepository=springIOCContainer.getBean(SignupOtpRepository.class);
 		PasswordResetTokenRepository passwordResetTokenRepository=springIOCContainer.getBean(PasswordResetTokenRepository.class);
+		JwtRefreshTokenRepository jwtRefreshTokenRepository=springIOCContainer.getBean(JwtRefreshTokenRepository.class);
+		Argon2PasswordEncoder argon2IdPasswordEncoder=springIOCContainer.getBean(Argon2PasswordEncoder.class);
 
 
 		transactionTemplate.executeWithoutResult((transactionStatus)->{
-		/*Test repository methods or EntityManager operations here */
+		/*Test repository methods or service methods or EntityManager operations here */
+
+
 
 		});
+
 
 
 

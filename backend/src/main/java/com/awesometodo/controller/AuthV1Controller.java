@@ -2,11 +2,9 @@ package com.awesometodo.controller;
 
 import com.awesometodo.dto.*;
 import com.awesometodo.exception.*;
-import com.awesometodo.service.JwtService;
-import com.awesometodo.service.UserForgotPasswordService;
-import com.awesometodo.service.UserLoginService;
-import com.awesometodo.service.UserSignupService;
+import com.awesometodo.service.*;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -24,17 +22,20 @@ import java.util.Map;
 public class AuthV1Controller {
     private static final Logger logger= LoggerFactory.getLogger(AuthV1Controller.class);
     private static final String JWT_REFRESH_TOKEN_COOKIE_NAME="jwt_refresh_token";
+    private static final String JWT_ACCESS_TOKEN_JSON_KEY_NAME="jwt access token";
 
-    UserLoginService userLoginService;
-    JwtService jwtService;
-    UserSignupService userSignupService;
-    UserForgotPasswordService userForgotPasswordService;
+    private UserLoginService userLoginService;
+    private JwtService jwtService;
+    private UserSignupService userSignupService;
+    private UserForgotPasswordService userForgotPasswordService;
+    private UserJwtRefreshTokenService userJwtRefreshTokenService;
 
-    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService,UserForgotPasswordService userForgotPasswordService) {
+    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService,UserForgotPasswordService userForgotPasswordService,UserJwtRefreshTokenService userJwtRefreshTokenService) {
         this.userLoginService = userLoginService;
         this.jwtService=jwtService;
         this.userSignupService=userSignupService;
         this.userForgotPasswordService=userForgotPasswordService;
+        this.userJwtRefreshTokenService=userJwtRefreshTokenService;
     }
 
     @PostMapping("/auth/v1/login")
@@ -47,7 +48,7 @@ public class AuthV1Controller {
 
         HashMap<String,String> responseBodyMessage=new HashMap<>();
         String jwtAccessToken=jwtAuthTokensDTO.getJwtAccessToken();
-        responseBodyMessage.put("jwt access token",jwtAccessToken);
+        responseBodyMessage.put(JWT_ACCESS_TOKEN_JSON_KEY_NAME,jwtAccessToken);
         logger.debug("jwt access token was added as json in the http response message's body");
         logger.debug("/auth/v1/login endpoint finished running");
         return responseBodyMessage;
@@ -132,6 +133,48 @@ public class AuthV1Controller {
 
     @ExceptionHandler({PasswordResetTokenDoesntExistException.class, PasswordResetTokenExpiredException.class})
     public void forgotPasswordResetPasswordExceptionHandler(HttpServletResponse response) {
+        response.setStatus(401);
+    }
+
+
+    @PostMapping("/auth/v1/refresh")
+    public Map<String,String> refresh(HttpServletRequest request,HttpServletResponse response) {
+        logger.debug("/auth/v1/refresh endpoint started running");
+        Cookie[] cookies=request.getCookies();
+        boolean isRequestMessageNotContainCookies=cookies==null;
+        if(isRequestMessageNotContainCookies) {
+            String exceptionMessage="The http request message didn't contain any cookies within Cookie header";
+            throw new HttpRequestCookiesException(exceptionMessage);
+        }
+
+        boolean isRequestMessageContainsMoreThanOneCookie=cookies.length>1;
+        if(isRequestMessageContainsMoreThanOneCookie) {
+            String exceptionMessage="The http request message contained multiple cookies within Cookie header but only one cookie is expected";
+            throw new HttpRequestCookiesException(exceptionMessage);
+        }
+
+        Cookie singleCookiePresentInRequestMessage=cookies[0];
+        String singleCookieName=singleCookiePresentInRequestMessage.getName();
+        boolean isCookieNameNotMatchExpectedName=!singleCookieName.equals(JWT_REFRESH_TOKEN_COOKIE_NAME);
+        if(isCookieNameNotMatchExpectedName) {
+            String exceptionMessage="The name of the received cookie in the http request message didn't match the expected name: "+JWT_REFRESH_TOKEN_COOKIE_NAME;
+            throw new HttpRequestCookiesException(exceptionMessage);
+        }
+
+        String cookieValue=singleCookiePresentInRequestMessage.getValue().trim();
+        JwtAuthTokensDTO jwtAuthTokensDTO=userJwtRefreshTokenService.refresh(cookieValue);
+        String newJwtRefreshToken=jwtAuthTokensDTO.getJwtRefreshToken();
+        String jwtAccessToken=jwtAuthTokensDTO.getJwtAccessToken();
+        addJwtRefreshTokenAsCookie(response,newJwtRefreshToken);
+
+        Map<String,String> responseBodyMessage=new HashMap<>();
+        responseBodyMessage.put(JWT_ACCESS_TOKEN_JSON_KEY_NAME,jwtAccessToken);
+        logger.debug("/auth/v1/refresh endpoint finished running");
+        return responseBodyMessage;
+    }
+
+    @ExceptionHandler({HttpRequestCookiesException.class,InvalidJwtRefreshTokenException.class,JwtRefreshTokenStatusNotValidException.class})
+    void refreshExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
     }
 

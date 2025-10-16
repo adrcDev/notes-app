@@ -1,15 +1,16 @@
 package com.awesometodo.service;
 
+import com.awesometodo.entity.JwtRefreshToken;
+import com.awesometodo.repository.JwtRefreshTokenRepository;
 import com.awesometodo.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class JwtService {
@@ -23,9 +24,13 @@ public class JwtService {
     private static final String HMAC_SHA_256_SECRET_KEY=System.getenv("HMAC_SHA_256_SECRET_KEY");
     private static final byte[] hmacSHA256SecretKeyBytes = Base64.getDecoder().decode(HMAC_SHA_256_SECRET_KEY);
     private UserRepository userRepository;
+    private JwtRefreshTokenRepository jwtRefreshTokenRepository;
+    private Argon2PasswordEncoder argon2IdPasswordEncoder;
 
-    public JwtService(UserRepository userRepository) {
+    public JwtService(UserRepository userRepository, JwtRefreshTokenRepository jwtRefreshTokenRepository, Argon2PasswordEncoder argon2IdPasswordEncoder) {
         this.userRepository=userRepository;
+        this.jwtRefreshTokenRepository=jwtRefreshTokenRepository;
+        this.argon2IdPasswordEncoder=argon2IdPasswordEncoder;
     }
 
     public String generateJwtAccessToken(int userIdToUseAsSubjectClaimValue) {
@@ -37,7 +42,8 @@ public class JwtService {
 
 
     public String generateJwtRefreshToken(int userIdToUseAsSubjectClaimValue) {
-        String jwtRefreshToken=Jwts.builder().header().type("JWT").and().claims().issuer(DOMAIN_NAME_ALONG_WITH_HTTP_SCHEME).subject(String.valueOf(userIdToUseAsSubjectClaimValue)).add("aud",DOMAIN_NAME_ALONG_WITH_HTTP_SCHEME).expiration(new Date(System.currentTimeMillis()+JWT_REFRESH_TOKEN_EXPIRY_TIME_IN_MILLIS)).issuedAt(new Date()).add("token_type","refresh").and().signWith(Keys.hmacShaKeyFor(hmacSHA256SecretKeyBytes)).compact();
+        String jtiClaimValue=UUID.randomUUID().toString();
+        String jwtRefreshToken=Jwts.builder().header().type("JWT").and().claims().id(jtiClaimValue).issuer(DOMAIN_NAME_ALONG_WITH_HTTP_SCHEME).subject(String.valueOf(userIdToUseAsSubjectClaimValue)).add("aud",DOMAIN_NAME_ALONG_WITH_HTTP_SCHEME).expiration(new Date(System.currentTimeMillis()+JWT_REFRESH_TOKEN_EXPIRY_TIME_IN_MILLIS)).issuedAt(new Date()).add("token_type","refresh").and().signWith(Keys.hmacShaKeyFor(hmacSHA256SecretKeyBytes)).compact();
         return jwtRefreshToken;
     }
 
@@ -60,6 +66,12 @@ public class JwtService {
         OffsetDateTime expClaimValueAsODT=
                 expClaimValueAsDate.toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime();
         return  expClaimValueAsODT;
+    }
+
+    public String parseJtiClaimValue(String jwtToken) {
+        String jwtConstructedForParsingClaims=removeSignatureAndAddDummyHeaderToJwt(jwtToken);
+        String jtiClaimValue=Jwts.parser().unsecured().build().parseUnsecuredClaims(jwtConstructedForParsingClaims).getPayload().getId();
+        return jtiClaimValue;
     }
 
     public int getRemainingTokenLifeTimeInSeconds(String jwtToken) {
@@ -125,6 +137,68 @@ public class JwtService {
             return  Optional.empty();
 
         return Optional.of(parsedToken);
+    }
+
+    public boolean isValidJwtRefreshToken(String stringToBeChecked) {
+        JwtParser jwtRefreshTokenParser=Jwts.parser().requireIssuer(DOMAIN_NAME_ALONG_WITH_HTTP_SCHEME).requireAudience(DOMAIN_NAME_ALONG_WITH_HTTP_SCHEME).require("token_type","refresh").verifyWith(Keys.hmacShaKeyFor(hmacSHA256SecretKeyBytes)).build();
+        Jws<Claims> parsedTokenObj;
+        try {
+            parsedTokenObj = jwtRefreshTokenParser.parseSignedClaims(stringToBeChecked);
+        } catch(Exception e) {
+            return false;
+        }
+
+        boolean isContainsTypKeyWithValueJwtInHeader=parsedTokenObj.getHeader().getType().equals("JWT");
+        if(!isContainsTypKeyWithValueJwtInHeader) {
+            return false;
+        }
+
+        boolean isContainsAlgKeyWithValueHS256InHeader=parsedTokenObj.getHeader().getAlgorithm().equals("HS256");
+        if(!isContainsAlgKeyWithValueHS256InHeader) {
+            return false;
+        }
+
+        String subClaimValue=parsedTokenObj.getPayload().getSubject();
+        boolean isSubClaimNotPresent=subClaimValue==null;
+        if(isSubClaimNotPresent)
+            return false;
+
+        int userId=0;
+        boolean isSubjectClaimContainsNo;
+        try {
+            userId=Integer.parseInt(subClaimValue);
+            isSubjectClaimContainsNo=true;
+        } catch(NumberFormatException e) {
+            isSubjectClaimContainsNo=false;
+        }
+
+        if(!isSubjectClaimContainsNo)
+            return false;
+
+        boolean isSubjectClaimValueAnActualUserId=userRepository.isExistsById(userId);
+        if(!isSubjectClaimValueAnActualUserId)
+            return false;
+
+        String jtiClaimValue=parsedTokenObj.getPayload().getId();
+        boolean isJtiClaimNotPresent=jtiClaimValue==null;
+        if(isJtiClaimNotPresent)
+            return false;
+
+        UUID jtiClaimValueAsUUID=UUID.fromString(jtiClaimValue);
+        Optional<JwtRefreshToken> optional=jwtRefreshTokenRepository.findByJtiClaimValueUUIDAndUserId(jtiClaimValueAsUUID,userId,false);
+        boolean isStoredJwtRefreshTokenNotFound=optional.isEmpty();
+        if(isStoredJwtRefreshTokenNotFound)
+            return false;
+
+        JwtRefreshToken storedJwtRefreshToken=optional.get();
+        String storedJwtRefreshTokenHash=storedJwtRefreshToken.getRefreshTokenHash();
+        String partiallyValidToken=stringToBeChecked;
+        boolean isMatchesTheStoredJwtRefreshTokenHash=argon2IdPasswordEncoder.matches(partiallyValidToken,storedJwtRefreshTokenHash);
+        if(!isMatchesTheStoredJwtRefreshTokenHash) {
+            return false;
+        }
+
+        return true;
     }
 
 
