@@ -59,13 +59,15 @@ public class TodoAppBackendApplication {
 		Argon2PasswordEncoder argon2IdPasswordEncoder=springIOCContainer.getBean(Argon2PasswordEncoder.class);
 
 
-		transactionTemplate.executeWithoutResult((transactionStatus)->{
-		/*Test repository methods or service methods or EntityManager operations here */
-			
+		transactionTemplate.executeWithoutResult((transactionStatus)-> {
+			/*Test repository methods or service methods or EntityManager operations here */
+
+
 
 		});
 
-		
+
+
 
 
 	}

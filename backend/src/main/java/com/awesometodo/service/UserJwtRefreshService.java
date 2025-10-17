@@ -22,13 +22,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserJwtRefreshTokenService {
-    private static final Logger logger= LoggerFactory.getLogger(UserJwtRefreshTokenService.class);
+public class UserJwtRefreshService {
+    private static final Logger logger= LoggerFactory.getLogger(UserJwtRefreshService.class);
     private JwtRefreshTokenRepository jwtRefreshTokenRepository;
     private JwtService jwtService;
     private Argon2PasswordEncoder argon2IdPasswordEncoder;
 
-    public UserJwtRefreshTokenService(JwtRefreshTokenRepository jwtRefreshTokenRepository,JwtService jwtService,Argon2PasswordEncoder argon2IdPasswordEncoder) {
+    public UserJwtRefreshService(JwtRefreshTokenRepository jwtRefreshTokenRepository, JwtService jwtService, Argon2PasswordEncoder argon2IdPasswordEncoder) {
         this.jwtRefreshTokenRepository=jwtRefreshTokenRepository;
         this.jwtService=jwtService;
         this.argon2IdPasswordEncoder=argon2IdPasswordEncoder;
@@ -58,11 +58,11 @@ public class UserJwtRefreshTokenService {
                 (jwtRefreshTokenStatus==JwtRefreshToken.Status.INVALIDATED) || (jwtRefreshTokenStatus==JwtRefreshToken.Status.COMPROMISED);
         if(isJwtRefreshTokenStatusNotValid) {
             User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
-            logger.warn("The jwt refresh token row's status is not 'valid' so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{},username:{} and email:{}",associatedUser.getId(),associatedUser.getUserName(),associatedUser.getEmail());
+            logger.warn("The jwt refresh token row's status is not 'valid' so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
             jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
             /* You can use a external service here to send an sms or email here to the user notifying them that a person was trying to access their account and so therefore as a security measure all of their existing logins were auto logged out
             */
-            logger.warn("All stored jwt refresh tokens belong to user with id:{}, username:{} and email:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the jwt authentication refresh process",associatedUser.getId(),associatedUser.getUserName(),associatedUser.getEmail());
+            logger.warn("All stored jwt refresh tokens belong to user with id:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the jwt authentication refresh process",associatedUser.getId());
             throw new JwtRefreshTokenStatusNotValidException();
         }
 

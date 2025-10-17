@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,14 +30,16 @@ public class AuthV1Controller {
     private JwtService jwtService;
     private UserSignupService userSignupService;
     private UserForgotPasswordService userForgotPasswordService;
-    private UserJwtRefreshTokenService userJwtRefreshTokenService;
+    private UserJwtRefreshService userJwtRefreshService;
+    private UserLogoutService userLogoutService;
 
-    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService,UserForgotPasswordService userForgotPasswordService,UserJwtRefreshTokenService userJwtRefreshTokenService) {
+    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService, UserForgotPasswordService userForgotPasswordService, UserJwtRefreshService userJwtRefreshService,UserLogoutService userLogoutService) {
         this.userLoginService = userLoginService;
         this.jwtService=jwtService;
         this.userSignupService=userSignupService;
         this.userForgotPasswordService=userForgotPasswordService;
-        this.userJwtRefreshTokenService=userJwtRefreshTokenService;
+        this.userJwtRefreshService = userJwtRefreshService;
+        this.userLogoutService=userLogoutService;
     }
 
     @PostMapping("/auth/v1/login")
@@ -169,7 +173,7 @@ public class AuthV1Controller {
 
         logger.debug("The name of the received cookie matched the name expected to carry the jwt refresh token value");
         String cookieValue=singleCookiePresentInRequestMessage.getValue().trim();
-        JwtAuthTokensDTO jwtAuthTokensDTO=userJwtRefreshTokenService.refresh(cookieValue);
+        JwtAuthTokensDTO jwtAuthTokensDTO= userJwtRefreshService.refresh(cookieValue);
         String newJwtRefreshToken=jwtAuthTokensDTO.getJwtRefreshToken();
         String jwtAccessToken=jwtAuthTokensDTO.getJwtAccessToken();
         addJwtRefreshTokenAsCookie(response,newJwtRefreshToken);
@@ -184,15 +188,64 @@ public class AuthV1Controller {
         return responseBodyMessage;
     }
 
-    @ExceptionHandler({HttpRequestCookiesException.class,InvalidJwtRefreshTokenException.class,JwtRefreshTokenStatusNotValidException.class})
-    void refreshExceptionHandler(HttpServletResponse response) {
-        response.setStatus(401);
+
+
+    @PostMapping("/auth/v1/logout")
+    void logout(HttpServletRequest request,HttpServletResponse response) {
+        logger.debug("/auth/v1/logout endpoint started running");
+        JwtAuthenticationToken authentication=(JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+        String userId=authentication.getName();
+        logger.debug("Logout process attempted by user with id:{}",userId);
+        logger.debug("Checking if the http request message contains any cookies in the Cookie request header");
+        Cookie[] cookies=request.getCookies();
+        boolean isRequestMessageNotContainCookies=cookies==null;
+        if(isRequestMessageNotContainCookies) {
+            String exceptionMessage="The http request message didn't contain any cookies within Cookie header";
+            logger.warn("{}. Aborting the logout process.",exceptionMessage);
+            throw new HttpRequestCookiesException(exceptionMessage);
+        }
+
+        logger.debug("The http request message contains atleast one cookie in the Cookie request header. Checking if it contains more than one cookie");
+        boolean isRequestMessageContainsMoreThanOneCookie=cookies.length>1;
+        if(isRequestMessageContainsMoreThanOneCookie) {
+            String exceptionMessage="The http request message contained multiple cookies within the Cookie request header but only one cookie is expected";
+            logger.warn("{}. Aborting the logout process.",exceptionMessage);
+            throw new HttpRequestCookiesException(exceptionMessage);
+        }
+
+        logger.debug("The http request message contains only a single cookie within the Cookie request header. Checking if the cookie's name matches the name that is expected for carrying the jwt refresh token value");
+        Cookie singleCookiePresentInRequestMessage=cookies[0];
+        String singleCookieName=singleCookiePresentInRequestMessage.getName();
+        boolean isCookieNameNotMatchExpectedName=!singleCookieName.equals(JWT_REFRESH_TOKEN_COOKIE_NAME);
+        if(isCookieNameNotMatchExpectedName) {
+            String exceptionMessage="The name of the received cookie in the http request message didn't match the name that is expected to carry the jwt refresh token value";
+            logger.warn("{}. Aborting the logout process.",exceptionMessage);
+            throw new HttpRequestCookiesException(exceptionMessage);
+        }
+
+        logger.debug("The name of the received cookie matched the name expected to carry the jwt refresh token value");
+        String cookieValue=singleCookiePresentInRequestMessage.getValue().trim();
+        userLogoutService.logout(cookieValue);
+        addInstructionToRemoveJwtRefreshTokenCookie(response);
+        logger.debug("The jwt refresh token cookie was set in the http response message's Set-Cookie header with Max-Age cookie attribute having value of 0 seconds in order to make the browser delete the stored jwt refresh token cookie");
+        logger.info("The logout process has successfully completed for user with id:{}",userId);
+        logger.debug("/auth/v1/logout endpoint finished running");
     }
 
+    private void addInstructionToRemoveJwtRefreshTokenCookie(HttpServletResponse response) {
+        Cookie jwtRefreshTokenCookie=new Cookie(JWT_REFRESH_TOKEN_COOKIE_NAME,"");
+        jwtRefreshTokenCookie.setHttpOnly(true);
+        jwtRefreshTokenCookie.setSecure(true);
+        jwtRefreshTokenCookie.setPath("/auth/v1");
+        jwtRefreshTokenCookie.setMaxAge(0);
+        jwtRefreshTokenCookie.setAttribute("SameSite", "Strict");
+        response.addCookie(jwtRefreshTokenCookie);
+    }
 
-
-
-
+    @ExceptionHandler({HttpRequestCookiesException.class,InvalidJwtRefreshTokenException.class,JwtRefreshTokenStatusNotValidException.class})
+    void refreshAndLogoutExceptionHandler(HttpServletResponse response) {
+        response.setStatus(401);
+    }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public void handleMethodArguemntNotValidException(HttpServletResponse response,MethodArgumentNotValidException e) {
