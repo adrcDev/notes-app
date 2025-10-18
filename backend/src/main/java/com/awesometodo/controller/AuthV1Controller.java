@@ -65,7 +65,9 @@ public class AuthV1Controller {
         jwtRefreshTokenCookie.setPath("/auth/v1");
         int maxAgeCookieAttributeValue=jwtService.getRemainingTokenLifeTimeInSeconds(jwtRefreshToken);
         jwtRefreshTokenCookie.setMaxAge(maxAgeCookieAttributeValue);
-        jwtRefreshTokenCookie.setAttribute("SameSite", "Strict");
+//        jwtRefreshTokenCookie.setAttribute("SameSite", "Strict");
+        //added only for development
+        jwtRefreshTokenCookie.setAttribute("SameSite", "None");
         response.addCookie(jwtRefreshTokenCookie);
     }
 
@@ -238,7 +240,9 @@ public class AuthV1Controller {
         jwtRefreshTokenCookie.setSecure(true);
         jwtRefreshTokenCookie.setPath("/auth/v1");
         jwtRefreshTokenCookie.setMaxAge(0);
-        jwtRefreshTokenCookie.setAttribute("SameSite", "Strict");
+//        jwtRefreshTokenCookie.setAttribute("SameSite", "Strict");
+        //Added only for development
+        jwtRefreshTokenCookie.setAttribute("SameSite", "None");
         response.addCookie(jwtRefreshTokenCookie);
     }
 
