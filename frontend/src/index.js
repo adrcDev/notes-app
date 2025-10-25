@@ -12,16 +12,17 @@ import { ThemeProvider } from "./contexts/ThemeContext.js";
 import { JwtAccessTokenProvider } from "./contexts/JwtAcessTokenContext.js";
 import SignupForm from "./components/SignupForm/SignupForm.js";
 import ForgotPasswordForm from "./components/ForgotPasswordForm/ForgotPasswordForm.js";
+import JwtAuthLogicWrapper from "./components/JwtAuthLogicWrapper/JwtAuthLogicWrapper.js";
 
 let router=createBrowserRouter([
   {
     path:"/",
-    element: <HomePage/>,
+    element: <JwtAuthLogicWrapper><HomePage/></JwtAuthLogicWrapper>,
     errorElement: <ErrorPage/>
   },
   {
     path: "/auth", /*TODO- might have to change this path segment name */
-    element: <AuthPage />,
+    element: <JwtAuthLogicWrapper><AuthPage /></JwtAuthLogicWrapper>,
     children: [
       {
         path: "login",

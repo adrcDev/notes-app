@@ -1,6 +1,13 @@
 
 .light {
   --html-body-backgroundColor: white;
+
+  /*general styles css variables*/
+  --dialog-backgroundColor: lightblue;
+  --loadingSpinner-border-color: white;
+  --loadingSpinner-border-top-color: black;
+
+  /* css variables for AuthPage.js component */
   --authPage-appBar-backgroundColor: lightblue;
   --authPage-appBar-borderColor: black;
   --authPage-appBar-appLogo: url("./static/images/todo-app-icon-dark.svg"); /* TODO */
@@ -77,6 +84,13 @@
 
 .dark {
   --html-body-backgroundColor: black;
+
+  /*general styles css variables*/
+  --dialog-backgroundColor: rgb(53, 57, 53);
+  --loadingSpinner-border-color: #E0E0E0;
+  --loadingSpinner-border-top-color: yellow;
+  
+  /* css variables for AuthPage.js component */
   --authPage-appBar-backgroundColor: rgb(53, 57, 53); 
   --authPage-appBar-borderColor: white;
   --authPage-appBar-appLogo: url("./static/images/todo-app-icon-dark.svg");

@@ -4,8 +4,9 @@ import * as loginFormStylesObj from "./LoginForm.css";
 import {useForm} from "react-hook-form";
 import { Link } from "react-router";
 import {validateUserNameOrEmailTextField} from "./LoginForm.internal.js"
-import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
 import TextDialog from "./_TextDialog.js";
+import { useNavigate } from "react-router";
+import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
 
 export default function LoginForm() {
   let {register,handleSubmit,getValues,formState : {errors}}=useForm();
@@ -15,7 +16,9 @@ export default function LoginForm() {
 
   let passwordTextFieldRef=React.useRef(null);
   let loginProcessingModalDialogRef=React.useRef(null);
-  let {setJwtAccessToken: setJwtAccessToken_Parent}=React.useContext(JwtAccessTokenContext);
+  let parent_jwtAccessTokenRef=React.useContext(JwtAccessTokenContext);
+  let navigateFuncReactRouter=useNavigate();
+  
   
 
   let {ref:reactHookFormsInternalRef,...registerWithReactHookFormObj}=register("password",{
@@ -86,9 +89,8 @@ export default function LoginForm() {
     .then((parsedObjectFromJson)=>{
       let jwtAccessToken=parsedObjectFromJson["jwt access token"];
       // console.log(jwtAccessToken);
-      setJwtAccessToken_Parent(jwtAccessToken);
-      /* TODO-Take the user to the main home page of the todo app */
-      
+      parent_jwtAccessTokenRef.current=jwtAccessToken;
+      navigateFuncReactRouter("/",{replace:true});
       loginProcessingModalDialogDomNode.close();
     },(err)=>{
       loginProcessingModalDialogDomNode.close();
