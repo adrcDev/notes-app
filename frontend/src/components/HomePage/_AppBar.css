@@ -1,0 +1,102 @@
+.appBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.25rem;
+  /* border: 2px solid yellow; */
+  padding: 0 0.25em;
+  color: var(--appBar-textColor);
+  background-color: var(--appBar-backgroundColor);
+}
+
+.appLogo {
+  display: inline-block;
+  width: 2.5em;
+  background-image: var(--appBar-appLogo);
+  background-repeat: no-repeat;
+  background-size: cover;
+  /* border: 1px solid red; */
+}
+
+.appName {
+  /* border: 1px solid red; */
+  align-self: center;
+  margin-left: 0.5em; 
+}
+
+.appLogoAndNameWrapper {
+  display: flex;
+  /* border: 1px solid red; */
+  height: 2.5em;
+}
+
+.appThemeToggleAndUserOptionsWrapper {
+  display: flex;
+  /* border: 1px solid yellow; */
+  height: 2.5em;
+}
+
+.appThemeToggle {
+  display: inline-block;
+  width: 2.5em;
+  background-image: var(--appBar-lightDarkThemeToggle-image);
+  background-repeat: no-repeat;
+  background-size: cover;
+  /* border: 1px solid yellow; */
+}
+
+/* placeholder style rule*/
+.userOptions {
+  width: 9em;
+  margin-left: 0.3em;
+}
+
+
+/* for phones in landscape and for small tablets */
+@media (min-width: 37.5em) {
+  .appBar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: initial;
+    height: 3em;
+  }
+
+  .appLogo {
+    width: 3em;
+    height: 100%;
+    background-size: contain;
+  }
+
+  .appThemeToggle {
+    width: 3em;
+    height: 100%;
+    background-size: contain;
+  }
+
+  .appLogoAndNameWrapper {
+    height: initial;
+  }
+
+  .appThemeToggleAndUserOptionsWrapper {
+    height: initial;
+  }
+
+}
+
+/* for large tablets */
+@media (min-width: 62em) {
+  .appBar {
+    font-size: 1.5rem;
+  }
+
+ 
+
+  
+
+}
+
+/* for laptops and desktops */
+@media (min-width: 75em) {
+ 
+
+}
