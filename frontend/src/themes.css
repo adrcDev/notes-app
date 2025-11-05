@@ -4,13 +4,17 @@
 
   /*general styles css variables*/
   --dialog-backgroundColor: lightblue;
+  --dialog-closeButton-background-image: url("./static/images/dialog-close-icon-light.svg");
   --loadingSpinner-border-color: white;
   --loadingSpinner-border-top-color: black;
   --appBar-appLogo: url("./static/images/todo-app-icon-dark.svg");
   --appBar-textColor: black;
   --appBar-backgroundColor: lightblue;
   --appBar-lightDarkThemeToggle-image: url("./static/images/dark-mode-icon-light.svg");
-
+  --main-text-Color: black;
+  --textField-background-color: white;
+  --dropDown-background-color: white;
+  --button-background-color: white;
 
   /* css variables for AuthPage.js component */
   --authPage-appBar-backgroundColor: lightblue;
@@ -76,6 +80,13 @@
 --authPage-forgotPasswordForm-userHelperText-rulesHeader-text-color: blue;
 --authPage-forgotPasswordForm-userHelperTextLink-text-color: blue;
 
+/* CSS variables for home page(HomePage.js)*/
+--homePage-filtersAndSortBySetter-filtersHeadingTextColor: black;
+--homePage-filtersAndSortBySetter-focusColor: lightblue;
+--homePage-filtersAndSortBySetter-dateFilterRadioButton-checked-color: blue;
+--homePage-filtersAndSortBySetter-dateFilter-includeThisDateCheckbox-checked-color: blue;
+--homePage-filtersAndSortBySetter-sortBy-radioButton-checked-color: blue;
+
 
   
   
@@ -92,12 +103,17 @@
 
   /*general styles css variables*/
   --dialog-backgroundColor: rgb(53, 57, 53);
+  --dialog-closeButton-background-image: url("./static/images/dialog-close-icon-dark.svg");
   --loadingSpinner-border-color: #E0E0E0;
   --loadingSpinner-border-top-color: yellow;
   --appBar-appLogo: url("./static/images/todo-app-icon-dark.svg");
   --appBar-textColor: white;
   --appBar-backgroundColor: rgb(53, 57, 53);
   --appBar-lightDarkThemeToggle-image: url("./static/images/light-mode-icon-dark.svg");
+  --main-text-Color: white;
+  --textField-background-color: #E0E0E0;
+  --dropDown-background-color: #E0E0E0;
+  --button-background-color: #E0E0E0;
 
   
   /* css variables for AuthPage.js component */
@@ -164,6 +180,13 @@
   --authPage-forgotPasswordForm-formSubmitResetPasswordButton-backgroundColor: #E0E0E0;
   --authPage-forgotPasswordForm-userHelperText-rulesHeader-text-color: yellow;
   --authPage-forgotPasswordForm-userHelperTextLink-text-color: yellow;
+
+  /* CSS variables for home page(HomePage.js)*/
+  --homePage-filtersAndSortBySetter-filtersHeadingTextColor: yellow;
+  --homePage-filtersAndSortBySetter-focusColor: orange;
+  --homePage-filtersAndSortBySetter-dateFilterRadioButton-checked-color: yellow;
+  --homePage-filtersAndSortBySetter-dateFilter-includeThisDateCheckbox-checked-color: yellow;
+  --homePage-filtersAndSortBySetter-sortBy-radioButton-checked-color: yellow;
   
 
 

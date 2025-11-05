@@ -1,0 +1,209 @@
+.filterAndSortBySetter {
+  font-size: 1.25rem;
+  color: var(--main-text-Color);
+}
+
+.filtersHeadingText {
+  font-size: inherit;
+  font-weight: normal;
+  text-align: center;
+  text-decoration-line: underline;
+  color: var(--homePage-filtersAndSortBySetter-filtersHeadingTextColor);
+}
+
+.textBasedFiltersWrapper {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  row-gap: 0.5em;
+  column-gap: 0.2em;
+  margin-top: 0.3em;
+}
+
+.textBasedFilterTextFieldLabel {
+  justify-self: end;
+}
+
+.textBasedFilterTextField {
+  width: 97%;
+  padding: 0 0.1em;
+  background-color: var(--textField-background-color);
+}
+
+.textBasedFilterTextField:focus {
+  outline: 0.1em solid var(--homePage-filtersAndSortBySetter-focusColor);
+}
+
+.textBasedFiltersUserHelperText {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.3em;
+}
+
+.priorityAndStatusFiltersDropDownWrapper {
+  display: flex;
+  justify-content: center;
+  column-gap: 1em;
+  margin-top: 0.3em;
+}
+
+.labelAndFilterDropDownWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.filterDropDownLabel {
+  align-self: center;
+}
+
+.filterDropDown {
+  background-color: var(--dropDown-background-color);
+  cursor: pointer;
+}
+
+.filterDropDown:focus {
+  outline: 0.1em solid var(--homePage-filtersAndSortBySetter-focusColor);
+}
+
+.dueDateFilterRadioButtonsWrapper {
+  display: flex;
+  justify-content: center;
+  column-gap: 0.2em;
+  margin-top: 0.3em;
+}
+
+.dueDateFilterRadioButton {
+  accent-color: var(--homePage-filtersAndSortBySetter-dateFilterRadioButton-checked-color);
+  cursor: pointer;
+}
+
+.dueDateFilterRadioButtonLabel {
+  cursor: pointer;
+}
+
+.singleDueDateFilterWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.2em;
+}
+
+.dueDateFilterAndCheckboxWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.dueDateFilterIncludeThisDateCheckbox {
+  accent-color: var(--homePage-filtersAndSortBySetter-dateFilter-includeThisDateCheckbox-checked-color);
+  cursor: pointer;
+}
+
+.dueDateFilterIncludeThisDateCheckboxLabel {
+  margin-left: 0.1em;
+  cursor: pointer;
+}
+
+.doubleDueDateFilterWrapper {
+  display: flex;
+  justify-content: center;
+  column-gap: 0.2em;
+  margin-top: 0.2em;
+}
+
+.sortByWrapper {
+  display: flex;
+  column-gap: 0.2em;
+  margin-top: 0.3em;
+  padding-left: 0.2em;
+}
+
+.sortByRadioButton {
+  accent-color: var(--homePage-filtersAndSortBySetter-sortBy-radioButton-checked-color);
+  cursor: pointer;
+}
+
+.sortByRadioButtonLabel {
+  margin-left: 0.1em;
+  cursor: pointer;
+}
+
+.sortOrderWrapper {
+  display: flex;
+  justify-content: center;
+  column-gap: 0.2em;
+  margin-top: 0.3em;
+}
+
+.sortOrderDropDown {
+  background-color: var(--dropDown-background-color);
+  cursor: pointer;
+}
+
+.sortOrderDropDown:focus {
+   outline: 0.1em solid var(--homePage-filtersAndSortBySetter-focusColor);
+}
+
+.retrieveTodosAndResetbuttonsWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.3em;
+  row-gap: 0.3em;
+  padding: 0 0.3em;
+}
+
+.actionButton {
+  cursor: pointer;
+  padding: 0 0.2em;
+  background-color: var(--button-background-color);
+}
+
+.actionButton:active {
+  transform: scale(1.05);
+}
+
+.searchIconSpan {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.3em;
+  background-image: url("../../static/images/search-icon.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  /* border: 1px solid red; */
+  vertical-align: text-bottom;
+}
+
+
+
+/* for phones in landscape and for small tablets */
+@media (min-width: 37.5em) {
+  .textBasedFilterTextField {
+    width: 70%;
+  }
+
+  .sortByWrapper {
+    padding-left: 0;
+    justify-content: center;
+  }
+
+  .sortByRadioButtonsAndLabelsWrapper {
+    display: flex;
+    column-gap: 0.3em;
+  }
+
+  .retrieveTodosAndResetbuttonsWrapper {
+    padding: 0;
+  }
+
+}
+
+/* for large tablets */
+@media (min-width: 62em) {
+  .filterAndSortBySetter {
+    font-size: 1.5rem;
+  }
+}
+
+/* for laptops and desktops */
+@media (min-width: 75em) {
+  
+}

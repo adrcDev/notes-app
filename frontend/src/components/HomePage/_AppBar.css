@@ -42,6 +42,7 @@
   background-image: var(--appBar-lightDarkThemeToggle-image);
   background-repeat: no-repeat;
   background-size: cover;
+  cursor: pointer;
   /* border: 1px solid yellow; */
 }
 
