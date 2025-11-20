@@ -36,18 +36,6 @@ public class Todo {
     @Column(name="content_delta",nullable = false)
     private String contentDelta;
 
-    @Column(name="title_tsvector",nullable = false,insertable = false,updatable = false)
-    @JdbcTypeCode(Types.OTHER)
-    private byte[] titleTsvector;
-
-    @Column(name="description_tsvector",nullable = false,insertable = false,updatable = false)
-    @JdbcTypeCode(Types.OTHER)
-    private byte[] descriptionTsvector;
-
-    @Column(name="content_text_tsvector",nullable = false,insertable = false,updatable = false)
-    @JdbcTypeCode(Types.OTHER)
-    private byte[] contentTextTsvector;
-
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "user_id",referencedColumnName = "id",nullable = false)
     private User user;
@@ -108,18 +96,6 @@ public class Todo {
 
     public String getContentDelta() {
         return contentDelta;
-    }
-
-    public byte[] getTitleTsvector() {
-        return titleTsvector;
-    }
-
-    public byte[] getDescriptionTsvector() {
-        return descriptionTsvector;
-    }
-
-    public byte[] getContentTextTsvector() {
-        return contentTextTsvector;
     }
 
     public User getUser() {
@@ -190,9 +166,6 @@ public class Todo {
                 ", description='" + description + '\'' +
                 ", contentText='" + contentText + '\'' +
                 ", contentDelta='" + contentDelta + '\'' +
-                ", titleTsvector='" + titleTsvector + '\'' +
-                ", descriptionTsvector='" + descriptionTsvector + '\'' +
-                ", contentTextTsvector='" + contentTextTsvector + '\'' +
                 ", user=" + user +
                 ", dueDate=" + dueDate +
                 ", priority=" + priority +

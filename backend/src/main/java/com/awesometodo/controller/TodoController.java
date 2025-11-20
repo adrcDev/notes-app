@@ -1,32 +1,45 @@
 package com.awesometodo.controller;
 
+import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
+import com.awesometodo.service.TodoService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 /* Only added for development */
 @CrossOrigin(allowCredentials = "true",origins ={"http://localhost:8081"})
 public class TodoController {
     private static final Logger logger= LoggerFactory.getLogger(TodoController.class);
+    private TodoService todoService;
+
+    public TodoController(TodoService todoService) {
+        this.todoService=todoService;
+    }
 
     @GetMapping("/api/v1/todos")
-    public Map<String,String> getTodos(@Valid TodoQueryParamsDTO todoQueryParamsDTO){
+    public TodoPageResponseDTO getMatchingTodos(@Valid TodoQueryParamsDTO todoQueryParamsDTO){
         logger.debug("/api/v1/todos endpoint started running");
         logger.debug("The received query parameters are {}", todoQueryParamsDTO);
-
+        int userId=getUserIdFromJwtAccessToken();
+        TodoPageResponseDTO todoPageResponseDTO=todoService.getMatchingTodosForUserId(userId,todoQueryParamsDTO);
         logger.debug("/api/v1/todos endpoint finished running");
-        //placeholder
-        return Map.of("message","hi");
+        return todoPageResponseDTO;
+    }
+
+    private int getUserIdFromJwtAccessToken() {
+        JwtAuthenticationToken authenticationObj=(JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+        String subjectClaimValue=authenticationObj.getToken().getSubject();
+        return Integer.parseInt(subjectClaimValue);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
@@ -34,4 +47,6 @@ public class TodoController {
         response.setStatus(400);
         logger.warn("The request message body's json which was deserialized to a java object was not considered valid by hibernate validator or the request message's query parameter values failed validation, so a MethodArgumentNotValidException was thrown by spring framework. The exception's message:-\n{}",e.getMessage());
     }
+
+
 }
