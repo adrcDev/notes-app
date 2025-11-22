@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-/* Only added for development */
-@CrossOrigin(allowCredentials = "true",origins ={"http://localhost:8081"})
 public class AuthV1Controller {
     private static final Logger logger= LoggerFactory.getLogger(AuthV1Controller.class);
     private static final String JWT_REFRESH_TOKEN_COOKIE_NAME="jwt_refresh_token";

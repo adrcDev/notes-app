@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-/* Only added for development */
-@CrossOrigin(allowCredentials = "true",origins ={"http://localhost:8081"})
 public class TodoController {
     private static final Logger logger= LoggerFactory.getLogger(TodoController.class);
     private TodoService todoService;
