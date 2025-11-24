@@ -1,5 +1,5 @@
 .loginProcessingModalDialog {
-  background-color: var(--dialog-backgroundColor);
+  background-color: rgb(53, 57, 53);
   padding: 0.3em;
   border: none;
   position: fixed;
@@ -11,8 +11,8 @@
 }
 
 .loadingSpinner {
-  border: 0.5em solid var(--loadingSpinner-border-color); 
-  border-top: 0.5em solid var(--loadingSpinner-border-top-color); 
+  border: 0.5em solid #E0E0E0; 
+  border-top: 0.5em solid yellow; 
   border-radius: 50%;
   width: 5em;
   height: 5em;

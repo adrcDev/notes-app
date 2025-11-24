@@ -1,6 +1,6 @@
 .filterAndSortBySetter {
   font-size: 1.25rem;
-  color: var(--main-text-Color);
+  color: white;
 }
 
 .filtersHeadingText {
@@ -8,7 +8,7 @@
   font-weight: normal;
   text-align: center;
   text-decoration-line: underline;
-  color: var(--homePage-filtersAndSortBySetter-filtersHeadingTextColor);
+  color: yellow;
 }
 
 .textBasedFiltersWrapper {
@@ -26,11 +26,11 @@
 .textBasedFilterTextField {
   width: 97%;
   padding: 0 0.1em;
-  background-color: var(--textField-background-color);
+  background-color: #E0E0E0;
 }
 
 .textBasedFilterTextField:focus {
-  outline: 0.1em solid var(--homePage-filtersAndSortBySetter-focusColor);
+  outline: 0.1em solid orange;
 }
 
 .textBasedFiltersUserHelperText {
@@ -57,12 +57,12 @@
 }
 
 .filterDropDown {
-  background-color: var(--dropDown-background-color);
+  background-color: #E0E0E0;
   cursor: pointer;
 }
 
 .filterDropDown:focus {
-  outline: 0.1em solid var(--homePage-filtersAndSortBySetter-focusColor);
+  outline: 0.1em solid orange;
 }
 
 .dueDateFilterRadioButtonsWrapper {
@@ -73,7 +73,7 @@
 }
 
 .dueDateFilterRadioButton {
-  accent-color: var(--homePage-filtersAndSortBySetter-dateFilterRadioButton-checked-color);
+  accent-color: yellow;
   cursor: pointer;
 }
 
@@ -93,7 +93,7 @@
 }
 
 .dueDateFilterIncludeThisDateCheckbox {
-  accent-color: var(--homePage-filtersAndSortBySetter-dateFilter-includeThisDateCheckbox-checked-color);
+  accent-color: yellow;
   cursor: pointer;
 }
 
@@ -117,7 +117,7 @@
 }
 
 .sortByRadioButton {
-  accent-color: var(--homePage-filtersAndSortBySetter-sortBy-radioButton-checked-color);
+  accent-color: yellow;
   cursor: pointer;
 }
 
@@ -134,12 +134,12 @@
 }
 
 .sortOrderDropDown {
-  background-color: var(--dropDown-background-color);
+  background-color: #E0E0E0;
   cursor: pointer;
 }
 
 .sortOrderDropDown:focus {
-   outline: 0.1em solid var(--homePage-filtersAndSortBySetter-focusColor);
+   outline: 0.1em solid orange;
 }
 
 .retrieveTodosAndResetbuttonsWrapper {
@@ -154,7 +154,7 @@
 .actionButton {
   cursor: pointer;
   padding: 0 0.2em;
-  background-color: var(--button-background-color);
+  background-color: #E0E0E0;
 }
 
 .actionButton:active {

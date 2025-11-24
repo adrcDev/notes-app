@@ -7,7 +7,7 @@
 .dialogCloseButton {
   background-color: transparent;
   border: none;
-  background-image: var(--dialog-closeButton-background-image);
+  background-image: url("../../static/images/dialog-close-icon-dark.svg");
   background-repeat: no-repeat;
   background-size: contain;
   width: 1.5em;
@@ -19,8 +19,8 @@
 }
 
 .textDialog {
-  background-color: var(--dialog-backgroundColor);
-  color: var(--main-text-Color);
+  background-color: rgb(53, 57, 53);
+  color: white;
   border: none;
   position: fixed;
   top: 50%;

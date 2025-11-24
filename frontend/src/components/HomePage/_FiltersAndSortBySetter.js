@@ -1,11 +1,15 @@
 import * as filterAndSortBySetterStylesObj from "./_FiltersAndSortBySetter.css";
 import * as React from "react";
 import TextDialog from "./_TextDialog.js";
+import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
+import { useNavigate } from "react-router";
 
-export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
-  let [selectedDueDateFilterRadioButton,setSelectedDueDateFilterRadioButton]=
+export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,parent_setTodosPageObj}) {
+  let context_jwtAccessTokenRef=React.useContext(JwtAccessTokenContext);
+  let navigateFuncReactRouter=useNavigate();
+  let [selectedDueDateFilterRadioButtonLabelText,setSelectedDueDateFilterRadioButtonLabelText]=
     React.useState("all");
-  let [selectedSortByRadioButton,setSelectedSortByRadioButton]=React.useState("due date");
+  let [selectedSortByRadioButtonLabelText,setSelectedSortByRadioButtonLabelText]=React.useState("due date");
   let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
   let [textDialogText,setTextDialogText]=React.useState("");
 
@@ -15,23 +19,35 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
   let priortyFilterDropDownRef=React.useRef(null);
   let statusFilterDropDownRef=React.useRef(null);
   let sortOrderDropDownRef=React.useRef(null);
-  
+  let dueDateOnDateFieldRef=React.useRef(null);
+  let dueDateBeforeDateFieldRef=React.useRef(null);
+  let dueDateAfterDateFieldRef=React.useRef(null);
+  let includeThisDateCheckBoxRef=React.useRef(null);
+  let dueDateFromDateFieldRef=React.useRef(null);
+  let dueDateToDateFieldRef=React.useRef(null);
+  let dueDateFromIncludeDateCheckboxRef=React.useRef(null);
+  let dueDateToIncludeDateCheckboxRef=React.useRef(null);
   
   let dueDateFilterDivJsxObj;
-  if(selectedDueDateFilterRadioButton==="on") {
+  if(selectedDueDateFilterRadioButtonLabelText==="on") {
     dueDateFilterDivJsxObj=(
       <div className={filterAndSortBySetterStylesObj.singleDueDateFilterWrapper}>
-        <input type="date"></input>
+        <input type="date" ref={dueDateOnDateFieldRef}></input>
       </div>
     );
   }
-  else if(selectedDueDateFilterRadioButton==="before" || selectedDueDateFilterRadioButton==="after") {
+  else if(selectedDueDateFilterRadioButtonLabelText==="before" || selectedDueDateFilterRadioButtonLabelText==="after") {
     dueDateFilterDivJsxObj=(
       <div className={filterAndSortBySetterStylesObj.singleDueDateFilterWrapper}>
         <div>
-          <input type="date"></input>
+          <input type="date" ref={(domNode)=>{     
+            if(selectedDueDateFilterRadioButtonLabelText==="before")
+              dueDateBeforeDateFieldRef.current=domNode;
+            else if(selectedDueDateFilterRadioButtonLabelText=="after")
+              dueDateAfterDateFieldRef.current=domNode;
+          }}></input>
           <div>
-            <input type="checkbox" id="dueDateFilterIncludeThisDateCheckbox" className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckbox}></input>
+            <input type="checkbox" id="dueDateFilterIncludeThisDateCheckbox" className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckbox} ref={includeThisDateCheckBoxRef}></input>
             <label htmlFor="dueDateFilterIncludeThisDateCheckbox" 
             className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckboxLabel}>include this date</label>
           </div>
@@ -39,21 +55,23 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
       </div>
     );
   }
-  else if(selectedDueDateFilterRadioButton==="range") {
+  else if(selectedDueDateFilterRadioButtonLabelText==="range") {
     dueDateFilterDivJsxObj=(
       <div className={filterAndSortBySetterStylesObj.doubleDueDateFilterWrapper}>
         <div>
-            <input type="date"></input>
+            <input type="date" ref={dueDateFromDateFieldRef}></input>
             <div>
-              <input type="checkbox" id="dueDateFilterIncludeThisDateCheckbox1" className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckbox}></input>  
+              <input type="checkbox" id="dueDateFilterIncludeThisDateCheckbox1" className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckbox}
+              ref={dueDateFromIncludeDateCheckboxRef}></input>  
               <label htmlFor="dueDateFilterIncludeThisDateCheckbox1" className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckboxLabel}>include this date</label>
             </div>
         </div>
         <span>to</span>
         <div>
-            <input type="date"></input>
+            <input type="date" ref={dueDateToDateFieldRef}></input>
             <div>
-              <input type="checkbox" id="dueDateFilterIncludeThisDateCheckbox2" className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckbox}></input>  
+              <input type="checkbox" id="dueDateFilterIncludeThisDateCheckbox2" className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckbox}
+              ref={dueDateToIncludeDateCheckboxRef}></input>  
               <label htmlFor="dueDateFilterIncludeThisDateCheckbox2" className={filterAndSortBySetterStylesObj.dueDateFilterIncludeThisDateCheckboxLabel}>include this date</label>
             </div>
         </div>
@@ -63,12 +81,12 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
   
   function handleChangeForDueDateFilterRadioButton(e) {
     let clickedDueDateFilterRadioButtonValue=e.target.value;
-    setSelectedDueDateFilterRadioButton(clickedDueDateFilterRadioButtonValue);
+    setSelectedDueDateFilterRadioButtonLabelText(clickedDueDateFilterRadioButtonValue);
   }
 
   function handleChangeForSortByRadioButton(e) {
     let clickedSortByRadioButtonValue=e.target.value;
-    setSelectedSortByRadioButton(clickedSortByRadioButtonValue);
+    setSelectedSortByRadioButtonLabelText(clickedSortByRadioButtonValue);
   }
 
   function handleClickForResetFilterAndSortSettingsToDefaultButton(e) {
@@ -77,15 +95,231 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
     contentFilterTextFieldRef.current.value="";
     priortyFilterDropDownRef.current.value="all";
     statusFilterDropDownRef.current.value="both";
-    setSelectedDueDateFilterRadioButton("all");
-    setSelectedSortByRadioButton("due date");
+    setSelectedDueDateFilterRadioButtonLabelText("all");
+    setSelectedSortByRadioButtonLabelText("due date");
     sortOrderDropDownRef.current.value="ascending";
   }
 
   function handleClickForRetrieveTodosBasedOnSettingsButton(e) {
     // parent_loadingModalDialogRef.current.showModal();
-    // setIsTextDialogToBeShown(true);
-    // setTextDialogText("hi there!");
+    let urlQueryParamsObj=new URLSearchParams();
+    if(titleFilterTextFieldRef.current.value.trim()!=="") {
+      urlQueryParamsObj.append("titleSearch",titleFilterTextFieldRef.current.value.trim());
+    }
+    if(descriptionFilterTextFieldRef.current.value.trim()!=="") {
+      urlQueryParamsObj.append("descriptionSearch",descriptionFilterTextFieldRef.current.value.trim());
+    }
+    if(contentFilterTextFieldRef.current.value.trim()!=="") {
+      urlQueryParamsObj.append("contentSearch",contentFilterTextFieldRef.current.value.trim());
+    }
+    if(priortyFilterDropDownRef.current.value!=="all") {
+      urlQueryParamsObj.append("priority",priortyFilterDropDownRef.current.value);
+    }
+    if(statusFilterDropDownRef.current.value!=="both") {
+      urlQueryParamsObj.append("status",statusFilterDropDownRef.current.value);
+    }
+
+    if(selectedDueDateFilterRadioButtonLabelText==="on") {
+      if(dueDateOnDateFieldRef.current.value==="") {
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Please choose a date from the date picker for setting the 'due date on' filter");
+        return;
+      }
+      
+      urlQueryParamsObj.append("dueDateFrom",dueDateOnDateFieldRef.current.value);
+      urlQueryParamsObj.append("dueDateTo",dueDateOnDateFieldRef.current.value);
+    }
+    else if(selectedDueDateFilterRadioButtonLabelText==="before") {
+      if(dueDateBeforeDateFieldRef.current.value==="") {
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Please choose a date from the date picker for setting the 'due date before' filter");
+        return;
+      }
+
+      if(includeThisDateCheckBoxRef.current.checked) {
+        urlQueryParamsObj.append("dueDateTo",dueDateBeforeDateFieldRef.current.value)
+      }
+      else {
+        let dueDateBeforeString=dueDateBeforeDateFieldRef.current.value;
+        let dueDateBeforeStringSubtractedBy1Day=subtract1DayFromDateString(dueDateBeforeString);
+        urlQueryParamsObj.append("dueDateTo",dueDateBeforeStringSubtractedBy1Day);
+      }
+    }
+    else if(selectedDueDateFilterRadioButtonLabelText==="after") {
+      if(dueDateAfterDateFieldRef.current.value==="") {
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Please choose a date from the date picker for setting the 'due date after' filter");
+        return;
+      }
+
+      if(includeThisDateCheckBoxRef.current.checked) {
+        urlQueryParamsObj.append("dueDateFrom",dueDateAfterDateFieldRef.current.value)
+      }
+      else {
+        let dueDateAfterString=dueDateAfterDateFieldRef.current.value;
+        let dueDateAfterStringSubtractedBy1Day=subtract1DayFromDateString(dueDateAfterString);
+        urlQueryParamsObj.append("dueDateFrom",dueDateAfterStringSubtractedBy1Day);
+      }
+    }
+    else if(selectedDueDateFilterRadioButtonLabelText==="range") {
+      if(dueDateFromDateFieldRef.current.value==="") {
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Please choose a date from the date picker for setting the 'due date from' date picker field under the range due date filter");
+        return;
+      }
+      if(dueDateToDateFieldRef.current.value==="") {
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Please choose a date from the date picker for setting the 'due date to' date picker field under the range due date filter");
+        return;
+      }
+
+      let dueDateFromMsFromEpoch=Date.parse(`${dueDateFromDateFieldRef.current.value}T00:00:00Z`);
+      let dueDateToMsFromEpoch=Date.parse(`${dueDateToDateFieldRef.current.value}T00:00:00Z`);
+      if(dueDateFromMsFromEpoch>dueDateToMsFromEpoch) {
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("The 'due date from' date picker field value cannot be greater than the 'due date to' date picker field value under the 'due date range' filter");
+        return;
+      }
+
+      if(dueDateFromIncludeDateCheckboxRef.current.checked) {
+        urlQueryParamsObj.append("dueDateFrom",dueDateFromDateFieldRef.current.value);
+      }
+      else {
+        let dueDateFromDateString=dueDateFromDateFieldRef.current.value;
+        let dueDateFromDateStringSubtractedBy1Day=subtract1DayFromDateString(dueDateFromDateString);
+        urlQueryParamsObj.append("dueDateFrom",dueDateFromDateStringSubtractedBy1Day);
+      }
+
+      if(dueDateToIncludeDateCheckboxRef.current.checked) {
+        urlQueryParamsObj.append("dueDateTo",dueDateToDateFieldRef.current.value);
+      }
+      else {
+        let dueDateToDateString=dueDateToDateFieldRef.current.value;
+        let dueDateToDateStringSubtractedBy1Day=subtract1DayFromDateString(dueDateToDateString);
+        urlQueryParamsObj.append("dueDateTo",dueDateToDateStringSubtractedBy1Day);
+      }
+    }
+
+    urlQueryParamsObj.append("sortBy",selectedSortByRadioButtonLabelText);
+    urlQueryParamsObj.append("sortOrder",sortOrderDropDownRef.current.value);
+    /* limit=10 and offset=0 are the default values of the GET api/v1/todos endpoint */
+    urlQueryParamsObj.append("limit",10);
+    urlQueryParamsObj.append("offset",0);
+    let urlQueryParamsString=urlQueryParamsObj.toString();
+    let jwtAccessToken= context_jwtAccessTokenRef.current;
+    parent_loadingModalDialogRef.current.showModal();
+    fetch(`http://localhost:8080/api/v1/todos?${urlQueryParamsString}`,{
+      headers: {Authorization:`Bearer ${jwtAccessToken}`},
+      method: "get",
+      credentials: "include"
+    })
+    .then((response)=>{
+      if(response.status===400) {
+        throw new Error("400:bad request");
+      }
+
+      if(response.status===500) {
+        throw new Error("500:internal server error");
+      }
+
+      if(response.status===200) {
+        return response.json();
+      }
+
+      if(response.status===401) {
+        return fetch("http://localhost:8080/auth/v1/refresh",{
+          method: "post",
+          credentials: "include"  //only added for development
+        });  
+      }
+
+    })
+    .then((obj)=>{
+      let isObjAResponseObj=obj.status!==undefined;
+      if(!isObjAResponseObj) {
+        let todosPageJsonParsedObj=obj;
+        // console.log(responseBodyJsonParsedObj);
+        parent_setTodosPageObj(todosPageJsonParsedObj);
+        parent_loadingModalDialogRef.current.close();
+      }
+      else {
+        let response=obj;
+        if(response.status===500) {
+          throw new Error("500:internal server error");
+        } 
+        
+        if(response.status===401) {
+          context_jwtAccessTokenRef.current="";
+          navigateFuncReactRouter("/auth/login",{replace:true});
+        }
+
+        if(response.status===200) {
+          return response.json();
+        }
+      }
+      
+    })
+    .then((value)=>{
+      let isResolvedValueAnObj=value!==undefined;
+      if(isResolvedValueAnObj) {
+        let jwtAccessTokenParsedJsonObj=value;
+        let newJwtAccessToken=jwtAccessTokenParsedJsonObj["jwt access token"];
+        context_jwtAccessTokenRef.current=newJwtAccessToken;
+        return fetch(`http://localhost:8080/api/v1/todos?${urlQueryParamsString}`,{
+          headers: {Authorization:`Bearer ${newJwtAccessToken}`},
+          method: "get",
+          credentials: "include"
+        });
+      }
+    })
+    .then((value)=>{
+      let isResolvedValueAResponseObj=value!==undefined;
+      if(isResolvedValueAResponseObj) {
+        let response=value;
+        if(response.status===500) {
+          throw new Error("500:internal server error")
+        }
+
+        if(response.status===401) {
+          throw new Error("unexpected 401 error");
+        }
+
+        if(response.ok) {
+          return response.json();
+        }
+      }
+    })
+    .then((value)=>{
+      let isResolvedValueAnObj=value!==undefined;
+      if(isResolvedValueAnObj) {
+        let todosPageJsonParsedObj=value; 
+        parent_setTodosPageObj(todosPageJsonParsedObj);
+        parent_loadingModalDialogRef.current.close();
+      }
+    })
+    .catch((err)=>{
+      parent_loadingModalDialogRef.current.close();
+      if(err.message==="400:bad request") {
+        console.error(err.message);
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Something went wrong please try again");
+      }
+      else if(err.message==="500:internal server error") {
+        console.error(err.message);
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Something went wrong please try again");
+      }
+      else if(err.message==="unexpected 401 error") {
+        console.error("unexpected 401 error!. Check whether the refresh endpoint's code is returning a new valid jwt access token");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Something went wrong please try again");
+      }
+      else {
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Network error! Please check your network connection and try again");
+      }
+    });
+    
   }
 
 
@@ -106,7 +340,7 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
         <input id="contentFilterTextField" 
         className={filterAndSortBySetterStylesObj.textBasedFilterTextField} ref={contentFilterTextFieldRef}></input>
       </div>
-      <div className={filterAndSortBySetterStylesObj.textBasedFiltersUserHelperText}>You can leave any of the above text fields empty if you don't want to filter todo's by the respective filter</div>
+      <div className={filterAndSortBySetterStylesObj.textBasedFiltersUserHelperText}>You can leave any of the above text fields empty if you don't want to filter todos by the respective filter</div>
       
       <div className={filterAndSortBySetterStylesObj.priorityAndStatusFiltersDropDownWrapper}>
         <div className={filterAndSortBySetterStylesObj.labelAndFilterDropDownWrapper}>
@@ -130,19 +364,19 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
 
       <div className={filterAndSortBySetterStylesObj.dueDateFilterRadioButtonsWrapper}>
         <label>Due date:</label>
-        <input type="radio" id="allDueDateFilterRadionButton" name="dueDate" value="all" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} checked={selectedDueDateFilterRadioButton==="all"} onChange={handleChangeForDueDateFilterRadioButton}></input>
+        <input type="radio" id="allDueDateFilterRadionButton" name="dueDate" value="all" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} checked={selectedDueDateFilterRadioButtonLabelText==="all"} onChange={handleChangeForDueDateFilterRadioButton}></input>
         <label htmlFor="allDueDateFilterRadionButton" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButtonLabel}>all</label>
-        <input type="radio" id="onDueDateFilterRadionButton" name="dueDate" value="on" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} checked={selectedDueDateFilterRadioButton==="on"} onChange={handleChangeForDueDateFilterRadioButton}></input>
+        <input type="radio" id="onDueDateFilterRadionButton" name="dueDate" value="on" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} checked={selectedDueDateFilterRadioButtonLabelText==="on"} onChange={handleChangeForDueDateFilterRadioButton}></input>
         <label htmlFor="onDueDateFilterRadionButton" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButtonLabel}>on</label>
         <input type="radio" id="beforeDueDateFilterRadionButton" name="dueDate" value="before"
-        checked={selectedDueDateFilterRadioButton==="before"} className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} onChange={handleChangeForDueDateFilterRadioButton}></input>
+        checked={selectedDueDateFilterRadioButtonLabelText==="before"} className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} onChange={handleChangeForDueDateFilterRadioButton}></input>
         <label htmlFor="beforeDueDateFilterRadionButton" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButtonLabel}>before</label>
         <input type="radio" id="afterDueDateFilterRadionButton" name="dueDate" value="after"
-          checked={selectedDueDateFilterRadioButton==="after"} className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} onChange={handleChangeForDueDateFilterRadioButton}>
+          checked={selectedDueDateFilterRadioButtonLabelText==="after"} className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} onChange={handleChangeForDueDateFilterRadioButton}>
         </input>
         <label htmlFor="afterDueDateFilterRadionButton" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButtonLabel}>after</label>
         <input type="radio" id="rangeDueDateFilterRadionButton" name="dueDate" value="range"
-          checked={selectedDueDateFilterRadioButton==="range"} className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} onChange={handleChangeForDueDateFilterRadioButton}>
+          checked={selectedDueDateFilterRadioButtonLabelText==="range"} className={filterAndSortBySetterStylesObj.dueDateFilterRadioButton} onChange={handleChangeForDueDateFilterRadioButton}>
         </input>
         <label htmlFor="rangeDueDateFilterRadionButton" className={filterAndSortBySetterStylesObj.dueDateFilterRadioButtonLabel}>range</label>
       </div>
@@ -153,19 +387,19 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
         <label>Sort by:</label>
         <div className={filterAndSortBySetterStylesObj.sortByRadioButtonsAndLabelsWrapper}>
           <div>
-            <input type="radio" name="sortBy" value="due date" id="sortByDueDateRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButton} onChange={handleChangeForSortByRadioButton} checked={selectedSortByRadioButton==="due date"}></input>
+            <input type="radio" name="sortBy" value="due date" id="sortByDueDateRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButton} onChange={handleChangeForSortByRadioButton} checked={selectedSortByRadioButtonLabelText==="due date"}></input>
             <label htmlFor="sortByDueDateRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButtonLabel}>due date</label>
           </div>
           <div>
-            <input type="radio" name="sortBy" value="priority" id="sortByPriorityRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButton} onChange={handleChangeForSortByRadioButton} checked={selectedSortByRadioButton==="priority"}></input>
+            <input type="radio" name="sortBy" value="priority" id="sortByPriorityRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButton} onChange={handleChangeForSortByRadioButton} checked={selectedSortByRadioButtonLabelText==="priority"}></input>
             <label htmlFor="sortByPriorityRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButtonLabel}>priority</label>
           </div>
           <div>
-            <input type="radio" name="sortBy" value="creation date and time" id="sortByCreationDateAndTimeRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButton} onChange={handleChangeForSortByRadioButton} checked={selectedSortByRadioButton==="creation date and time"}></input>
+            <input type="radio" name="sortBy" value="creation date and time" id="sortByCreationDateAndTimeRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButton} onChange={handleChangeForSortByRadioButton} checked={selectedSortByRadioButtonLabelText==="creation date and time"}></input>
             <label htmlFor="sortByCreationDateAndTimeRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButtonLabel}>creation date and time</label>
           </div>
           <div>
-            <input type="radio" name="sortBy" value="last updation date and time" id="sortByLastUpdationDateAndTimeRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButton} onChange={handleChangeForSortByRadioButton} checked={selectedSortByRadioButton==="last updation date and time"}></input>
+            <input type="radio" name="sortBy" value="last updation date and time" id="sortByLastUpdationDateAndTimeRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButton} onChange={handleChangeForSortByRadioButton} checked={selectedSortByRadioButtonLabelText==="last updation date and time"}></input>
             <label htmlFor="sortByLastUpdationDateAndTimeRadioButton" className={filterAndSortBySetterStylesObj.sortByRadioButtonLabel}>last updation date and time</label>
           </div>
         </div>
@@ -180,7 +414,7 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
       </div>
 
       <div className={filterAndSortBySetterStylesObj.retrieveTodosAndResetbuttonsWrapper}>
-        <button className={filterAndSortBySetterStylesObj.actionButton} onClick={handleClickForRetrieveTodosBasedOnSettingsButton}>Retrieve todo's based on filter and sort settings <span className={filterAndSortBySetterStylesObj.searchIconSpan}></span></button>
+        <button className={filterAndSortBySetterStylesObj.actionButton} onClick={handleClickForRetrieveTodosBasedOnSettingsButton}>Retrieve todos based on filter and sort settings <span className={filterAndSortBySetterStylesObj.searchIconSpan}></span></button>
         <button className={filterAndSortBySetterStylesObj.actionButton} onClick={handleClickForResetFilterAndSortSettingsToDefaultButton}>Reset the filter and sort settings to defaults(For retrieving all todos)</button>
       </div>
 
@@ -188,4 +422,20 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef}) {
         <TextDialog text={textDialogText} parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown} />}
     </div>
   );
+}
+
+function subtract1DayFromDateString(dateString) {
+  let dateObj=new Date(`${dateString}T00:00:00Z`);
+  dateObj.setDate(dateObj.getDate()-1);      
+  let year=dateObj.getUTCFullYear();
+  let month=dateObj.getUTCMonth()+1;
+  if(`${month}`.length==1) {
+    month=`0${month}`;
+  }
+  let day=dateObj.getUTCDate();
+  if(`${day}`.length==1) {
+    day=`0${day}`;
+  }
+  let dateStringSubtractedBy1Day=`${year}-${month}-${day}`; 
+  return dateStringSubtractedBy1Day;
 }

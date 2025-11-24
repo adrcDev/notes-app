@@ -23,8 +23,8 @@ let router=createBrowserRouter([
   },
   {
     path: "/auth", /*TODO- might have to change this path segment name */
-    // element: <JwtAuthLogicWrapper><AuthPage /></JwtAuthLogicWrapper>,
-    element:<AuthPage/>,
+    element: <JwtAuthLogicWrapper><AuthPage /></JwtAuthLogicWrapper>,
+    // element:<AuthPage/>,
     children: [
       {
         path: "login",

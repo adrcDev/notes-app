@@ -5,14 +5,14 @@
   font-size: 1.25rem;
   /* border: 2px solid yellow; */
   padding: 0 0.25em;
-  color: var(--appBar-textColor);
-  background-color: var(--appBar-backgroundColor);
+  color: white;
+  background-color: rgb(53, 57, 53);
 }
 
 .appLogo {
   display: inline-block;
   width: 2.5em;
-  background-image: var(--appBar-appLogo);
+  background-image: url("../../static/images/todo-app-icon-dark.svg");
   background-repeat: no-repeat;
   background-size: cover;
   /* border: 1px solid red; */
@@ -44,6 +44,7 @@
   background-size: cover;
   cursor: pointer;
   /* border: 1px solid yellow; */
+  visibility: hidden;
 }
 
 /* placeholder style rule*/
