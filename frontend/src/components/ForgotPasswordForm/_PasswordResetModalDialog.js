@@ -2,12 +2,15 @@ import * as React from "react";
 import * as passwordResetModalDialogStylesObj from "./_PasswordResetModalDialog.css";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
+import {BackendUrlContext} from "../../contexts/BackendUrlContext";
 
 export default function PasswordResetModalDialog({parent_setIsPasswordResetModalDialogToBeShown,parent_setIsOtpModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_loadingModalDialogRef,
 parent_passwordResetTokenRef
 }) {
-
   let {register,handleSubmit,getValues,formState : {errors}}=useForm();
+
+  let context_backendUrl=React.useContext(BackendUrlContext);
+
   let passwordResetModalDialogRef=React.useRef(null);
   let [isShowPasswordCheckboxChecked,setIsShowPasswordCheckboxChecked]=React.useState(false);
   
@@ -52,7 +55,7 @@ parent_passwordResetTokenRef
     let passwordResetDataJson=JSON.stringify(passwordResetDataObj);
     // console.log(passwordResetDataJson);
 
-    fetch("http://localhost:8080/auth/v1/forgot-password/reset-password",{
+    fetch(`${context_backendUrl}/auth/v1/forgot-password/reset-password`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json"

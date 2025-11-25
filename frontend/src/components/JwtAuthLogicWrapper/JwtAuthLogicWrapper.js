@@ -2,10 +2,13 @@ import * as React from "react";
 import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext";
 import { useLocation, useNavigate } from "react-router";
 import LoadingModalDialog from "./_LoadingModalDialog";
+import {BackendUrlContext} from "../../contexts/BackendUrlContext";
 
 
 export default function JwtAuthLogicWrapper({children}) {
   let jwtAccessTokenRef=React.useContext(JwtAccessTokenContext);
+  let context_backendUrl=React.useContext(BackendUrlContext);
+
   let [isChildrenPropToBeRendered,setIsChildrenPropToBeRendered]=React.useState(false);
   let loadingModalDialogRef=React.useRef(null);
   let currentUrlObj=useLocation();
@@ -20,7 +23,7 @@ export default function JwtAuthLogicWrapper({children}) {
     let isNotAlreadyHaveJwtAccessToken=jwtAccessTokenRef.current==="";
     if(isNotAlreadyHaveJwtAccessToken) {
       let ignoreResponse=false;
-      fetch("http://localhost:8080/auth/v1/refresh",{
+      fetch(`${context_backendUrl}/auth/v1/refresh`,{
         method: "POST",
         credentials: "include"
       }).then((response)=>{

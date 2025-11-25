@@ -7,9 +7,12 @@ import TextModalDialog from "./_TextModalDialog.js";
 import OtpModalDialog from "./_OtpModalDialog.js";
 import LoadingModalDialog from "./_LoadingModalDialog.js";
 import PasswordResetModalDialog from "./_PasswordResetModalDialog.js"; 
+import { BackendUrlContext } from "../../contexts/BackendUrlContext.js";
 
 export default function ForgotPasswordForm() {
   let {register,handleSubmit,getValues,formState : {errors}}=useForm();
+
+  let context_backendUrl=React.useContext(BackendUrlContext);
 
   let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
   let [textDialogText,setTextDialogText]=React.useState(""); 
@@ -38,7 +41,7 @@ export default function ForgotPasswordForm() {
     data.email=data.email.toLowerCase();
     let dataAsJson=JSON.stringify(data);
     // console.log(dataAsJson);
-    fetch("http://localhost:8080/auth/v1/forgot-password/init",{
+    fetch(`${context_backendUrl}/auth/v1/forgot-password/init`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json"

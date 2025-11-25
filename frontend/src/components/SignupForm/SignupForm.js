@@ -6,6 +6,7 @@ import {PhoneNumberUtil,PhoneNumber} from "google-libphonenumber";
 import { data, Link } from "react-router";
 import TextDialog from "./_TextDialog";
 import TextModalDialog from "./_TextModalDialog";
+import {BackendUrlContext} from "../../contexts/BackendUrlContext";
 
 export default function SignupForm() {
   let {register,handleSubmit,getValues,formState : {errors},formState,trigger}=useForm({
@@ -13,6 +14,8 @@ export default function SignupForm() {
       gender: "",
     }
   });
+
+  let context_backendUrl=React.useContext(BackendUrlContext);
 
   let [otpDialogTimeRemainingBeforeOtpExpires,setOtpDialogTimeRemainingBeforeOtpExpires]=React.useState("5:00");
   let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
@@ -118,7 +121,7 @@ export default function SignupForm() {
     // console.log(signupDataJson);
     /* Storing sign up data json in a ref to later use in click handler of 'resend both otps' button of the otp verification modal dialog */
     signupDataJsonRef.current=signupDataJson;
-    fetch("http://localhost:8080/auth/v1/signup/init",{
+    fetch(`${context_backendUrl}/auth/v1/signup/init`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -169,7 +172,7 @@ export default function SignupForm() {
     loadingModalDialogRef.current.showModal();
     let signupDataJson=signupDataJsonRef.current;
     // console.log(signupDataJson);
-    fetch("http://localhost:8080/auth/v1/signup/resend-otps",{
+    fetch(`${context_backendUrl}/auth/v1/signup/resend-otps`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -245,7 +248,7 @@ export default function SignupForm() {
     };
 
     let otpVerificationDataJson=JSON.stringify(otpVerificationDataObj);
-    fetch("http://localhost:8080/auth/v1/signup/verify-otps",{
+    fetch(`${context_backendUrl}/auth/v1/signup/verify-otps`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json"

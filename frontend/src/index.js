@@ -14,6 +14,7 @@ import SignupForm from "./components/SignupForm/SignupForm.js";
 import ForgotPasswordForm from "./components/ForgotPasswordForm/ForgotPasswordForm.js";
 import JwtAuthLogicWrapper from "./components/JwtAuthLogicWrapper/JwtAuthLogicWrapper.js";
 import HomePage from "./components/HomePage/HomePage.js";
+import {BackendUrlProvider} from "./contexts/BackendUrlContext.js";
 
 let router=createBrowserRouter([
   {
@@ -49,7 +50,9 @@ root.render(
   <React.StrictMode>
     <ThemeProvider>
       <JwtAccessTokenProvider>
-        <RouterProvider router={router} />
+        <BackendUrlProvider>
+          <RouterProvider router={router} />
+        </BackendUrlProvider>
       </JwtAccessTokenProvider>
     </ThemeProvider>
   </React.StrictMode>

@@ -1,0 +1,9 @@
+.todosArea {
+  color: white;
+}
+
+.pageNoDivsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1.25rem;
+}

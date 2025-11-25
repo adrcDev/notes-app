@@ -7,9 +7,11 @@ import {validateUserNameOrEmailTextField} from "./LoginForm.internal.js"
 import TextDialog from "./_TextDialog.js";
 import { useNavigate } from "react-router";
 import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
+import { BackendUrlContext} from "../../contexts/BackendUrlContext.js";
 
 export default function LoginForm() {
   let {register,handleSubmit,getValues,formState : {errors}}=useForm();
+  let context_backendUrl=React.useContext(BackendUrlContext);
   let [isShowPasswordCheckboxChecked,setIsShowPasswordCheckboxChecked]=React.useState(false);
   let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
   let [textDialogText,setTextDialogText]=React.useState("");
@@ -63,7 +65,7 @@ export default function LoginForm() {
     // console.log(dataObj);
     let jsonToSend=JSON.stringify(dataObj);
     /* Send login request to rest api and if the username/email and password is valid then send the user to the todo page and also get the jwt access token and store it. If the credentials are invalid then show the invalid login dialog to the user. In both of these cases the login processing dialog should be closed */
-    fetch("http://localhost:8080/auth/v1/login",{
+    fetch(`${context_backendUrl}/auth/v1/login`,{
       body: jsonToSend,
       method: "post",
       headers: {

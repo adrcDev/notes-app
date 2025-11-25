@@ -3,7 +3,7 @@ import * as React from "react";
 import AppBar from "./_AppBar.js";
 import FiltersAndSortBySetter from "./_FiltersAndSortBySetter.js";
 import LoadingModalDialog from "./_LoadingModalDialog.js";
-import { ThemeContext } from "../../contexts/ThemeContext.js";
+import TodosArea from "./_TodosArea.js";
 
 
 export default function HomePage() {
@@ -24,6 +24,9 @@ export default function HomePage() {
       <AppBar/>
       <FiltersAndSortBySetter parent_loadingModalDialogRef={loadingModalDialogRef}
         parent_setTodosPageObj={setTodosPageObj}/>
+      <TodosArea parent_todosPageObj={todosPageObj}
+        parent_setTodosPageObj={setTodosPageObj}
+        parent_loadingModalDialogRef={loadingModalDialogRef}/>
       <LoadingModalDialog ref={loadingModalDialogRef} />
     </>
   );

@@ -3,9 +3,11 @@ import * as React from "react";
 import TextDialog from "./_TextDialog.js";
 import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
 import { useNavigate } from "react-router";
+import { BackendUrlContext } from "../../contexts/BackendUrlContext.js";
 
 export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,parent_setTodosPageObj}) {
   let context_jwtAccessTokenRef=React.useContext(JwtAccessTokenContext);
+  let context_backendUrl=React.useContext(BackendUrlContext);
   let navigateFuncReactRouter=useNavigate();
   let [selectedDueDateFilterRadioButtonLabelText,setSelectedDueDateFilterRadioButtonLabelText]=
     React.useState("all");
@@ -208,7 +210,7 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
     let urlQueryParamsString=urlQueryParamsObj.toString();
     let jwtAccessToken= context_jwtAccessTokenRef.current;
     parent_loadingModalDialogRef.current.showModal();
-    fetch(`http://localhost:8080/api/v1/todos?${urlQueryParamsString}`,{
+    fetch(`${context_backendUrl}/api/v1/todos?${urlQueryParamsString}`,{
       headers: {Authorization:`Bearer ${jwtAccessToken}`},
       method: "get",
       credentials: "include"
@@ -227,7 +229,7 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
       }
 
       if(response.status===401) {
-        return fetch("http://localhost:8080/auth/v1/refresh",{
+        return fetch(`${context_backendUrl}/auth/v1/refresh`,{
           method: "post",
           credentials: "include"  //only added for development
         });  
@@ -265,7 +267,7 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
         let jwtAccessTokenParsedJsonObj=value;
         let newJwtAccessToken=jwtAccessTokenParsedJsonObj["jwt access token"];
         context_jwtAccessTokenRef.current=newJwtAccessToken;
-        return fetch(`http://localhost:8080/api/v1/todos?${urlQueryParamsString}`,{
+        return fetch(`${context_backendUrl}/api/v1/todos?${urlQueryParamsString}`,{
           headers: {Authorization:`Bearer ${newJwtAccessToken}`},
           method: "get",
           credentials: "include"

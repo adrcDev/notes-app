@@ -1,8 +1,10 @@
 import * as React from "react";
 import * as otpModalDialogStylesObj from "./_OtpModalDialog.css";
+import { BackendUrlContext } from "../../contexts/BackendUrlContext";
 
 export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,parent_setIsTextModalDialogToBeShown,parent_setTextModalDialogText,parent_setIsTextDialogToBeShown,parent_setTextDialogText,parent_setIsPasswordResetModalDialogToBeShown,parent_loadingModalDialogRef,parent_getValuesRHF,parent_passwordResetTokenRef
 }) {
+  let context_backendUrl=React.useContext(BackendUrlContext);
   
   let [otpDialogTimeRemainingBeforeOtpExpires,setOtpDialogTimeRemainingBeforeOtpExpires]=React.useState("5:00");
   let [isOtpDialogResendOtpButtonToBeDisabled,setIsOtpDialogResendOtpButtonToBeDisabled]=React.useState(true);
@@ -78,7 +80,7 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
       email: parent_getValuesRHF("email")
     };
     let forgotPasswordDataObjAsJson=JSON.stringify(forgotPasswordDataObj);
-    fetch("http://localhost:8080/auth/v1/forgot-password/init",{
+    fetch(`${context_backendUrl}/auth/v1/forgot-password/init`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -309,7 +311,7 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
 
       let otpVerificationDataJson=JSON.stringify(otpVerificationDataObj);
 
-      fetch("http://localhost:8080/auth/v1/forgot-password/verify-otps",{
+      fetch(`${context_backendUrl}/auth/v1/forgot-password/verify-otps`,{
         method: "POST",
         headers: {
           "Content-Type": "application/json"
