@@ -1,9 +1,33 @@
 .todosArea {
   color: white;
+  margin-top: 1em;
 }
 
 .pageNoDivsWrapper {
   display: flex;
   flex-wrap: wrap;
   font-size: 1.25rem;
+  column-gap: 0.4em;
+  row-gap: 0.5em;
+  padding: 0 0.2em;
 }
+
+.pageNoDiv {
+  background-color: rgb(53, 57, 53);
+  cursor: pointer;
+  padding: 0.15em;
+}
+
+.selectedPageNoDiv {
+  color: yellow;
+  transform: scale(1.4);
+}
+
+
+.prevNextPageDivsWrapper {
+  display: flex;
+  justify-content: center;
+  column-gap: 0.5em;
+}
+
+

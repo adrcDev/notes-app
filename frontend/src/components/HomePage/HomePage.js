@@ -7,9 +7,11 @@ import TodosArea from "./_TodosArea.js";
 
 
 export default function HomePage() {
-  let loadingModalDialogRef=React.useRef(null);
   let [todosPageObj,setTodosPageObj]=React.useState(null);
+  let [todosAreaSelectedPageNo,setTodosAreaSelectedPageNo]=React.useState(0);
 
+  let loadingModalDialogRef=React.useRef(null);
+  let filterAndSortUrlSearchParamsObjRef=React.useRef(null);
 
   React.useEffect(()=>{
     document.body.classList.add(homePageStylesObj.bodyBackgroundColorOverride);
@@ -23,10 +25,16 @@ export default function HomePage() {
     <>
       <AppBar/>
       <FiltersAndSortBySetter parent_loadingModalDialogRef={loadingModalDialogRef}
-        parent_setTodosPageObj={setTodosPageObj}/>
+        parent_setTodosPageObj={setTodosPageObj}
+        parent_filterAndSortUrlSearchParamsObjRef={filterAndSortUrlSearchParamsObjRef}
+        parent_setTodosAreaSelectedPageNo={setTodosAreaSelectedPageNo}/>
+      {todosPageObj!==null && 
       <TodosArea parent_todosPageObj={todosPageObj}
         parent_setTodosPageObj={setTodosPageObj}
-        parent_loadingModalDialogRef={loadingModalDialogRef}/>
+        parent_loadingModalDialogRef={loadingModalDialogRef}
+        parent_filterAndSortUrlSearchParamsObjRef={filterAndSortUrlSearchParamsObjRef}
+        parent_todosAreaSelectedPageNo={todosAreaSelectedPageNo}
+        parent_setTodosAreaSelectedPageNo={setTodosAreaSelectedPageNo}/>}
       <LoadingModalDialog ref={loadingModalDialogRef} />
     </>
   );

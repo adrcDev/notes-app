@@ -163,7 +163,10 @@ By default generation of source maps depends on the devtool option. All values e
 
                 /*This option enables a new plugin that replaces the import "core-js/stable"; and require("core-js"); statements with individual imports to different core-js entry points based on environment. (based on targets property or browserlist(don't know what this is))*/
                 useBuiltIns: "entry",
-                corejs: "3.39.0"
+                corejs: "3.39.0",
+				/* You can exclude any plugin that is part of @babel/present-env using this property. I have included three generator related plugins as example */
+				/* exclude: ["transform-async-to-generator","proposal-async-generator-functions",
+				"transform-regenerator"],*/
               }],
               ['@babel/preset-react',{
                 /*This toggles behavior specific to development, such as adding __source and __self to the jsx tags */

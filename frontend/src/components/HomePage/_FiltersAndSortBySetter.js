@@ -5,10 +5,12 @@ import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
 import { useNavigate } from "react-router";
 import { BackendUrlContext } from "../../contexts/BackendUrlContext.js";
 
-export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,parent_setTodosPageObj}) {
+export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,parent_setTodosPageObj,parent_filterAndSortUrlSearchParamsObjRef,parent_setTodosAreaSelectedPageNo}) {
   let context_jwtAccessTokenRef=React.useContext(JwtAccessTokenContext);
   let context_backendUrl=React.useContext(BackendUrlContext);
+
   let navigateFuncReactRouter=useNavigate();
+
   let [selectedDueDateFilterRadioButtonLabelText,setSelectedDueDateFilterRadioButtonLabelText]=
     React.useState("all");
   let [selectedSortByRadioButtonLabelText,setSelectedSortByRadioButtonLabelText]=React.useState("due date");
@@ -241,7 +243,17 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
       if(!isObjAResponseObj) {
         let todosPageJsonParsedObj=obj;
         // console.log(responseBodyJsonParsedObj);
+        if(todosPageJsonParsedObj.totalTodos===0) {
+          setIsTextDialogToBeShown(true);
+          setTextDialogText("No todos were found that match the set filters");
+          parent_setTodosPageObj(null);
+          parent_setTodosAreaSelectedPageNo(0);
+          parent_loadingModalDialogRef.current.close();
+          return; //it is implicity return undefined
+        }
+        parent_filterAndSortUrlSearchParamsObjRef.current=urlQueryParamsObj;
         parent_setTodosPageObj(todosPageJsonParsedObj);
+        parent_setTodosAreaSelectedPageNo(1);
         parent_loadingModalDialogRef.current.close();
       }
       else {
@@ -295,7 +307,17 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
       let isResolvedValueAnObj=value!==undefined;
       if(isResolvedValueAnObj) {
         let todosPageJsonParsedObj=value; 
+        if(todosPageJsonParsedObj.totalTodos===0) {
+          setIsTextDialogToBeShown(true);
+          setTextDialogText("No todos were found that match the set filters");
+          parent_setTodosPageObj(null);
+          parent_setTodosAreaSelectedPageNo(0);
+          parent_loadingModalDialogRef.current.close();
+          return; //it is implicity return undefined
+        }
+        parent_filterAndSortUrlSearchParamsObjRef.current=urlQueryParamsObj;
         parent_setTodosPageObj(todosPageJsonParsedObj);
+        parent_setTodosAreaSelectedPageNo(1);
         parent_loadingModalDialogRef.current.close();
       }
     })

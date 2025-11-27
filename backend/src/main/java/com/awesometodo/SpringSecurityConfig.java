@@ -46,7 +46,7 @@ public class SpringSecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
-                    authorizationManagerRequestMatcherRegistry.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/login"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/refresh"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/signup/init"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/signup/verify-otps"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/signup/resend-otps"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/forgot-password/init"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/forgot-password/verify-otps"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/forgot-password/reset-password"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/refresh")).permitAll().anyRequest().authenticated();
+                    authorizationManagerRequestMatcherRegistry.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/login"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/refresh"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/signup/init"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/signup/verify-otps"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/signup/resend-otps"),PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/forgot-password/init"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/forgot-password/verify-otps"), PathPatternRequestMatcher.withDefaults().matcher("/auth/v1/forgot-password/reset-password")).permitAll().anyRequest().authenticated();
                 })
                 .addFilterAfter(new JwtAuthenticationFilter(jwtService), LogoutFilter.class);
 
@@ -58,6 +58,7 @@ public class SpringSecurityConfig {
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration=new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("http://localhost:8081");
+        corsConfiguration.addAllowedOrigin("http://192.168.1.105:8081");
         corsConfiguration.addAllowedHeader(CorsConfiguration.ALL);
         corsConfiguration.addAllowedMethod(CorsConfiguration.ALL);
         corsConfiguration.setAllowCredentials(true);
