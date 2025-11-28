@@ -23,11 +23,19 @@
   transform: scale(1.4);
 }
 
-
 .prevNextPageDivsWrapper {
   display: flex;
   justify-content: center;
   column-gap: 0.5em;
+}
+
+.prevOrNextPageButton {
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.prevOrNextPageButton:active:not(:disabled) {
+  transform: scale(1.1);
 }
 
 

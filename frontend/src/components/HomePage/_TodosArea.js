@@ -14,16 +14,19 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
   let [textDialogText,setTextDialogText]=React.useState("");
   let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
 
-  async function handleClickForPageNoDiv(e) {
-    parent_loadingModalDialogRef.current.showModal();
+  function handleClickForPageNoDiv(e) {
     let clickedPageNoDivDomNode=e.target;
     let clickedPageNo=Number.parseInt(clickedPageNoDivDomNode.textContent);
+    fetchAndSetTodosPage(clickedPageNo);      
+  }
 
+  async function fetchAndSetTodosPage(pageNo) {
+    parent_loadingModalDialogRef.current.showModal();
     let filterAndSortUrlSearchParamsObj=parent_filterAndSortUrlSearchParamsObjRef.current;
     filterAndSortUrlSearchParamsObj.delete("limit");
     filterAndSortUrlSearchParamsObj.delete("offset");
     filterAndSortUrlSearchParamsObj.append("limit",10);
-    filterAndSortUrlSearchParamsObj.append("offset",(clickedPageNo-1)*10);
+    filterAndSortUrlSearchParamsObj.append("offset",(pageNo-1)*10);
     let jwtAccessToken= context_jwtAccessTokenRef.current;
     let response;
     try {
@@ -58,10 +61,10 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
       }
 
       let lastExistingPageNo=Math.ceil(todosPageJsonParsedObj.totalTodos/10);
-      let isClickedPageNoValid=clickedPageNo<=lastExistingPageNo;
-      if(isClickedPageNoValid) {
+      let isPageNoPassedAsArgumentValid=pageNo<=lastExistingPageNo;
+      if(isPageNoPassedAsArgumentValid) {
         parent_setTodosPageObj(todosPageJsonParsedObj);
-        parent_setTodosAreaSelectedPageNo(clickedPageNo);
+        parent_setTodosAreaSelectedPageNo(pageNo);
         parent_loadingModalDialogRef.current.close();
         return;
       }
@@ -160,10 +163,10 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
           }
 
           let lastExistingPageNo=Math.ceil(todosPageJsonParsedObj.totalTodos/10);
-          let isClickedPageNoValid=clickedPageNo<=lastExistingPageNo;
-          if(isClickedPageNoValid) {
+          let isPageNoPassedAsArgumentValid=pageNo<=lastExistingPageNo;
+          if(isPageNoPassedAsArgumentValid) {
             parent_setTodosPageObj(todosPageJsonParsedObj);
-            parent_setTodosAreaSelectedPageNo(clickedPageNo);
+            parent_setTodosAreaSelectedPageNo(pageNo);
             parent_loadingModalDialogRef.current.close();
             return;
           }
@@ -201,9 +204,26 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
 
         }
       }
-      }
-      
+    }  
   }
+
+  function handleClickForPreviousPageButton(e) {
+    let currentSelectedPageNo=parent_todosAreaSelectedPageNo;
+    let previousPageNo=currentSelectedPageNo-1;
+    fetchAndSetTodosPage(previousPageNo);
+  }
+
+  function handleClickForNextPageButton(e) {
+    let currentSelectedPageNo=parent_todosAreaSelectedPageNo;
+    let nextPageNo=currentSelectedPageNo+1;
+    fetchAndSetTodosPage(nextPageNo);
+  }
+
+  function getLastPageNo() {
+    return Math.ceil(parent_todosPageObj.totalTodos/10);
+  }
+
+
   
   let pageNoDivsJsxObjArr=[];
   let totalTodos=parent_todosPageObj.totalTodos;
@@ -219,8 +239,16 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
     );
     pageNoDivsJsxObjArr.push(pageNoDivJsxObj)
   }
-  let prevPageDivJsxObj=<div>Previous page</div>;
-  let nextPageDivJsxObj=<div>Next page</div>;
+  let prevPageDivJsxObj=( 
+    <button onClick={handleClickForPreviousPageButton} 
+    disabled={parent_todosAreaSelectedPageNo===1}
+    className={todosAreaStylesObj.prevOrNextPageButton}>Previous page</button>
+  );
+  let nextPageDivJsxObj=(
+  <button onClick={handleClickForNextPageButton} 
+  disabled={parent_todosAreaSelectedPageNo===getLastPageNo()}
+  className={todosAreaStylesObj.prevOrNextPageButton}>Next page</button>
+  );
 
   return (
     <>
