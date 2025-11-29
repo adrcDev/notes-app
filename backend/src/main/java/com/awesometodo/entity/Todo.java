@@ -25,22 +25,22 @@ public class Todo {
     @Column(name="title",nullable = false)
     private String title;
 
-    @Column(name="description",nullable = false)
+    @Column(name="description",nullable = true)
     private String description;
 
-    @Column(name="content_text",nullable = false)
+    @Column(name="content_text",nullable = true)
     private String contentText;
 
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name="content_delta",nullable = false)
+    @Column(name="content_delta",nullable = true)
     private String contentDelta;
 
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "user_id",referencedColumnName = "id",nullable = false)
     private User user;
 
-    @Column(name="due_date",nullable = false)
+    @Column(name="due_date",nullable = true)
     private LocalDate dueDate;
 
     public enum Priority {
