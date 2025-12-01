@@ -4,6 +4,7 @@ import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
 import { BackendUrlContext } from "../../contexts/BackendUrlContext.js";
 import TextDialog from "./_TextDialog.js";
 import { useNavigate } from "react-router";
+import Quill from "quill";
 
 export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,parent_loadingModalDialogRef,parent_filterAndSortUrlSearchParamsObjRef,parent_todosAreaSelectedPageNo,parent_setTodosAreaSelectedPageNo}) {
   let context_jwtAccessTokenRef=React.useContext(JwtAccessTokenContext);
@@ -13,6 +14,41 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
 
   let [textDialogText,setTextDialogText]=React.useState("");
   let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
+
+  let readOnlyQuillEditorContainerDivsArrRef=React.useRef([]);
+  let todoTitleTextFieldArrRef=React.useRef([]);
+
+  React.useEffect(()=>{
+    let readOnlyQuillEditorContainerDivsArr=readOnlyQuillEditorContainerDivsArrRef.current;
+    for(let i=0;i<readOnlyQuillEditorContainerDivsArr.length;i++) { 
+      if(readOnlyQuillEditorContainerDivsArr[i]===null)
+        continue;
+      let containerDiv=readOnlyQuillEditorContainerDivsArr[i];
+      let readOnlyQuillEditorConfig={
+        theme: "snow",
+        readOnly: true,
+        modules: {
+          toolbar: null
+        }
+      };
+      let readOnlyQuillEditor=new Quill(containerDiv,readOnlyQuillEditorConfig);
+      let todoObj=parent_todosPageObj.todos[i];
+      let todoContentDeltaJson=todoObj.contentDelta;
+      let todoContentDeltaObj=JSON.parse(todoContentDeltaJson)
+      readOnlyQuillEditor.setContents(todoContentDeltaObj);
+    }
+
+    let todoTitleTextFieldArr=todoTitleTextFieldArrRef.current;
+    for(let i=0;i<todoTitleTextFieldArr.length;i++) {
+      if(todoTitleTextFieldArr[i]===null)
+        continue;
+      let titleTextFieldDomNode=todoTitleTextFieldArr[i];
+      let todoObj=parent_todosPageObj.todos[i];
+      let todoTitle=todoObj.title;
+      titleTextFieldDomNode.value=todoTitle;
+    }
+    
+  },[parent_todosPageObj.todos]);
 
   function handleClickForPageNoDiv(e) {
     let clickedPageNoDivDomNode=e.target;
@@ -223,8 +259,6 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
     return Math.ceil(parent_todosPageObj.totalTodos/10);
   }
 
-
-  
   let pageNoDivsJsxObjArr=[];
   let totalTodos=parent_todosPageObj.totalTodos;
   let noOfPages=Math.ceil(totalTodos/10);
@@ -249,6 +283,32 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
   disabled={parent_todosAreaSelectedPageNo===getLastPageNo()}
   className={todosAreaStylesObj.prevOrNextPageButton}>Next page</button>
   );
+  let readOnlyQuillEditorContainerDivJsxObjsArr=[];
+  let todosToBeDisplayedInPageArr=parent_todosPageObj.todos;
+  for(let i=0;i<todosToBeDisplayedInPageArr.length;i++) {
+    let todoId=todosToBeDisplayedInPageArr[i].id;
+    let readOnlyQuillEditorContainerDivJsxObj=(
+      <div key={todoId} className={todosAreaStylesObj.todoWrapper}>
+        <div className={todosAreaStylesObj.todoTitleTextFieldAndLabelWrapper}>
+          <label className={todosAreaStylesObj.todoTitleLabel}>Title:</label>
+          <input readOnly={true} className={todosAreaStylesObj.todoTitleTextField}
+          ref={(domNode)=>{
+            todoTitleTextFieldArrRef.current[i]=domNode;
+          }}></input>
+        </div>
+        <div  ref={(domNode)=>{
+          readOnlyQuillEditorContainerDivsArrRef.current[i]=domNode;
+        }} className={`${todosAreaStylesObj.todoReadOnlyQuillEditor} ${todosAreaStylesObj.tempTodoReadOnlyQuillEditor}`}></div>
+        <div className={todosAreaStylesObj.todoActionsWrapper}>
+          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.editTodoSpan}`}></span>
+          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.deleteTodoSpan}`}></span>
+          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.todoInfoSpan}`}></span>
+        </div>
+       </div>
+    );
+    readOnlyQuillEditorContainerDivJsxObjsArr.push(readOnlyQuillEditorContainerDivJsxObj);
+  }
+
 
   return (
     <>
@@ -259,6 +319,9 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
         <div className={todosAreaStylesObj.prevNextPageDivsWrapper}>
           {prevPageDivJsxObj}
           {nextPageDivJsxObj}
+        </div>
+        <div className={todosAreaStylesObj.todosWrapper}>
+            {readOnlyQuillEditorContainerDivJsxObjsArr}
         </div>
       </div>
       {isTextDialogToBeShown && <TextDialog text={textDialogText} 

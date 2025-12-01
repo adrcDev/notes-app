@@ -15,6 +15,7 @@ import ForgotPasswordForm from "./components/ForgotPasswordForm/ForgotPasswordFo
 import JwtAuthLogicWrapper from "./components/JwtAuthLogicWrapper/JwtAuthLogicWrapper.js";
 import HomePage from "./components/HomePage/HomePage.js";
 import {BackendUrlProvider} from "./contexts/BackendUrlContext.js";
+import "quill/dist/quill.snow.css";
 
 let router=createBrowserRouter([
   {
