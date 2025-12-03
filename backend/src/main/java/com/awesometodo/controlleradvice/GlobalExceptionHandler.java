@@ -1,8 +1,10 @@
 package com.awesometodo.controlleradvice;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -32,6 +34,12 @@ public class GlobalExceptionHandler {
         responseMessage.put("message","Requested resource not found");
         return responseMessage;
 
+    }
+
+    @ExceptionHandler({HttpRequestMethodNotSupportedException.class })
+    void httpRequestMethodNotSupportedExceptionHandler(HttpServletRequest request,HttpServletResponse response, HttpRequestMethodNotSupportedException e) {
+        response.setStatus(405);
+        logger.warn("{} was thrown while accessing {} {} endpoint:-",e.getClass().getSimpleName(),request.getMethod(),request.getRequestURI(),e);
     }
 
 
