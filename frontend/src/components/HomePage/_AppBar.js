@@ -19,7 +19,7 @@ export default function AppBar() {
     <div className={appBarStylesObject.appBar}>
       <div className={appBarStylesObject.appLogoAndNameWrapper}>
         <span className={appBarStylesObject.appLogo}></span>
-        <span className={appBarStylesObject.appName}>Todo app</span>
+        <span className={appBarStylesObject.appName}>Notes app</span>
       </div>
       <div className={appBarStylesObject.appThemeToggleAndUserOptionsWrapper}>
         <span className={appBarStylesObject.appThemeToggle} onClick={handleClickForAppThemeToggleSpan}>  </span>

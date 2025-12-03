@@ -259,6 +259,75 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
     return Math.ceil(parent_todosPageObj.totalTodos/10);
   }
 
+  function handleClickForTodoInfoSpan(e,todoId) {
+    let todosDisplayedOnPageArr=parent_todosPageObj.todos;
+    let clickedTodoObj=todosDisplayedOnPageArr.find((todoObj,index)=>todoObj.id===todoId);
+    let todoInfoDivsJsxObjArr=[];
+    let keyValueForJsxListElements=0;
+    let todoInfoDialogContentDivJsxObj=(
+      <div className={todosAreaStylesObj.todoInfoDialogContentWrapper}>
+        <div>Note info:-</div>
+        {todoInfoDivsJsxObjArr}
+      </div>
+    );
+    
+    
+    let shortTodoDescription="<Not set>";
+    if(clickedTodoObj.description!==null) {
+      shortTodoDescription=clickedTodoObj.description;
+      if(shortTodoDescription.length>100) {
+        shortTodoDescription=`${shortTodoDescription.substring(0,100)}...`;
+      }
+    }
+    let shortTodoDescriptionDivJsxObj=(
+        <div key={keyValueForJsxListElements++}>Description: {shortTodoDescription}</div>
+    );
+    todoInfoDivsJsxObjArr.push(shortTodoDescriptionDivJsxObj);
+
+    let dueDate="<Not set>";
+    if(clickedTodoObj.dueDate!==null) {
+      let dueDateAsDateObj=new Date(clickedTodoObj.dueDate);
+      let day=dueDateAsDateObj.getUTCDate();
+      let shortDayName=getShortDayName(dueDateAsDateObj.getUTCDay());
+      let month=dueDateAsDateObj.getUTCMonth()+1;
+      let shortMonthName=getShortMonthName(month);
+      let year=dueDateAsDateObj.getUTCFullYear();
+      dueDate=`${shortDayName} ${shortMonthName} ${day} ${year}`;
+    }
+    let dueDateDivJsxObj=(
+      <div key={keyValueForJsxListElements++}>Due date: {dueDate}</div>
+    );
+    todoInfoDivsJsxObjArr.push(dueDateDivJsxObj);
+
+
+    let priorityDivJsxObj=(
+      <div key={keyValueForJsxListElements++}>Priority: {clickedTodoObj.priority}</div>
+    );
+    todoInfoDivsJsxObjArr.push(priorityDivJsxObj);
+    
+    let statusDivJsxObj=(
+      <div key={keyValueForJsxListElements++}>Status: {clickedTodoObj.status}</div>
+    );
+    todoInfoDivsJsxObjArr.push(statusDivJsxObj);
+    
+    let createdAtUTCTimestamp=clickedTodoObj.createdAt;
+    let createdAtLocalTimeZoneTimeStamp=new Date(createdAtUTCTimestamp).toString();
+    let createdAtDivJsxObj=(
+      <div key={keyValueForJsxListElements++}>Created at: {createdAtLocalTimeZoneTimeStamp}</div>
+    );
+    todoInfoDivsJsxObjArr.push(createdAtDivJsxObj);
+
+    let updatedAtUTCTimestamp=clickedTodoObj.updatedAt;
+    let updatedAtLocalTimeZoneTimeStamp=new Date(updatedAtUTCTimestamp).toString();
+    let updatedAtDivJsxObj=(
+      <div key={keyValueForJsxListElements++}>Updated at: {updatedAtLocalTimeZoneTimeStamp}</div>
+    );
+    todoInfoDivsJsxObjArr.push(updatedAtDivJsxObj);
+
+    setIsTextDialogToBeShown(true);
+    setTextDialogText(todoInfoDialogContentDivJsxObj);
+  }
+
   let pageNoDivsJsxObjArr=[];
   let totalTodos=parent_todosPageObj.totalTodos;
   let noOfPages=Math.ceil(totalTodos/10);
@@ -302,7 +371,7 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
         <div className={todosAreaStylesObj.todoActionsWrapper}>
           <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.editTodoSpan}`}></span>
           <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.deleteTodoSpan}`}></span>
-          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.todoInfoSpan}`}></span>
+          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.todoInfoSpan}`} onClick={(e)=>handleClickForTodoInfoSpan(e,todoId)}></span>
         </div>
        </div>
     );
@@ -329,4 +398,48 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
     </>
   );
   
+}
+
+function getShortDayName(dayNo) {
+  if(dayNo===0)
+    return "Sun";
+  if(dayNo===1)
+    return "Mon";
+  if(dayNo===2)
+    return "Tue";
+  if(dayNo===3)
+    return "Wed";
+  if(dayNo===4)
+    return "Thu";
+  if(dayNo===5)
+    return "Fri";
+  if(dayNo===6)
+    return "Sat";
+}
+
+function getShortMonthName(monthNo) {
+  if(monthNo===1)
+    return "Jan";
+  if(monthNo===2)
+    return "Feb";
+  if(monthNo===3)
+    return "Mar";
+  if(monthNo===4)
+    return "Apr";
+  if(monthNo===5)
+    return "May";
+  if(monthNo===6)
+    return "Jun";
+  if(monthNo===7)
+    return "Jul";
+  if(monthNo===8)
+    return "Aug";
+  if(monthNo===9)
+    return "Sep";
+  if(monthNo===10)
+    return "Oct";
+  if(monthNo===11)
+    return "Nov";
+  if(monthNo===12)
+    return "Dec";
 }

@@ -23,7 +23,7 @@ export default function TextDialog({text,parent_setIsTextDialogToBeShown}) {
       <div className={textDialogStylesObj.dialogCloseButtonWrapper}>
           <button className={textDialogStylesObj.dialogCloseButton} onClick={handleClickForTextDialogCloseButton}></button>
       </div> 
-      <p className={textDialogStylesObj.dialogText}>{text}</p>
+      <div className={textDialogStylesObj.dialogText}>{text}</div>
     </dialog>
   );
   

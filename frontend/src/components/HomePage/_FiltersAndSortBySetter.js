@@ -245,7 +245,7 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
         // console.log(responseBodyJsonParsedObj);
         if(todosPageJsonParsedObj.totalTodos===0) {
           setIsTextDialogToBeShown(true);
-          setTextDialogText("No todos were found that match the set filters");
+          setTextDialogText("No notes were found that match the set filters");
           parent_setTodosPageObj(null);
           parent_setTodosAreaSelectedPageNo(0);
           parent_loadingModalDialogRef.current.close();
@@ -364,7 +364,7 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
         <input id="contentFilterTextField" 
         className={filterAndSortBySetterStylesObj.textBasedFilterTextField} ref={contentFilterTextFieldRef}></input>
       </div>
-      <div className={filterAndSortBySetterStylesObj.textBasedFiltersUserHelperText}>You can leave any of the above text fields empty if you don't want to filter todos by the respective filter</div>
+      <div className={filterAndSortBySetterStylesObj.textBasedFiltersUserHelperText}>You can leave any of the above text fields empty if you don't want to filter notes by the respective filter</div>
       
       <div className={filterAndSortBySetterStylesObj.priorityAndStatusFiltersDropDownWrapper}>
         <div className={filterAndSortBySetterStylesObj.labelAndFilterDropDownWrapper}>
@@ -438,8 +438,8 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
       </div>
 
       <div className={filterAndSortBySetterStylesObj.retrieveTodosAndResetbuttonsWrapper}>
-        <button className={filterAndSortBySetterStylesObj.actionButton} onClick={handleClickForRetrieveTodosBasedOnSettingsButton}>Retrieve todos based on filter and sort settings <span className={filterAndSortBySetterStylesObj.searchIconSpan}></span></button>
-        <button className={filterAndSortBySetterStylesObj.actionButton} onClick={handleClickForResetFilterAndSortSettingsToDefaultButton}>Reset the filter and sort settings to defaults(For retrieving all todos)</button>
+        <button className={filterAndSortBySetterStylesObj.actionButton} onClick={handleClickForRetrieveTodosBasedOnSettingsButton}>Retrieve notes based on filter and sort settings <span className={filterAndSortBySetterStylesObj.searchIconSpan}></span></button>
+        <button className={filterAndSortBySetterStylesObj.actionButton} onClick={handleClickForResetFilterAndSortSettingsToDefaultButton}>Reset the filter and sort settings to defaults(For retrieving all notes)</button>
       </div>
 
       {isTextDialogToBeShown && 

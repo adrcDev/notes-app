@@ -31,7 +31,7 @@ function AppBar() {
     <header className={authPageStylesObj.appBar}>
       <div className={authPageStylesObj.appLogoAppNameWrapper}>
         <span className={authPageStylesObj.appLogo}></span>
-        <span className={authPageStylesObj.appName}>Todo app</span>
+        <span className={authPageStylesObj.appName}>Notes app</span>
       </div>
       <span className={authPageStylesObj.lightDarkThemeToggle}
       onClick={handleClickForLightDarkThemeToggleSpan}></span>
