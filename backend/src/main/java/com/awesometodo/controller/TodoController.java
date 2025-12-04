@@ -46,7 +46,7 @@ public class TodoController {
     }
 
     @ExceptionHandler({TodoNotFoundForUserException.class})
-    void todoNotFoundForUserExceptionHandler(HttpServletResponse response,TodoNotFoundForUserException e) {
+    void handleTodoNotFoundForUserException(HttpServletResponse response,TodoNotFoundForUserException e) {
         response.setStatus(404);
     }
 

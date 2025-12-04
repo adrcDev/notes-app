@@ -42,10 +42,9 @@ public class TodoService {
 
     @Transactional
     public void deleteTodoByUserId(int todoId,int userId) {
-        boolean isTodoExistsForUser=todoRepository.isExistsByIdAndUserId(todoId,userId);
-        if(!isTodoExistsForUser) {
+        boolean isTodoDeleted=todoRepository.deleteByIdAndUserId(todoId,userId);
+        if(!isTodoDeleted) {
             throw new TodoNotFoundForUserException();
         }
-        todoRepository.deleteByIdAndUserId(todoId,userId);
     }
 }

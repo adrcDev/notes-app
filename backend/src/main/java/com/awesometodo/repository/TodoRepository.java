@@ -152,13 +152,14 @@ public class TodoRepository {
         return matchingTodosCount;
     }
 
-    public boolean isExistsByIdAndUserId(int todoId, int userId) {
-        boolean result=(boolean)em.createNativeQuery("SELECT COUNT(*)=1 FROM todos WHERE id=:todoId AND user_id=:userId",Boolean.class).setParameter("todoId",todoId).setParameter("userId",userId).getSingleResult();
-        return result;
-    }
-
-    public void deleteByIdAndUserId(int todoId,int userId) {
-        em.createNativeQuery("DELETE FROM todos WHERE id=:todoId AND user_id=:userId").setParameter("todoId",todoId).setParameter("userId",userId).executeUpdate();
+    public boolean deleteByIdAndUserId(int todoId,int userId) {
+        int noOfRowsDeleted=em.createNativeQuery("DELETE FROM todos WHERE id=:todoId AND user_id=:userId").setParameter("todoId",todoId).setParameter("userId",userId).executeUpdate();
+        if(noOfRowsDeleted==0) {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
 
