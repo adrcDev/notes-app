@@ -2,6 +2,7 @@ package com.awesometodo.controller;
 
 import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
+import com.awesometodo.exception.TodoNotFoundForUserException;
 import com.awesometodo.service.TodoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,8 +39,15 @@ public class TodoController {
     }
 
     @DeleteMapping("/api/v1/todos/{id}")
-    public void deleteTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId) {
-        logger.debug("{}",todoId);
+    public void deleteTodo(HttpServletResponse response,@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId) {
+        int userId=getUserIdFromJwtAccessToken();
+        todoService.deleteTodoByUserId(todoId,userId);
+        response.setStatus(204);
+    }
+
+    @ExceptionHandler({TodoNotFoundForUserException.class})
+    void todoNotFoundForUserExceptionHandler(HttpServletResponse response,TodoNotFoundForUserException e) {
+        response.setStatus(404);
     }
 
     private int getUserIdFromJwtAccessToken() {

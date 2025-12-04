@@ -4,6 +4,7 @@ import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
 import com.awesometodo.dto.TodoResponseDTO;
 import com.awesometodo.entity.Todo;
+import com.awesometodo.exception.TodoNotFoundForUserException;
 import com.awesometodo.repository.TodoRepository;
 import com.awesometodo.repository.criteria.TodoQueryCriteria;
 import com.awesometodo.repository.filter.TodoQueryFilter;
@@ -11,6 +12,7 @@ import com.awesometodo.util.EnumUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,5 +38,14 @@ public class TodoService {
         TodoQueryFilter todoQueryFilter=new TodoQueryFilter(todoQueryParamsDTO.getTitleSearch(),todoQueryParamsDTO.getDescriptionSearch(),todoQueryParamsDTO.getContentSearch(),todoQueryParamsDTO.getPriority(),todoQueryParamsDTO.getStatus(),todoQueryParamsDTO.getDueDateFrom(),todoQueryParamsDTO.getDueDateTo());
         int matchingTodosCount=todoRepository.findCountByUserIdAndQueryFilter(userId,todoQueryFilter);
         return new TodoPageResponseDTO(todoResponseDTOs,matchingTodosCount);
+    }
+
+    @Transactional
+    public void deleteTodoByUserId(int todoId,int userId) {
+        boolean isTodoExistsForUser=todoRepository.isExistsByIdAndUserId(todoId,userId);
+        if(!isTodoExistsForUser) {
+            throw new TodoNotFoundForUserException();
+        }
+        todoRepository.deleteByIdAndUserId(todoId,userId);
     }
 }

@@ -56,7 +56,6 @@ public class TodoAppBackendApplication {
 
 		transactionTemplate.executeWithoutResult((transactionStatus)-> {
 			/*Test repository methods or service methods or EntityManager operations here */
-
 		});
 
 

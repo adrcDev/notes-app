@@ -3,14 +3,11 @@ package com.awesometodo.repository;
 import com.awesometodo.entity.Todo;
 import com.awesometodo.repository.criteria.TodoQueryCriteria;
 import com.awesometodo.repository.filter.TodoQueryFilter;
-import com.awesometodo.util.EnumUtil;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +150,15 @@ public class TodoRepository {
         }
         int matchingTodosCount=(Integer)queryObj.getSingleResult();
         return matchingTodosCount;
+    }
+
+    public boolean isExistsByIdAndUserId(int todoId, int userId) {
+        boolean result=(boolean)em.createNativeQuery("SELECT COUNT(*)=1 FROM todos WHERE id=:todoId AND user_id=:userId",Boolean.class).setParameter("todoId",todoId).setParameter("userId",userId).getSingleResult();
+        return result;
+    }
+
+    public void deleteByIdAndUserId(int todoId,int userId) {
+        em.createNativeQuery("DELETE FROM todos WHERE id=:todoId AND user_id=:userId").setParameter("todoId",todoId).setParameter("userId",userId).executeUpdate();
     }
 
 
