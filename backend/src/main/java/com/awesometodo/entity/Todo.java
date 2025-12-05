@@ -22,7 +22,7 @@ public class Todo {
     @Column(name = "id")
     private int id;
 
-    @Column(name="title",nullable = false)
+    @Column(name="title",nullable = true)
     private String title;
 
     @Column(name="description",nullable = true)
@@ -47,7 +47,7 @@ public class Todo {
         LOW,MEDIUM,HIGH;
     }
 
-    @Column(name="priority",nullable = false)
+    @Column(name="priority",nullable = false,insertable = false)
     @Convert(converter = TodoPriorityEnumToStringConverter.class)
     private Priority priority;
 
@@ -55,7 +55,7 @@ public class Todo {
         NOT_COMPLETED,COMPLETED;
     }
 
-    @Column(name="status",nullable = false)
+    @Column(name="status",nullable = false,insertable = false)
     @Convert(converter = TodoStatusEnumToStringConverter.class)
     private Status status;
 
