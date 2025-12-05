@@ -21,8 +21,9 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
   React.useEffect(()=>{
     let readOnlyQuillEditorContainerDivsArr=readOnlyQuillEditorContainerDivsArrRef.current;
     for(let i=0;i<readOnlyQuillEditorContainerDivsArr.length;i++) { 
-      if(readOnlyQuillEditorContainerDivsArr[i]===null)
+      if(readOnlyQuillEditorContainerDivsArr[i]===null) {
         continue;
+      }
       let containerDiv=readOnlyQuillEditorContainerDivsArr[i];
       let readOnlyQuillEditorConfig={
         theme: "snow",
@@ -40,11 +41,16 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
 
     let todoTitleTextFieldArr=todoTitleTextFieldArrRef.current;
     for(let i=0;i<todoTitleTextFieldArr.length;i++) {
-      if(todoTitleTextFieldArr[i]===null)
+      if(todoTitleTextFieldArr[i]===null) {
         continue;
+      }
       let titleTextFieldDomNode=todoTitleTextFieldArr[i];
       let todoObj=parent_todosPageObj.todos[i];
       let todoTitle=todoObj.title;
+      if(todoTitle===null) {
+        titleTextFieldDomNode.value="Untitled";
+        return;
+      }
       titleTextFieldDomNode.value=todoTitle;
     }
     
