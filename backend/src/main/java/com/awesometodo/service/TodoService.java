@@ -4,8 +4,10 @@ import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
 import com.awesometodo.dto.TodoResponseDTO;
 import com.awesometodo.entity.Todo;
+import com.awesometodo.entity.User;
 import com.awesometodo.exception.TodoNotFoundForUserException;
 import com.awesometodo.repository.TodoRepository;
+import com.awesometodo.repository.UserRepository;
 import com.awesometodo.repository.criteria.TodoQueryCriteria;
 import com.awesometodo.repository.filter.TodoQueryFilter;
 import com.awesometodo.util.EnumUtil;
@@ -21,9 +23,11 @@ import java.util.List;
 public class TodoService {
     private static final Logger logger= LoggerFactory.getLogger(TodoService.class);
     private TodoRepository todoRepository;
+    private UserRepository userRepository;
 
-    public TodoService(TodoRepository todoRepository) {
+    public TodoService(TodoRepository todoRepository,UserRepository userRepository) {
         this.todoRepository=todoRepository;
+        this.userRepository=userRepository;
     }
 
     public TodoPageResponseDTO getMatchingTodosForUserId(int userId, TodoQueryParamsDTO todoQueryParamsDTO) {
@@ -46,5 +50,17 @@ public class TodoService {
         if(!isTodoDeleted) {
             throw new TodoNotFoundForUserException();
         }
+    }
+
+    @Transactional
+    public TodoResponseDTO createTodoForUserId(int userId) {
+        User user=userRepository.findById(userId).get();
+        Todo newTodo=new Todo();
+        newTodo.setUser(user);
+        newTodo=todoRepository.insertAndReturn(newTodo);
+        String priority=EnumUtil.convertToSpaceSeparatedLowerCaseString(newTodo.getPriority()).get();
+        String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(newTodo.getStatus()).get();
+        TodoResponseDTO todoResponseDTO=new TodoResponseDTO(newTodo.getId(), newTodo.getTitle(), newTodo.getDescription(), newTodo.getContentDelta(), newTodo.getDueDate(),priority,status,newTodo.getCreatedAt(),newTodo.getUpdatedAt());
+        return todoResponseDTO;
     }
 }

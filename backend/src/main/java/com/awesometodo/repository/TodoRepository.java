@@ -1,6 +1,7 @@
 package com.awesometodo.repository;
 
 import com.awesometodo.entity.Todo;
+import com.awesometodo.entity.User;
 import com.awesometodo.repository.criteria.TodoQueryCriteria;
 import com.awesometodo.repository.filter.TodoQueryFilter;
 import jakarta.persistence.EntityManager;
@@ -162,5 +163,11 @@ public class TodoRepository {
         }
     }
 
+    public Todo insertAndReturn(Todo todo) {
+        em.persist(todo);
+        em.flush();
+        em.refresh(todo);
+        return todo;
+    }
 
 }

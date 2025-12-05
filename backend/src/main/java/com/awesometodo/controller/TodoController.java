@@ -2,6 +2,7 @@ package com.awesometodo.controller;
 
 import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
+import com.awesometodo.dto.TodoResponseDTO;
 import com.awesometodo.exception.TodoNotFoundForUserException;
 import com.awesometodo.service.TodoService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,9 +47,21 @@ public class TodoController {
     }
 
     @ExceptionHandler({TodoNotFoundForUserException.class})
-    void handleTodoNotFoundForUserException(HttpServletResponse response,TodoNotFoundForUserException e) {
+    public void handleTodoNotFoundForUserException(HttpServletResponse response,TodoNotFoundForUserException e) {
         response.setStatus(404);
     }
+
+    @PostMapping("/api/v1/todos")
+    public TodoResponseDTO postTodo(HttpServletResponse response) {
+        int userId=getUserIdFromJwtAccessToken();
+        TodoResponseDTO todoResponseDTO=todoService.createTodoForUserId(userId);
+        response.setStatus(201);
+        String locationResponseHeaderValue="/api/v1/todos/"+todoResponseDTO.getId();
+        response.setHeader("Location",locationResponseHeaderValue);
+        return todoResponseDTO;
+    }
+
+
 
     private int getUserIdFromJwtAccessToken() {
         JwtAuthenticationToken authenticationObj=(JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
