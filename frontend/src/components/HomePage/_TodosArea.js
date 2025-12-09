@@ -47,7 +47,7 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
       let titleTextFieldDomNode=todoTitleTextFieldArr[i];
       let todoObj=parent_todosPageObj.todos[i];
       let todoTitle=todoObj.title;
-      if(todoTitle===null) {
+      if(todoTitle===null || todoTitle.trim()==="") {
         titleTextFieldDomNode.value="Untitled";
       } else {
         titleTextFieldDomNode.value=todoTitle;
