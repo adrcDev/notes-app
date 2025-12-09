@@ -1,7 +1,9 @@
 package com.awesometodo.service;
 
+import com.awesometodo.command.UpdateTodoCommand;
 import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
+import com.awesometodo.dto.TodoRequestDTO;
 import com.awesometodo.dto.TodoResponseDTO;
 import com.awesometodo.entity.Todo;
 import com.awesometodo.entity.User;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TodoService {
@@ -62,5 +65,21 @@ public class TodoService {
         String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(newTodo.getStatus()).get();
         TodoResponseDTO todoResponseDTO=new TodoResponseDTO(newTodo.getId(), newTodo.getTitle(), newTodo.getDescription(), newTodo.getContentDelta(), newTodo.getDueDate(),priority,status,newTodo.getCreatedAt(),newTodo.getUpdatedAt());
         return todoResponseDTO;
+    }
+
+    @Transactional
+    public TodoResponseDTO fullUpdateTodoForUserId(int todoId, int userId, TodoRequestDTO todoRequestDTO) {
+        UpdateTodoCommand updateTodoCommand=new UpdateTodoCommand(userId,todoId,todoRequestDTO.getTitle(),todoRequestDTO.getDescription(),todoRequestDTO.getContentText(),todoRequestDTO.getContentDelta(),todoRequestDTO.getDueDate(),todoRequestDTO.getPriority(),todoRequestDTO.getStatus());
+        Optional<Todo> optionalTodo=todoRepository.fullUpdateAndReturn(updateTodoCommand);
+        if(optionalTodo.isEmpty()) {
+            throw new TodoNotFoundForUserException();
+        }
+
+        Todo fullUpdatedTodo=optionalTodo.get();
+        String priority=EnumUtil.convertToSpaceSeparatedLowerCaseString(fullUpdatedTodo.getPriority()).get();
+        String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(fullUpdatedTodo.getStatus()).get();
+        TodoResponseDTO fullUpdatedTodoResponseDTO=new TodoResponseDTO(fullUpdatedTodo.getId(),fullUpdatedTodo.getTitle(),fullUpdatedTodo.getDescription(), fullUpdatedTodo.getContentDelta(), fullUpdatedTodo.getDueDate(),priority,status,fullUpdatedTodo.getCreatedAt(),fullUpdatedTodo.getUpdatedAt());
+
+        return fullUpdatedTodoResponseDTO;
     }
 }

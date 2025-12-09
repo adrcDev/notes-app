@@ -1,10 +1,11 @@
 package com.awesometodo.repository;
 
+import com.awesometodo.command.UpdateTodoCommand;
 import com.awesometodo.entity.Todo;
-import com.awesometodo.entity.User;
 import com.awesometodo.repository.criteria.TodoQueryCriteria;
 import com.awesometodo.repository.filter.TodoQueryFilter;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Repository
@@ -168,6 +170,41 @@ public class TodoRepository {
         em.flush();
         em.refresh(todo);
         return todo;
+    }
+
+    public Optional<Todo> fullUpdateAndReturn(UpdateTodoCommand updateTodoCommand) {
+        StringBuilder queryStringBuilder=new StringBuilder("UPDATE todos SET title=:title,description=:description,content_text=:contentText,content_delta=CAST(:contentDelta AS JSONB),due_date=:dueDate,");
+        if(updateTodoCommand.getPriority()==null) {
+            queryStringBuilder.append("priority=DEFAULT,");
+        }
+        else {
+            queryStringBuilder.append("priority=:priority,");
+        }
+
+        if(updateTodoCommand.getStatus()==null) {
+            queryStringBuilder.append("status=DEFAULT,");
+        }
+        else {
+            queryStringBuilder.append("status=:status,");
+        }
+
+        queryStringBuilder.append("updated_at=CURRENT_TIMESTAMP WHERE id=:todoId AND user_id=:userId RETURNING *");
+
+        Query query=em.createNativeQuery(queryStringBuilder.toString(),Todo.class).setParameter("title",updateTodoCommand.getTitle()).setParameter("description",updateTodoCommand.getDescription()).setParameter("contentText",updateTodoCommand.getContentText()).setParameter("contentDelta",updateTodoCommand.getContentDelta()).setParameter("dueDate",updateTodoCommand.getDueDate()).setParameter("todoId",updateTodoCommand.getTodoId()).setParameter("userId",updateTodoCommand.getUserId());
+        if(updateTodoCommand.getPriority()!=null) {
+            query.setParameter("priority", updateTodoCommand.getPriority());
+        }
+        if(updateTodoCommand.getStatus()!=null) {
+            query.setParameter("status",updateTodoCommand.getStatus());
+        }
+
+        try {
+            Todo fullUpdatedTodo = (Todo)query.getSingleResult();
+            return Optional.of(fullUpdatedTodo);
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+
     }
 
 }

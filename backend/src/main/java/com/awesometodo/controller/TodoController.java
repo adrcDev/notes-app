@@ -48,28 +48,23 @@ public class TodoController {
         response.setStatus(204);
     }
 
-    @ExceptionHandler({TodoNotFoundForUserException.class})
-    public void handleTodoNotFoundForUserException(HttpServletResponse response,TodoNotFoundForUserException e) {
-        response.setStatus(404);
-    }
+
 
     @PostMapping("/api/v1/todos")
     public TodoResponseDTO postTodo(HttpServletResponse response) {
         int userId=getUserIdFromJwtAccessToken();
-        TodoResponseDTO todoResponseDTO=todoService.createTodoForUserId(userId);
+        TodoResponseDTO createdTodoResponseDTO=todoService.createTodoForUserId(userId);
         response.setStatus(201);
-        String locationResponseHeaderValue="/api/v1/todos/"+todoResponseDTO.getId();
+        String locationResponseHeaderValue="/api/v1/todos/"+createdTodoResponseDTO.getId();
         response.setHeader("Location",locationResponseHeaderValue);
-        return todoResponseDTO;
+        return createdTodoResponseDTO;
     }
 
     @PutMapping("/api/v1/todos/{id}")
-    public TodoResponseDTO putTodo(HttpServletResponse response, @Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @Valid @RequestBody(required = false) TodoRequestDTO todoRequestDTO) {
+    public TodoResponseDTO putTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @Valid @RequestBody(required = false) TodoRequestDTO todoRequestDTO) {
         int userId=getUserIdFromJwtAccessToken();
-
-        //placeholder
-        return new TodoResponseDTO();
-
+        TodoResponseDTO fullUpdatedTodoResponseDTO=todoService.fullUpdateTodoForUserId(todoId,userId,todoRequestDTO);
+        return fullUpdatedTodoResponseDTO;
     }
 
 
@@ -78,6 +73,11 @@ public class TodoController {
         JwtAuthenticationToken authenticationObj=(JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
         String subjectClaimValue=authenticationObj.getToken().getSubject();
         return Integer.parseInt(subjectClaimValue);
+    }
+
+    @ExceptionHandler({TodoNotFoundForUserException.class})
+    public void handleTodoNotFoundForUserException(HttpServletResponse response,TodoNotFoundForUserException e) {
+        response.setStatus(404);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
