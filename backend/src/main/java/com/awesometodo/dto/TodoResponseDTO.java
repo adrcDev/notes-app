@@ -14,6 +14,11 @@ public class TodoResponseDTO {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
+    //temp
+    public TodoResponseDTO() {
+
+    }
+
     public TodoResponseDTO(int id, String title, String description, String contentDelta, LocalDate dueDate, String priority, String status, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
         this.id = id;
         this.title = title;

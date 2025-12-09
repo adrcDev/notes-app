@@ -2,6 +2,7 @@ package com.awesometodo.controller;
 
 import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
+import com.awesometodo.dto.TodoRequestDTO;
 import com.awesometodo.dto.TodoResponseDTO;
 import com.awesometodo.exception.TodoNotFoundForUserException;
 import com.awesometodo.service.TodoService;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.validation.annotation.Validated;
@@ -61,6 +63,15 @@ public class TodoController {
         return todoResponseDTO;
     }
 
+    @PutMapping("/api/v1/todos/{id}")
+    public TodoResponseDTO putTodo(HttpServletResponse response, @Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @Valid @RequestBody(required = false) TodoRequestDTO todoRequestDTO) {
+        int userId=getUserIdFromJwtAccessToken();
+
+        //placeholder
+        return new TodoResponseDTO();
+
+    }
+
 
 
     private int getUserIdFromJwtAccessToken() {
@@ -85,6 +96,12 @@ public class TodoController {
     public void handleMethodArgumentTypeMismatchException(HttpServletRequest request,HttpServletResponse response,MethodArgumentTypeMismatchException e) {
         response.setStatus(400);
         logger.warn("A {} was thrown while accessing {} {} endpoint:-",e.getClass().getSimpleName(),request.getMethod(),request.getRequestURI(),e);
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class})
+    public void handleHttpMessageNotReadableException(HttpServletResponse response,HttpMessageNotReadableException e) {
+        response.setStatus(400);
+        logger.warn("The json deserialization of http request message's body failed:- ",e);
     }
 
 

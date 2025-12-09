@@ -5,6 +5,8 @@ import com.awesometodo.entity.User;
 import com.awesometodo.repository.*;
 import com.awesometodo.repository.criteria.TodoQueryCriteria;
 import com.awesometodo.service.JwtService;
+import com.awesometodo.validation.util.QuillDeltaValidator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.persistence.EntityManager;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
@@ -52,7 +55,6 @@ public class TodoAppBackendApplication {
 		JwtRefreshTokenRepository jwtRefreshTokenRepository=springIOCContainer.getBean(JwtRefreshTokenRepository.class);
 		TodoRepository todoRepository=springIOCContainer.getBean(TodoRepository.class);
 		Argon2PasswordEncoder argon2IdPasswordEncoder=springIOCContainer.getBean(Argon2PasswordEncoder.class);
-
 
 		transactionTemplate.executeWithoutResult((transactionStatus)-> {
 			/*Test repository methods or service methods or EntityManager operations here */
