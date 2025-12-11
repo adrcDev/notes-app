@@ -1,5 +1,6 @@
 package com.awesometodo.repository;
 
+import com.awesometodo.command.PartialUpdateTodoCommand;
 import com.awesometodo.command.UpdateTodoCommand;
 import com.awesometodo.entity.Todo;
 import com.awesometodo.repository.criteria.TodoQueryCriteria;
@@ -7,6 +8,7 @@ import com.awesometodo.repository.filter.TodoQueryFilter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -204,7 +206,82 @@ public class TodoRepository {
         } catch (NoResultException e) {
             return Optional.empty();
         }
-
     }
+
+    public Optional<Todo> partialUpdateAndReturn(PartialUpdateTodoCommand partialUpdateTodoCommand) {
+        Map<String,Object> parametersMap=new HashMap<>();
+        Map<String,String> updateTodoFieldsMap=partialUpdateTodoCommand.getUpdateTodoFieldsMap();
+        String updateClause="UPDATE todos ";
+        String whereClause="WHERE id=:todoId AND user_id=:userId";
+        String returningClause="RETURNING *";
+        parametersMap.put("todoId",partialUpdateTodoCommand.getTodoId());
+        parametersMap.put("userId",partialUpdateTodoCommand.getUserId());
+        StringBuilder updateStmtBuilder=new StringBuilder();
+        updateStmtBuilder.append(updateClause).append("SET ");
+        for(Map.Entry<String,String> keyValuePair:updateTodoFieldsMap.entrySet()) {
+            String updateFieldName=keyValuePair.getKey();
+            String updateFieldValue=keyValuePair.getValue();
+            String columnName=getColumnNameForUpdateFieldName(updateFieldName);
+            updateStmtBuilder.append(columnName).append("=");
+            if(columnName.equals("priority") || columnName.equals("status")) {
+                if(updateFieldValue==null) {
+                    updateStmtBuilder.append("DEFAULT,");
+                }
+                else {
+                    updateStmtBuilder.append(":").append(updateFieldName).append(",");
+                    parametersMap.put(updateFieldName,updateFieldValue);
+                }
+                continue;
+            }
+
+            if(columnName.equals("content_delta")) {
+                updateStmtBuilder.append("CAST(:").append(updateFieldName).append(" AS JSONB),");
+                parametersMap.put(updateFieldName,updateFieldValue);
+                continue;
+            }
+
+            if(updateFieldName.equals("dueDate")) {
+                updateStmtBuilder.append(":").append(updateFieldName).append(",");
+                LocalDate dueDateAsLocalDate=LocalDate.parse(updateFieldValue);
+                parametersMap.put(updateFieldName,dueDateAsLocalDate);
+                continue;
+            }
+
+            updateStmtBuilder.append(":").append(updateFieldName).append(",");
+            parametersMap.put(updateFieldName,updateFieldValue);
+        }
+
+        //delete trailing comma
+        updateStmtBuilder.deleteCharAt(updateStmtBuilder.length()-1);
+        updateStmtBuilder.append(" ").append(whereClause).append(" ").append(returningClause);
+
+        Query query=em.createNativeQuery(updateStmtBuilder.toString(),Todo.class);
+        for(Map.Entry<String,Object> parameterEntry: parametersMap.entrySet()) {
+            String parameterName=parameterEntry.getKey();
+            Object parameterValue=parameterEntry.getValue();
+            query.setParameter(parameterName,parameterValue);
+        }
+
+        Todo partiallyUpdatedTodo;
+        try {
+            partiallyUpdatedTodo = (Todo) query.getSingleResult();
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+        return Optional.of(partiallyUpdatedTodo);
+    }
+
+    private String getColumnNameForUpdateFieldName(String updateFieldName) {
+        if(updateFieldName.equals("title") || updateFieldName.equals("description") || updateFieldName.equals("priority") || updateFieldName.equals("status")) {
+            return updateFieldName;
+        } else if(updateFieldName.equals("contentText")) {
+            return "content_text";
+        } else if(updateFieldName.equals("contentDelta")) {
+            return "content_delta";
+        } else {
+            return "due_date";
+        }
+    }
+
 
 }
