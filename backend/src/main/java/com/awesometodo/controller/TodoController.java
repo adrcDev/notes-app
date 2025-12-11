@@ -4,8 +4,15 @@ import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
 import com.awesometodo.dto.TodoRequestDTO;
 import com.awesometodo.dto.TodoResponseDTO;
+import com.awesometodo.entity.Todo;
+import com.awesometodo.exception.PatchTodoRequestValidationException;
 import com.awesometodo.exception.TodoNotFoundForUserException;
 import com.awesometodo.service.TodoService;
+import com.awesometodo.util.EnumUtil;
+import com.awesometodo.validation.util.QuillDeltaValidator;
+import com.awesometodo.validation.util.TodoPatchRequestValidator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
@@ -20,6 +27,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @Validated
@@ -67,12 +80,27 @@ public class TodoController {
         return fullUpdatedTodoResponseDTO;
     }
 
+    @PatchMapping("/api/v1/todos/{id}")
+    public TodoResponseDTO patchTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @RequestBody(required = true)JsonNode requestBodyJsonNode) {
+        Map<String,String> todoUpdateFieldsMap=
+                TodoPatchRequestValidator.validateAndReturnMap(requestBodyJsonNode);
+        int userId=getUserIdFromJwtAccessToken();
 
+
+        //placeholder
+//        TodoResponseDTO partialUpdatedTodoResponseDTO=todoService.partialUpdateTodoForUserId(todoId,userId,new TodoRequestDTO());
+        return new TodoResponseDTO();
+    }
 
     private int getUserIdFromJwtAccessToken() {
         JwtAuthenticationToken authenticationObj=(JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
         String subjectClaimValue=authenticationObj.getToken().getSubject();
         return Integer.parseInt(subjectClaimValue);
+    }
+
+    @ExceptionHandler({PatchTodoRequestValidationException.class})
+    public void PatchTodoRequestValidationException(HttpServletResponse response,PatchTodoRequestValidationException e) {
+        response.setStatus(400);
     }
 
     @ExceptionHandler({TodoNotFoundForUserException.class})
