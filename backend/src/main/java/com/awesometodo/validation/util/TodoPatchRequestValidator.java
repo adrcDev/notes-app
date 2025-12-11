@@ -32,6 +32,11 @@ public class TodoPatchRequestValidator {
         validateDueDateFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
         validatePriorityFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
         validateStatusFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
+
+        boolean isJsonObjectDoesntContainAtLeastOneSupportedField=todoUpdateFieldsMap.size()==0;
+        if(isJsonObjectDoesntContainAtLeastOneSupportedField) {
+            throw new PatchTodoRequestValidationException();
+        }
         return todoUpdateFieldsMap;
     }
 
