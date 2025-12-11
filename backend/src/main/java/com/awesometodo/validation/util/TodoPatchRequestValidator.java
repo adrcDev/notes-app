@@ -21,13 +21,21 @@ public class TodoPatchRequestValidator {
         if(isJsonNodeNotAJsonObject) {
             throw new PatchTodoRequestValidationException();
         }
-
         int noOfFieldsInJsonObject=requestBodyJsonNode.size();
         boolean isJsonObjectDoesntContainAnyFields=noOfFieldsInJsonObject==0;
         if(isJsonObjectDoesntContainAnyFields) {
             throw new PatchTodoRequestValidationException();
         }
+        validateTitleFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
+        validateDescriptionFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
+        validateContentTextAndDeltaPairIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
+        validateDueDateFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
+        validatePriorityFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
+        validateStatusFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
+        return todoUpdateFieldsMap;
+    }
 
+    private static void validateTitleFieldIfExists(JsonNode requestBodyJsonNode, Map<String,String> todoUpdateFieldsMap) {
         JsonNode titleFieldValueJsonNode=requestBodyJsonNode.get("title");
         boolean isTitleFieldPresentInJsonObject=titleFieldValueJsonNode!=null;
         if(isTitleFieldPresentInJsonObject) {
@@ -45,7 +53,9 @@ public class TodoPatchRequestValidator {
                 todoUpdateFieldsMap.put("title",null);
             }
         }
+    }
 
+    private static void validateDescriptionFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode descriptionFieldValueJsonNode=requestBodyJsonNode.get("description");
         boolean isDescriptionFieldPresentInJsonObject=descriptionFieldValueJsonNode!=null;
         if(isDescriptionFieldPresentInJsonObject) {
@@ -63,7 +73,9 @@ public class TodoPatchRequestValidator {
                 todoUpdateFieldsMap.put("description",null);
             }
         }
+    }
 
+    private static void validateContentTextAndDeltaPairIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode contentTextFieldValueJsonNode=requestBodyJsonNode.get("contentText");
         JsonNode contentDeltaFieldValueJsonNode=requestBodyJsonNode.get("contentDelta");
         boolean isContentTextFieldPresentInJsonObject=contentTextFieldValueJsonNode!=null;
@@ -115,8 +127,9 @@ public class TodoPatchRequestValidator {
                 todoUpdateFieldsMap.put("contentDelta",null);
             }
         }
+    }
 
-
+    private static void validateDueDateFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode dueDateFieldValueJsonNode=requestBodyJsonNode.get("dueDate");
         boolean isDueDateFieldPresentInJsonObject=dueDateFieldValueJsonNode!=null;
         if(isDueDateFieldPresentInJsonObject) {
@@ -139,7 +152,9 @@ public class TodoPatchRequestValidator {
                 todoUpdateFieldsMap.put("dueDate",null);
             }
         }
+    }
 
+    private static void validatePriorityFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode priorityFieldValueJsonNode=requestBodyJsonNode.get("priority");
         boolean isPriorityFieldPresentInJsonObject=priorityFieldValueJsonNode!=null;
         if(isPriorityFieldPresentInJsonObject) {
@@ -162,7 +177,9 @@ public class TodoPatchRequestValidator {
                 todoUpdateFieldsMap.put("priority",null);
             }
         }
+    }
 
+    private static void validateStatusFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode statusFieldValueJsonNode=requestBodyJsonNode.get("status");
         boolean isStatusFieldPresentInJsonObject=statusFieldValueJsonNode!=null;
         if(isStatusFieldPresentInJsonObject) {
@@ -185,7 +202,6 @@ public class TodoPatchRequestValidator {
                 todoUpdateFieldsMap.put("status",null);
             }
         }
-
-        return todoUpdateFieldsMap;
     }
+
 }
