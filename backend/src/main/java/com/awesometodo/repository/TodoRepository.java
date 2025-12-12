@@ -210,7 +210,7 @@ public class TodoRepository {
 
     public Optional<Todo> partialUpdateAndReturn(PartialUpdateTodoCommand partialUpdateTodoCommand) {
         Map<String,Object> parametersMap=new HashMap<>();
-        Map<String,String> updateTodoFieldsMap=partialUpdateTodoCommand.getUpdateTodoFieldsMap();
+        Map<String,String> todoUpdateFieldsMap=partialUpdateTodoCommand.getTodoUpdateFieldsMap();
         String updateClause="UPDATE todos ";
         String whereClause="WHERE id=:todoId AND user_id=:userId";
         String returningClause="RETURNING *";
@@ -218,7 +218,7 @@ public class TodoRepository {
         parametersMap.put("userId",partialUpdateTodoCommand.getUserId());
         StringBuilder updateStmtBuilder=new StringBuilder();
         updateStmtBuilder.append(updateClause).append("SET updated_at=CURRENT_TIMESTAMP,");
-        for(Map.Entry<String,String> keyValuePair:updateTodoFieldsMap.entrySet()) {
+        for(Map.Entry<String,String> keyValuePair:todoUpdateFieldsMap.entrySet()) {
             String updateFieldName=keyValuePair.getKey();
             String updateFieldValue=keyValuePair.getValue();
             String columnName=getColumnNameForUpdateFieldName(updateFieldName);
@@ -242,8 +242,13 @@ public class TodoRepository {
 
             if(updateFieldName.equals("dueDate")) {
                 updateStmtBuilder.append(":").append(updateFieldName).append(",");
-                LocalDate dueDateAsLocalDate=LocalDate.parse(updateFieldValue);
-                parametersMap.put(updateFieldName,dueDateAsLocalDate);
+                if(updateFieldValue!=null) {
+                    LocalDate dueDateAsLocalDate = LocalDate.parse(updateFieldValue);
+                    parametersMap.put(updateFieldName, dueDateAsLocalDate);
+                }
+                else {
+                    parametersMap.put(updateFieldName,null);
+                }
                 continue;
             }
 

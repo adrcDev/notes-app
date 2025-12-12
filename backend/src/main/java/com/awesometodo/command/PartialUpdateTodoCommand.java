@@ -3,12 +3,12 @@ import java.util.Map;
 public class PartialUpdateTodoCommand {
     private int userId;
     private int todoId;
-    private Map<String,String> updateTodoFieldsMap;
+    private Map<String,String> todoUpdateFieldsMap;
 
-    public PartialUpdateTodoCommand(int userId, int todoId, Map<String, String> updateTodoFieldsMap) {
+    public PartialUpdateTodoCommand(int userId, int todoId, Map<String, String> todoUpdateFieldsMap) {
         this.userId = userId;
         this.todoId = todoId;
-        this.updateTodoFieldsMap = updateTodoFieldsMap;
+        this.todoUpdateFieldsMap = todoUpdateFieldsMap;
     }
 
     public int getUserId() {
@@ -19,8 +19,8 @@ public class PartialUpdateTodoCommand {
         return todoId;
     }
 
-    public Map<String, String> getUpdateTodoFieldsMap() {
-        return updateTodoFieldsMap;
+    public Map<String, String> getTodoUpdateFieldsMap() {
+        return todoUpdateFieldsMap;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class PartialUpdateTodoCommand {
         return "PartialUpdateTodoCommand{" +
                 "userId=" + userId +
                 ", todoId=" + todoId +
-                ", updateTodoFieldsMap=" + updateTodoFieldsMap +
+                ", todoUpdateFieldsMap=" + todoUpdateFieldsMap +
                 '}';
     }
 }
