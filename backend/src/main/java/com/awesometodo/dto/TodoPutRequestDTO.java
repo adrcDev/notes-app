@@ -5,7 +5,7 @@ import com.awesometodo.validation.constraint.*;
 import java.time.LocalDate;
 
 @ContentTextAndDeltaPair
-public class TodoRequestDTO {
+public class TodoPutRequestDTO {
     private String title;
     private String description;
     private String contentText;

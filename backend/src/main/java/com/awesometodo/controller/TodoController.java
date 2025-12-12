@@ -2,17 +2,13 @@ package com.awesometodo.controller;
 
 import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
-import com.awesometodo.dto.TodoRequestDTO;
+import com.awesometodo.dto.TodoPutRequestDTO;
 import com.awesometodo.dto.TodoResponseDTO;
-import com.awesometodo.entity.Todo;
 import com.awesometodo.exception.PatchTodoRequestValidationException;
 import com.awesometodo.exception.TodoNotFoundForUserException;
 import com.awesometodo.service.TodoService;
-import com.awesometodo.util.EnumUtil;
-import com.awesometodo.validation.util.QuillDeltaValidator;
 import com.awesometodo.validation.util.TodoPatchRequestValidator;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
@@ -28,11 +24,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @Validated
@@ -79,9 +71,9 @@ public class TodoController {
     }
 
     @PutMapping("/api/v1/todos/{id}")
-    public TodoResponseDTO putTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @Valid @RequestBody(required = false) TodoRequestDTO todoRequestDTO) {
+    public TodoResponseDTO putTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @Valid @RequestBody(required = false) TodoPutRequestDTO todoPutRequestDTO) {
         int userId=getUserIdFromJwtAccessToken();
-        TodoResponseDTO fullUpdatedTodoResponseDTO=todoService.fullUpdateTodoForUserId(todoId,userId,todoRequestDTO);
+        TodoResponseDTO fullUpdatedTodoResponseDTO=todoService.fullUpdateTodoForUserId(todoId,userId, todoPutRequestDTO);
         return fullUpdatedTodoResponseDTO;
     }
 

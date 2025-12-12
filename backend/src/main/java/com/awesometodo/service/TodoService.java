@@ -4,7 +4,7 @@ import com.awesometodo.command.PartialUpdateTodoCommand;
 import com.awesometodo.command.UpdateTodoCommand;
 import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
-import com.awesometodo.dto.TodoRequestDTO;
+import com.awesometodo.dto.TodoPutRequestDTO;
 import com.awesometodo.dto.TodoResponseDTO;
 import com.awesometodo.entity.Todo;
 import com.awesometodo.entity.User;
@@ -70,8 +70,8 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoResponseDTO fullUpdateTodoForUserId(int todoId, int userId, TodoRequestDTO todoRequestDTO) {
-        UpdateTodoCommand updateTodoCommand=new UpdateTodoCommand(userId,todoId,todoRequestDTO.getTitle(),todoRequestDTO.getDescription(),todoRequestDTO.getContentText(),todoRequestDTO.getContentDelta(),todoRequestDTO.getDueDate(),todoRequestDTO.getPriority(),todoRequestDTO.getStatus());
+    public TodoResponseDTO fullUpdateTodoForUserId(int todoId, int userId, TodoPutRequestDTO todoPutRequestDTO) {
+        UpdateTodoCommand updateTodoCommand=new UpdateTodoCommand(userId,todoId, todoPutRequestDTO.getTitle(), todoPutRequestDTO.getDescription(), todoPutRequestDTO.getContentText(), todoPutRequestDTO.getContentDelta(), todoPutRequestDTO.getDueDate(), todoPutRequestDTO.getPriority(), todoPutRequestDTO.getStatus());
         Optional<Todo> optionalTodo=todoRepository.fullUpdateAndReturn(updateTodoCommand);
         boolean isTodoNotExists=optionalTodo.isEmpty();
         if(isTodoNotExists) {

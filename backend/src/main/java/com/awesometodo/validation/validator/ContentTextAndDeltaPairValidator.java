@@ -1,15 +1,15 @@
 package com.awesometodo.validation.validator;
 
-import com.awesometodo.dto.TodoRequestDTO;
+import com.awesometodo.dto.TodoPutRequestDTO;
 import com.awesometodo.validation.constraint.ContentTextAndDeltaPair;
 import com.awesometodo.validation.util.QuillDeltaValidator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class ContentTextAndDeltaPairValidator implements ConstraintValidator<ContentTextAndDeltaPair, TodoRequestDTO> {
+public class ContentTextAndDeltaPairValidator implements ConstraintValidator<ContentTextAndDeltaPair, TodoPutRequestDTO> {
 
     @Override
-    public boolean isValid(TodoRequestDTO obj, ConstraintValidatorContext context) {
+    public boolean isValid(TodoPutRequestDTO obj, ConstraintValidatorContext context) {
         if(obj==null)
             return true;
 
