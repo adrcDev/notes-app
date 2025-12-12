@@ -1,3 +1,21 @@
 .bodyBackgroundColorOverride {
   background-color: black;
 }
+
+.createNoteButton {
+  border: none;
+  position: fixed;
+  bottom: 0.1em;
+  right: 0.1em;
+  color: yellow;
+  background-color: rgb(53, 57, 53);
+  font-size: 4rem;
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+
+}
+
+.createNoteButton:active {
+  box-shadow: 0 0 0.2em yellow;
+}

@@ -35,6 +35,7 @@ export default function HomePage() {
         parent_filterAndSortUrlSearchParamsObjRef={filterAndSortUrlSearchParamsObjRef}
         parent_todosAreaSelectedPageNo={todosAreaSelectedPageNo}
         parent_setTodosAreaSelectedPageNo={setTodosAreaSelectedPageNo}/>}
+      <button className={homePageStylesObj.createNoteButton}>+</button>
       <LoadingModalDialog ref={loadingModalDialogRef} />
     </>
   );
