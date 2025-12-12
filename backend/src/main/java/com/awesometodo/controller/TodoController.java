@@ -85,11 +85,8 @@ public class TodoController {
         Map<String,String> todoUpdateFieldsMap=
                 TodoPatchRequestValidator.validateAndReturnMap(requestBodyJsonNode);
         int userId=getUserIdFromJwtAccessToken();
-
-
-        //placeholder
-//        TodoResponseDTO partialUpdatedTodoResponseDTO=todoService.partialUpdateTodoForUserId(todoId,userId,new TodoRequestDTO());
-        return new TodoResponseDTO();
+        TodoResponseDTO partialUpdatedTodoResponseDTO=todoService.partialUpdateTodoForUserId(todoId,userId,todoUpdateFieldsMap);
+        return partialUpdatedTodoResponseDTO;
     }
 
     private int getUserIdFromJwtAccessToken() {

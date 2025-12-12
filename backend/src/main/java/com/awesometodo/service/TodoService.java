@@ -1,5 +1,6 @@
 package com.awesometodo.service;
 
+import com.awesometodo.command.PartialUpdateTodoCommand;
 import com.awesometodo.command.UpdateTodoCommand;
 import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
@@ -72,7 +73,8 @@ public class TodoService {
     public TodoResponseDTO fullUpdateTodoForUserId(int todoId, int userId, TodoRequestDTO todoRequestDTO) {
         UpdateTodoCommand updateTodoCommand=new UpdateTodoCommand(userId,todoId,todoRequestDTO.getTitle(),todoRequestDTO.getDescription(),todoRequestDTO.getContentText(),todoRequestDTO.getContentDelta(),todoRequestDTO.getDueDate(),todoRequestDTO.getPriority(),todoRequestDTO.getStatus());
         Optional<Todo> optionalTodo=todoRepository.fullUpdateAndReturn(updateTodoCommand);
-        if(optionalTodo.isEmpty()) {
+        boolean isTodoNotExists=optionalTodo.isEmpty();
+        if(isTodoNotExists) {
             throw new TodoNotFoundForUserException();
         }
 
@@ -86,8 +88,16 @@ public class TodoService {
 
     @Transactional
     public TodoResponseDTO partialUpdateTodoForUserId(int todoId, int userId, Map<String,String> todoUpdateFieldsMap) {
-
-        //placeholder
-        return new TodoResponseDTO();
+        PartialUpdateTodoCommand partialUpdateTodoCommand=new PartialUpdateTodoCommand(userId,todoId,todoUpdateFieldsMap);
+        Optional<Todo> optionalTodo=todoRepository.partialUpdateAndReturn(partialUpdateTodoCommand);
+        boolean isTodoNotExists= optionalTodo.isEmpty();
+        if(isTodoNotExists) {
+            throw new TodoNotFoundForUserException();
+        }
+        Todo partialUpdatedTodo=optionalTodo.get();
+        String priority=EnumUtil.convertToSpaceSeparatedLowerCaseString(partialUpdatedTodo.getPriority()).get();
+        String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(partialUpdatedTodo.getStatus()).get();
+        TodoResponseDTO partialUpdatedTodoResponseDTO=new TodoResponseDTO(partialUpdatedTodo.getId(),partialUpdatedTodo.getTitle(), partialUpdatedTodo.getDescription(), partialUpdatedTodo.getContentDelta(), partialUpdatedTodo.getDueDate(),priority,status,partialUpdatedTodo.getCreatedAt(),partialUpdatedTodo.getUpdatedAt());
+        return partialUpdatedTodoResponseDTO;
     }
 }
