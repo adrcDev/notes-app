@@ -1,7 +1,7 @@
 package com.awesometodo.service;
 
 import com.awesometodo.command.PartialUpdateTodoCommand;
-import com.awesometodo.command.UpdateTodoCommand;
+import com.awesometodo.command.FullUpdateTodoCommand;
 import com.awesometodo.dto.TodoPageResponseDTO;
 import com.awesometodo.dto.TodoQueryParamsDTO;
 import com.awesometodo.dto.TodoPutRequestDTO;
@@ -71,8 +71,8 @@ public class TodoService {
 
     @Transactional
     public TodoResponseDTO fullUpdateTodoForUserId(int todoId, int userId, TodoPutRequestDTO todoPutRequestDTO) {
-        UpdateTodoCommand updateTodoCommand=new UpdateTodoCommand(userId,todoId, todoPutRequestDTO.getTitle(), todoPutRequestDTO.getDescription(), todoPutRequestDTO.getContentText(), todoPutRequestDTO.getContentDelta(), todoPutRequestDTO.getDueDate(), todoPutRequestDTO.getPriority(), todoPutRequestDTO.getStatus());
-        Optional<Todo> optionalTodo=todoRepository.fullUpdateAndReturn(updateTodoCommand);
+        FullUpdateTodoCommand fullUpdateTodoCommand =new FullUpdateTodoCommand(userId,todoId, todoPutRequestDTO.getTitle(), todoPutRequestDTO.getDescription(), todoPutRequestDTO.getContentText(), todoPutRequestDTO.getContentDelta(), todoPutRequestDTO.getDueDate(), todoPutRequestDTO.getPriority(), todoPutRequestDTO.getStatus());
+        Optional<Todo> optionalTodo=todoRepository.fullUpdateAndReturn(fullUpdateTodoCommand);
         boolean isTodoNotExists=optionalTodo.isEmpty();
         if(isTodoNotExists) {
             throw new TodoNotFoundForUserException();

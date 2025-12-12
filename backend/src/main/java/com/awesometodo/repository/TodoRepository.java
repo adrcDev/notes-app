@@ -1,14 +1,13 @@
 package com.awesometodo.repository;
 
 import com.awesometodo.command.PartialUpdateTodoCommand;
-import com.awesometodo.command.UpdateTodoCommand;
+import com.awesometodo.command.FullUpdateTodoCommand;
 import com.awesometodo.entity.Todo;
 import com.awesometodo.repository.criteria.TodoQueryCriteria;
 import com.awesometodo.repository.filter.TodoQueryFilter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -174,16 +173,16 @@ public class TodoRepository {
         return todo;
     }
 
-    public Optional<Todo> fullUpdateAndReturn(UpdateTodoCommand updateTodoCommand) {
+    public Optional<Todo> fullUpdateAndReturn(FullUpdateTodoCommand fullUpdateTodoCommand) {
         StringBuilder queryStringBuilder=new StringBuilder("UPDATE todos SET title=:title,description=:description,content_text=:contentText,content_delta=CAST(:contentDelta AS JSONB),due_date=:dueDate,");
-        if(updateTodoCommand.getPriority()==null) {
+        if(fullUpdateTodoCommand.getPriority()==null) {
             queryStringBuilder.append("priority=DEFAULT,");
         }
         else {
             queryStringBuilder.append("priority=:priority,");
         }
 
-        if(updateTodoCommand.getStatus()==null) {
+        if(fullUpdateTodoCommand.getStatus()==null) {
             queryStringBuilder.append("status=DEFAULT,");
         }
         else {
@@ -192,12 +191,12 @@ public class TodoRepository {
 
         queryStringBuilder.append("updated_at=CURRENT_TIMESTAMP WHERE id=:todoId AND user_id=:userId RETURNING *");
 
-        Query query=em.createNativeQuery(queryStringBuilder.toString(),Todo.class).setParameter("title",updateTodoCommand.getTitle()).setParameter("description",updateTodoCommand.getDescription()).setParameter("contentText",updateTodoCommand.getContentText()).setParameter("contentDelta",updateTodoCommand.getContentDelta()).setParameter("dueDate",updateTodoCommand.getDueDate()).setParameter("todoId",updateTodoCommand.getTodoId()).setParameter("userId",updateTodoCommand.getUserId());
-        if(updateTodoCommand.getPriority()!=null) {
-            query.setParameter("priority", updateTodoCommand.getPriority());
+        Query query=em.createNativeQuery(queryStringBuilder.toString(),Todo.class).setParameter("title", fullUpdateTodoCommand.getTitle()).setParameter("description", fullUpdateTodoCommand.getDescription()).setParameter("contentText", fullUpdateTodoCommand.getContentText()).setParameter("contentDelta", fullUpdateTodoCommand.getContentDelta()).setParameter("dueDate", fullUpdateTodoCommand.getDueDate()).setParameter("todoId", fullUpdateTodoCommand.getTodoId()).setParameter("userId", fullUpdateTodoCommand.getUserId());
+        if(fullUpdateTodoCommand.getPriority()!=null) {
+            query.setParameter("priority", fullUpdateTodoCommand.getPriority());
         }
-        if(updateTodoCommand.getStatus()!=null) {
-            query.setParameter("status",updateTodoCommand.getStatus());
+        if(fullUpdateTodoCommand.getStatus()!=null) {
+            query.setParameter("status", fullUpdateTodoCommand.getStatus());
         }
 
         try {

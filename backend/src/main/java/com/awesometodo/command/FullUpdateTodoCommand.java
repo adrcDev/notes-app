@@ -1,14 +1,9 @@
 package com.awesometodo.command;
 
 
-import com.awesometodo.validation.constraint.NotEmptyString;
-import com.awesometodo.validation.constraint.ValidQuillDelta;
-import com.awesometodo.validation.constraint.ValidTodoPriority;
-import com.awesometodo.validation.constraint.ValidTodoStatus;
-
 import java.time.LocalDate;
 
-public class UpdateTodoCommand {
+public class FullUpdateTodoCommand {
     private int userId;
     private int todoId;
     private String title;
@@ -19,7 +14,7 @@ public class UpdateTodoCommand {
     private String priority;
     private String status;
 
-    public UpdateTodoCommand(int userId, int todoId, String title, String description, String contentText, String contentDelta, LocalDate dueDate, String priority, String status) {
+    public FullUpdateTodoCommand(int userId, int todoId, String title, String description, String contentText, String contentDelta, LocalDate dueDate, String priority, String status) {
         this.userId = userId;
         this.todoId = todoId;
         this.title = title;
