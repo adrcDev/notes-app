@@ -11,7 +11,7 @@
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>application.log</file>
         <encoder>
-            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level %property{PID} --- [%thread] %logger{40}.%M:%L : %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level %property{PID} --- [%thread] %logger{40}.%M:%L : %msg%n%n</pattern>
             <!-- pattern that doesn't print method name and line no -->
 <!--            <pattern>${FILE_LOG_PATTERN}%n</pattern>-->
 <!--            <charset>${FILE_LOG_CHARSET}</charset>-->
