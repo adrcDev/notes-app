@@ -217,7 +217,7 @@ public class TodoRepository {
         parametersMap.put("todoId",partialUpdateTodoCommand.getTodoId());
         parametersMap.put("userId",partialUpdateTodoCommand.getUserId());
         StringBuilder updateStmtBuilder=new StringBuilder();
-        updateStmtBuilder.append(updateClause).append("SET ");
+        updateStmtBuilder.append(updateClause).append("SET updated_at=CURRENT_TIMESTAMP,");
         for(Map.Entry<String,String> keyValuePair:updateTodoFieldsMap.entrySet()) {
             String updateFieldName=keyValuePair.getKey();
             String updateFieldValue=keyValuePair.getValue();

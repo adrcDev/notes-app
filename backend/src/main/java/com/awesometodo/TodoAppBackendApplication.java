@@ -1,5 +1,6 @@
 package com.awesometodo;
 
+import com.awesometodo.command.PartialUpdateTodoCommand;
 import com.awesometodo.command.UpdateTodoCommand;
 import com.awesometodo.entity.Todo;
 import com.awesometodo.entity.User;
@@ -26,6 +27,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootApplication
 /* This is required by spring-retry library */
@@ -59,7 +62,13 @@ public class TodoAppBackendApplication {
 
 		transactionTemplate.executeWithoutResult((transactionStatus)-> {
 			/*Test repository methods or service methods or EntityManager operations here */
-
+//			Map<String,String> helperMap= Map.of("title","baja title","description","baja desc","contentText","baja content","contentDelta","{\"key1\": 123}","dueDate","2000-08-22");
+//			Map<String,String> updateTodoFieldsMap=new HashMap<>();
+//			updateTodoFieldsMap.putAll(helperMap);
+//			updateTodoFieldsMap.put("priority",null);
+//			updateTodoFieldsMap.put("status",null);
+//			PartialUpdateTodoCommand partialUpdateTodoCommand=new PartialUpdateTodoCommand(7,123,updateTodoFieldsMap);
+//			logger.debug("{}",todoRepository.partialUpdateAndReturn(partialUpdateTodoCommand));
 		});
 
 
