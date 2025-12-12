@@ -288,5 +288,14 @@ public class TodoRepository {
         }
     }
 
+    public Optional<Todo> findByIdAndUserId(int id,int userId) {
+        try {
+            Todo todo = (Todo) em.createNativeQuery("SELECT * FROM todos WHERE id=:id AND user_id=:userId", Todo.class).setParameter("id", id).setParameter("userId", userId).getSingleResult();
+            return Optional.of(todo);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
 
 }

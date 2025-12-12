@@ -100,4 +100,19 @@ public class TodoService {
         TodoResponseDTO partialUpdatedTodoResponseDTO=new TodoResponseDTO(partialUpdatedTodo.getId(),partialUpdatedTodo.getTitle(), partialUpdatedTodo.getDescription(), partialUpdatedTodo.getContentDelta(), partialUpdatedTodo.getDueDate(),priority,status,partialUpdatedTodo.getCreatedAt(),partialUpdatedTodo.getUpdatedAt());
         return partialUpdatedTodoResponseDTO;
     }
+
+    @Transactional
+    public TodoResponseDTO getTodoForUserId(int todoId,int userId) {
+        Optional<Todo> optionalTodo=todoRepository.findByIdAndUserId(todoId,userId);
+        boolean isTodoNotFound=optionalTodo.isEmpty();
+        if(isTodoNotFound) {
+            throw new TodoNotFoundForUserException();
+        }
+
+        Todo todo=optionalTodo.get();
+        String priority=EnumUtil.convertToSpaceSeparatedLowerCaseString(todo.getPriority()).get();
+        String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(todo.getStatus()).get();
+        TodoResponseDTO todoResponseDTO=new TodoResponseDTO(todo.getId(),todo.getTitle(), todo.getDescription(), todo.getContentDelta(),todo.getDueDate(),priority,status,todo.getCreatedAt(),todo.getUpdatedAt());
+        return todoResponseDTO;
+    }
 }

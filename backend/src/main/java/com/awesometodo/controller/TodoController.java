@@ -54,14 +54,19 @@ public class TodoController {
         return todoPageResponseDTO;
     }
 
+    @GetMapping("/api/v1/todos/{id}")
+    public TodoResponseDTO getTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId) {
+        int userId=getUserIdFromJwtAccessToken();
+        TodoResponseDTO todoResponseDTO=todoService.getTodoForUserId(todoId,userId);
+        return todoResponseDTO;
+    }
+
     @DeleteMapping("/api/v1/todos/{id}")
     public void deleteTodo(HttpServletResponse response,@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId) {
         int userId=getUserIdFromJwtAccessToken();
         todoService.deleteTodoByUserId(todoId,userId);
         response.setStatus(204);
     }
-
-
 
     @PostMapping("/api/v1/todos")
     public TodoResponseDTO postTodo(HttpServletResponse response) {
