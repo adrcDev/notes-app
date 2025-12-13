@@ -8,6 +8,7 @@ import "./global styles.css";
 import ErrorPage from "./components/ErrorPage/ErrorPage.js";
 import AuthPage from "./components/AuthPage/AuthPage.js";
 import LoginForm from "./components/LoginForm/LoginForm.js";
+import EditNotePage from "./components/EditNotePage/EditNotePage.js";
 import { ThemeProvider } from "./contexts/ThemeContext.js";
 import { JwtAccessTokenProvider } from "./contexts/JwtAcessTokenContext.js";
 import SignupForm from "./components/SignupForm/SignupForm.js";
@@ -42,6 +43,10 @@ let router=createBrowserRouter([
       }
     ] 
   },
+  {
+    path: "/edit-note",
+    element: <JwtAuthLogicWrapper><EditNotePage/></JwtAuthLogicWrapper>
+  }
 
 ]);
 
