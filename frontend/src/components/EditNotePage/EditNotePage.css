@@ -1,0 +1,101 @@
+.bodyBackgroundColorOverride {
+  background-color: black;
+}
+
+.editNotePageWrapper {
+  font-size: 1.25rem;
+  color: white
+}
+
+.noteActionButtonsWrapper {
+  margin-top: 0.7em;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1em;
+  row-gap: 0.5em;
+  padding-left: 0.5em;
+}
+
+.noteActionButton {
+  background-color: rgb(53, 57, 53);
+  color: inherit;
+  padding: 0.7em;
+}
+
+.timeStampsWrapper {
+  margin-top: 0.3em;
+  padding: 0 0.5em;
+  display: grid;
+  grid-template-columns: 1.5fr 4fr;
+  row-gap: 0.2em;
+  column-gap: 0.3em;
+}
+
+ .timeStampLabel {
+  
+} 
+
+.noteFieldsWrapper {
+  margin-top: 0.3em;
+  display: grid;
+  grid-template-columns: 1.5fr 4fr;
+  row-gap: 0.5em;
+  column-gap: 0.2em;
+  padding: 0 0.5em;
+}
+
+.textArea {
+  width: 96%;
+  padding: 0.2em 0.2em;
+  overflow-y: scroll;
+  height: 5em;
+  background-color: #E0E0E0;
+}
+
+.textArea:focus {
+  outline: 0.1em solid orange;
+}
+
+.dueDateFieldAndClearButtonWrapper {
+  width: 96%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dueDateField {
+  padding-left: 0.1em;
+  background-color: #E0E0E0;
+  width: 70%;
+}
+
+.dueDateField:focus {
+  outline: 0.1em solid orange;
+}
+
+.clearDueDateFieldButton {
+  background-color: rgb(53, 57, 53);
+  color: inherit;
+  padding: 0.2em;
+}
+
+.dropDown {
+  padding: 0.2em;
+  background-color: #E0E0E0;
+}
+
+.dropDown:focus {
+  outline: 0.1em solid orange;
+}
+
+.priorityDropDown {
+  width: max-content;
+}
+
+.statusDropDown {
+  width: max-content;
+  padding: 0.2em;
+}
+
+
+
+

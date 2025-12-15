@@ -1,0 +1,26 @@
+.appBar {
+  display: flex;
+  font-size: 1.25rem;
+  padding: 0 0.25em;
+  color: white;
+  background-color: rgb(53, 57, 53);
+}
+
+.appLogo {
+  display: inline-block;
+  width: 2.5em;
+  background-image: url("../../static/images/todo-app-icon-dark.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.appName {
+  align-self: center;
+  margin-left: 0.5em; 
+}
+
+.appLogoAndNameWrapper {
+  display: flex;
+  height: 2.5em;
+}
+
