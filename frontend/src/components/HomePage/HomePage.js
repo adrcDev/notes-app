@@ -64,7 +64,8 @@ export default function HomePage() {
 
     if(response.status===201) {
       let createdNoteParsedJsonObj=await response.json();
-      navigateFuncReactRouter("/edit-note",{replace:true,state:createdNoteParsedJsonObj});
+      let idOfCreatedNote=createdNoteParsedJsonObj.id;
+      navigateFuncReactRouter("/edit-note",{replace:true,state:idOfCreatedNote});
       return;
     }
 
@@ -132,7 +133,8 @@ export default function HomePage() {
 
     if(response.status===201) {
       let createdNoteParsedJsonObj=await response.json();
-      navigateFuncReactRouter("/edit-note",{replace:true,state:createdNoteParsedJsonObj});
+      let idOfCreatedNote=createdNoteParsedJsonObj.id;
+      navigateFuncReactRouter("/edit-note",{replace:true,state:idOfCreatedNote});
       return;
     }
 
