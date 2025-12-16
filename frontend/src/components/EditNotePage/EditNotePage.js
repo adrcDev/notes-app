@@ -2,11 +2,15 @@ import * as React from "react";
 import * as editNotePageStylesObj from "./EditNotePage.css";
 import { useLocation } from "react-router";
 import AppBar from "./_AppBar.js";
+import Quill from "quill";
 
 export default function EditNotePage() {
   let locationReactRouterObj=useLocation();
   let idOfNoteBeingEdited=locationReactRouterObj.state;
   let [noteBeingEditedObj,setNoteBeingEditedObj]=React.useState({});
+
+  let quillEditorContainerDivRef=React.useRef(null);
+  let quillInstanceRef=React.useRef(null);
 
   React.useEffect(()=>{
       document.body.classList.add(editNotePageStylesObj.bodyBackgroundColorOverride);
@@ -20,6 +24,49 @@ export default function EditNotePage() {
     // getAndSetTodoBeingEdited();
 
     },[]);
+
+    //temporarily added for testing quill editor
+    React.useEffect(()=> {
+      //prevents creation of 2 toolbars
+      if(quillInstanceRef.current!=null) {
+        return;
+      }
+
+      let quillEditorContainerDivDomNode=quillEditorContainerDivRef.current;
+      let quillEditorConfig={
+        theme: 'snow',
+        modules: {
+          toolbar: {
+            container: [{ 'size': ['small', false, 'large', 'huge'] },{header:[1, 2, 3, 4, 5, 6, false]},{color:[]},{background:[]},"bold","italic",{align:[]},{ list: 'ordered'}, { list: 'bullet' }, { list: 'check' },"strike","underline",{ script: 'sub'}, { script: 'super' },"blockquote",{direction:"rtl"},{ indent: '-1'}, { indent: '+1' },"link","code","code-block","image","video"],
+         // handlers: {
+         //    "image": function (value) {
+         //       console.log(value,this);
+         //    }
+         // }
+          }
+        }
+      };
+      let quillInstance=new Quill(quillEditorContainerDivDomNode,quillEditorConfig);
+      quillInstanceRef.current=quillInstance;
+      const delta = {
+  ops: [
+    {
+      insert: "Yellow ",
+      attributes: { color: "yellow" }
+    },
+    {
+      insert: "Blue ",
+      attributes: { color: "blue" }
+    },
+    {
+      insert: "Normal"
+    }
+  ]
+};
+      quillInstance.setContents(delta)
+  
+    },[]);
+
 
 
 
@@ -65,6 +112,9 @@ export default function EditNotePage() {
           </select>
         </div>
 
+        <div className={editNotePageStylesObj.quillToolbarAndEditorWrapper}>
+          <div ref={quillEditorContainerDivRef} className={editNotePageStylesObj.quillEditor}></div>
+        </div>
       </div>
     );
 }
