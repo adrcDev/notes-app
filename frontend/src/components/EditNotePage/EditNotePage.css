@@ -96,6 +96,18 @@
   padding: 0.2em;
 }
 
+.closeWithoutSavingDialogButtonsWrapper {
+  margin-top: 0.3em;
+  display: flex;
+  justify-content: center;
+  column-gap: 1em;
+}
+
+.closeWithoutSavingDialogButton {
+  background-color: white;
+  padding: 0.3em 0.75em;
+}
+
 .quillToolbarAndEditorWrapper {
   padding: 0 0.3em;
 }

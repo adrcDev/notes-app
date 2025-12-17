@@ -243,6 +243,35 @@ export default function EditNotePage() {
 
     },[noteBeingEditedObj]);  
 
+    function handleClickForClearDueDateFieldButton(e) {
+      dueDateFieldRef.current.value="";
+    }
+
+    function handleClickForCloseWithoutSavingDialogCancelButton(e) {
+      setIsTextDialogToBeShown(false);
+      setTextDialogText("");
+    }
+
+    function handleClickForCloseWithoutSavingDialogYesButton(e) {
+      navigateFuncReactRouter("/",{replace:true});
+    }
+
+    function handleClickForCloseWithoutSavingButton(e) {
+      let dialogContentJsxObj=(
+        <>
+          <p>Are you sure you want to close this note without saving changes? (Any changes made since last save will be lost)</p>
+          <div className={editNotePageStylesObj.closeWithoutSavingDialogButtonsWrapper}>
+            <button className={editNotePageStylesObj.closeWithoutSavingDialogButton} onClick={handleClickForCloseWithoutSavingDialogYesButton}>Yes</button>
+            <button className={editNotePageStylesObj.closeWithoutSavingDialogButton}
+            onClick={handleClickForCloseWithoutSavingDialogCancelButton}
+            >Cancel</button>
+          </div>
+        </>
+      );
+      setIsTextDialogToBeShown(true);
+      setTextDialogText(dialogContentJsxObj);
+    }
+
 
     return (
       <div className={editNotePageStylesObj.editNotePageWrapper}>
@@ -251,7 +280,9 @@ export default function EditNotePage() {
           <button className={editNotePageStylesObj.noteActionButton}>Delete</button>
           <button className={editNotePageStylesObj.noteActionButton}>Save</button>
           <button className={editNotePageStylesObj.noteActionButton}>Save and close</button>
-          <button className={editNotePageStylesObj.noteActionButton}>Close without saving changes</button>
+          <button className={editNotePageStylesObj.noteActionButton}
+            onClick={handleClickForCloseWithoutSavingButton}>Close without saving changes
+          </button>
         </div>
 
         <div className={editNotePageStylesObj.timeStampsWrapper}>
@@ -269,7 +300,8 @@ export default function EditNotePage() {
           <label>Due date:</label>
           <div className={editNotePageStylesObj.dueDateFieldAndClearButtonWrapper}>
             <input ref={dueDateFieldRef} type="date" className={editNotePageStylesObj.dueDateField}></input>
-            <button className={editNotePageStylesObj.clearDueDateFieldButton}>Clear</button>
+            <button className={editNotePageStylesObj.clearDueDateFieldButton}
+              onClick={handleClickForClearDueDateFieldButton}>Clear</button>
           </div>
           <label>Priority:</label>
           <select ref={priorityDropDownRef} className={`${editNotePageStylesObj.priorityDropDown} ${editNotePageStylesObj.dropDown}`}>
