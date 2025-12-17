@@ -1,0 +1,53 @@
+
+.dialogCloseButtonWrapper {
+  display: flex;
+  justify-content: end;
+}
+
+.dialogCloseButton {
+  background-color: transparent;
+  border: none;
+  background-image: url("../../static/images/dialog-close-icon-dark.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 1.5em;
+  height: 1.5em;    
+}
+
+.dialogText {
+  margin-top: 0.2em;
+}
+
+.textDialog {
+  background-color: rgb(53, 57, 53);
+  color: white;
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  padding: 0.3em;
+  font-size: 1.25rem;
+}
+
+/* for phones in landscape and for small tablets */
+@media (min-width: 37.5em) {
+  .textDialog {
+    width: 50%;
+  }
+}
+
+/* for large tablets */
+@media (min-width: 62em) {
+  .textDialog {
+    font-size: 1.4rem;
+  }
+}
+
+/* for laptops and desktops */
+@media (min-width: 75em) {
+  .textDialog {
+    width: 37.5%;
+  }
+}
