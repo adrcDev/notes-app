@@ -9,6 +9,7 @@ import LoadingModalDialog from "./_LoadingModalDialog.js";
 import TextDialog from "./_TextDialog.js";
 import ModalRedirectDialog from "./_ModalRedirectDialog.js";
 import { useNavigate } from "react-router";
+import UpperMessageBar from "./_UpperMessageBar.js";
 
 export default function EditNotePage() {
   let navigateFuncReactRouter=useNavigate();
@@ -23,6 +24,8 @@ export default function EditNotePage() {
   let [textDialogText,setTextDialogText]=React.useState("");
   let [isModalRedirectDialogToBeShown,setIsModalRedirectDialogToBeShown]=React.useState(false);
   let [modalRedirectDialogText,setModalRedirectDialogText]=React.useState("");
+  let [isUpperMessageBarToBeShown,setIsUpperMessageBarToBeShown]=React.useState(false);
+  let [upperMessageBarText,setUpperMessageBarText]=React.useState("");
   
 
   let quillEditorContainerDivRef=React.useRef(null);
@@ -89,7 +92,7 @@ export default function EditNotePage() {
       if(response.status===404) {
         loadingModalDialogRef.current.close();
         setIsModalRedirectDialogToBeShown(true);
-        setModalRedirectDialogText("This note has been deleted. Redirecting to home page in 5 seconds");
+        setModalRedirectDialogText("Couldn't get this note as it has been deleted. Redirecting to home page in 5 seconds");
         setTimeout(() => {
           navigateFuncReactRouter("/",{replace: true});
         }, 5000);
@@ -166,7 +169,7 @@ export default function EditNotePage() {
       if(response.status===404) {
         loadingModalDialogRef.current.close();
         setIsModalRedirectDialogToBeShown(true);
-        setModalRedirectDialogText("This note has been deleted. Redirecting to home page in 5 seconds");
+        setModalRedirectDialogText("Couldn't get this note as it has been deleted. Redirecting to home page in 5 seconds");
         setTimeout(() => {
           navigateFuncReactRouter("/",{replace: true});
         }, 5000);
@@ -272,14 +275,200 @@ export default function EditNotePage() {
       setTextDialogText(dialogContentJsxObj);
     }
 
+    async function handleClickForSaveButton(e) {
+      try {
+      await updateAndSetNote();
+      } catch(e)  { }
+    }
+
+    async function handleClickForSaveAndCloseButton(e) {
+      try {
+        await updateAndSetNote();
+        navigateFuncReactRouter("/",{replace:true});
+      } catch(e) {}
+    }
+
+    async function updateAndSetNote() {
+      loadingModalDialogRef.current.showModal();
+      let quillDeltaObj=quillInstanceRef.current.getContents();
+      let quillDeltaJsonString=JSON.stringify(quillDeltaObj);
+      let updatedNoteObj={
+        "title": titleTextAreaRef.current.value,
+        "description": descriptionTextAreaRef.current.value,
+        "contentText": quillInstanceRef.current.getText(),
+        "contentDelta": quillDeltaJsonString,
+        "dueDate": null,
+        "priority": priorityDropDownRef.current.value,
+        "status": statusDropDownRef.current.value
+      };
+      if(dueDateFieldRef.current.value!=="") {
+        updatedNoteObj.dueDate=dueDateFieldRef.current.value;
+      }
+      
+      let updatedNoteObjJsonString=JSON.stringify(updatedNoteObj);
+      let networkErrorMessage="Network error: please check your network connection";
+      let somethingWentWrongMessage="Something went wrong: please try again";
+      let response;
+      try {
+        response=await fetch(`${context_backendUrl}/api/v1/todos/${idOfNoteBeingEdited}`,{
+          method: "put",
+          headers: {
+            "Authorization": `Bearer ${context_jwtAccessTokenRef.current}`,
+            "Content-Type": "application/json"
+          },
+          body: updatedNoteObjJsonString,
+          credentials: "include"
+        });
+      } catch(e) {
+        loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        throw e;
+      }
+
+      if(response.status===500) {
+        loadingModalDialogRef.current.close();
+        console.log("500: Internal server error");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        throw new Error();
+      }
+
+      if(response.status===400) {
+        loadingModalDialogRef.current.close();
+        console.log("400: Bad request");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        throw new Error();
+      }
+
+      if(response.status===404) {
+        setIsModalRedirectDialogToBeShown(true);
+        setModalRedirectDialogText("Couldn't save this note as it has been deleted. Redirecting to home page in 5 seconds");
+        setTimeout(() => {
+          navigateFuncReactRouter("/",{replace: true});
+        }, 5000);
+        throw new Error();
+      }
+
+      if(response.status===200) {
+        loadingModalDialogRef.current.close();
+        let noteBeingEditedParsedJsonObj=await response.json();
+        setNoteBeingEditedObj(noteBeingEditedParsedJsonObj);
+        setIsUpperMessageBarToBeShown(true);
+        setUpperMessageBarText("Saved successfully");
+        setTimeout(() => {
+          setIsUpperMessageBarToBeShown(false);
+          setUpperMessageBarText("");
+        }, 4000);
+        return;
+      }
+
+      //response status code is 401 for PUT /api/v1/todos/{id}
+      try {
+        response=await fetch(`${context_backendUrl}/auth/v1/refresh`,{
+          method: "post",
+          credentials: "include" 
+        });
+      } catch(e) {
+        loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        throw new Error();
+      }
+
+      if(response.status===500) {
+        loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true)
+        setTextDialogText(somethingWentWrongMessage);
+        console.log("500: Internal server error");
+        throw new Error();
+      }
+
+      if(response.status===401) {
+        context_jwtAccessTokenRef.current="";
+        navigateFuncReactRouter("/auth/login",{replace:true});
+        throw new Error();
+      }
+
+      //response status is 200 for /auth/v1/refresh
+      let jwtAccessTokenParsedJsonObj=await response.json();
+      let newJwtAccessToken=jwtAccessTokenParsedJsonObj["jwt access token"];
+      context_jwtAccessTokenRef.current=newJwtAccessToken;
+
+      try {
+        response=await fetch(`${context_backendUrl}/api/v1/todos/${idOfNoteBeingEdited}`,{
+          method: "put",
+          headers: {
+            "Authorization": `Bearer ${context_jwtAccessTokenRef.current}`,
+            "Content-Type": "application/json"
+          },
+          body: updatedNoteObjJsonString,
+          credentials: "include"
+        });
+      } catch(e) {
+        loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        throw e;
+      }
+
+      if(response.status===500) {
+        loadingModalDialogRef.current.close();
+        console.log("500: Internal server error");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        throw new Error();
+      }
+
+      if(response.status===400) {
+        loadingModalDialogRef.current.close();
+        console.log("400: Bad request");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        throw new Error();
+      }
+
+      if(response.status===404) {
+        setIsModalRedirectDialogToBeShown(true);
+        setModalRedirectDialogText("Couldn't save this note as it has been deleted. Redirecting to home page in 5 seconds");
+        setTimeout(() => {
+          navigateFuncReactRouter("/",{replace: true});
+        }, 5000);
+        throw new Error();
+      }
+
+      if(response.status===200) {
+        loadingModalDialogRef.current.close();
+        let noteBeingEditedParsedJsonObj=await response.json();
+        setNoteBeingEditedObj(noteBeingEditedParsedJsonObj);
+        setIsUpperMessageBarToBeShown(true);
+        setUpperMessageBarText("Saved successfully");
+        setTimeout(() => {
+          setIsUpperMessageBarToBeShown(false);
+          setUpperMessageBarText("");
+        }, 4000);
+        return;
+      }
+
+      //response status for PUT /api/v1/todos/{id} is 401
+      loadingModalDialogRef.current.close();
+      console.log("Unexpected 401 response");
+      setIsTextDialogToBeShown(true);
+      setTextDialogText(somethingWentWrongMessage);
+      throw new Error();
+    }
+
 
     return (
       <div className={editNotePageStylesObj.editNotePageWrapper}>
         <AppBar/>
         <div className={editNotePageStylesObj.noteActionButtonsWrapper}>
           <button className={editNotePageStylesObj.noteActionButton}>Delete</button>
-          <button className={editNotePageStylesObj.noteActionButton}>Save</button>
-          <button className={editNotePageStylesObj.noteActionButton}>Save and close</button>
+          <button className={editNotePageStylesObj.noteActionButton} 
+            onClick={handleClickForSaveButton}>Save</button>
+          <button className={editNotePageStylesObj.noteActionButton}
+            onClick={handleClickForSaveAndCloseButton}>Save and close</button>
           <button className={editNotePageStylesObj.noteActionButton}
             onClick={handleClickForCloseWithoutSavingButton}>Close without saving changes
           </button>
@@ -324,6 +513,8 @@ export default function EditNotePage() {
           <TextDialog text={textDialogText} parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown} />}
         {isModalRedirectDialogToBeShown && 
           <ModalRedirectDialog text={modalRedirectDialogText} />}
+        {isUpperMessageBarToBeShown &&
+         <UpperMessageBar text={upperMessageBarText}/>}
       </div>
     );
 }
