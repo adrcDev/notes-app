@@ -265,6 +265,11 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
     return Math.ceil(parent_todosPageObj.totalTodos/10);
   }
 
+  function handleClickForEditTodoSpan(e,todoId) {
+    parent_loadingModalDialogRef.current.showModal();
+    navigateFuncReactRouter("/edit-note",{replace:true,state:todoId});
+  }
+
   function handleClickForTodoInfoSpan(e,todoId) {
     let todosDisplayedOnPageArr=parent_todosPageObj.todos;
     let clickedTodoObj=todosDisplayedOnPageArr.find((todoObj,index)=>todoObj.id===todoId);
@@ -375,7 +380,7 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
           readOnlyQuillEditorContainerDivsArrRef.current[i]=domNode;
         }} className={`${todosAreaStylesObj.todoReadOnlyQuillEditor} ${todosAreaStylesObj.tempTodoReadOnlyQuillEditor}`}></div>
         <div className={todosAreaStylesObj.todoActionsWrapper}>
-          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.editTodoSpan}`}></span>
+          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.editTodoSpan}`} onClick={(e)=>handleClickForEditTodoSpan(e,todoId)}></span>
           <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.deleteTodoSpan}`}></span>
           <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.todoInfoSpan}`} onClick={(e)=>handleClickForTodoInfoSpan(e,todoId)}></span>
         </div>
