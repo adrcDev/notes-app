@@ -287,7 +287,7 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
     
     
     let shortTodoDescription="<Not set>";
-    if(clickedTodoObj.description!==null) {
+    if(clickedTodoObj.description!==null && clickedTodoObj.description.trim()!=="") {
       shortTodoDescription=clickedTodoObj.description;
       if(shortTodoDescription.length>100) {
         shortTodoDescription=`${shortTodoDescription.substring(0,100)}...`;
