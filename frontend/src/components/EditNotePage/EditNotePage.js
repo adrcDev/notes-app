@@ -459,12 +459,173 @@ export default function EditNotePage() {
       throw new Error();
     }
 
+  function handleClickForDeleteNoteDialogCancelButton(e) {
+    setIsTextDialogToBeShown(false)
+    setTextDialogText("");
+  }
+  
+  async function handleClickForDeleteNoteDialogYesButton(e) {
+    try {
+        await deleteNote(idOfNoteBeingEdited);
+        navigateFuncReactRouter("/",{replace:true});
+    } catch(e) { }
+  }
+
+   function handleClickForDeleteButton(e) {
+      let dialogContentJsxObj=(
+        <div>
+          <p>Are you sure you want to delete this note?</p>
+          <div className={editNotePageStylesObj.deleteNoteDialogButtonsWrapper}>
+            <button className={editNotePageStylesObj.deleteNoteDialogButton}
+              onClick={handleClickForDeleteNoteDialogYesButton}>Yes</button>
+            <button className={editNotePageStylesObj.deleteNoteDialogButton} 
+              onClick={handleClickForDeleteNoteDialogCancelButton}>Cancel</button>
+          </div>
+        </div>
+      );
+      setIsTextDialogToBeShown(true);
+      setTextDialogText(dialogContentJsxObj);
+    }
+
+    async function deleteNote(idOfNoteBeingEdited) {
+      loadingModalDialogRef.current.showModal();
+      let networkErrorMessage="Network error: please check your network connection";
+      let somethingWentWrongMessage="Something went wrong: please try again";
+      let response;
+      try {
+        response=await fetch(`${context_backendUrl}/api/v1/todos/${idOfNoteBeingEdited}`,{
+          method: "delete",
+          headers: {
+            "Authorization": `Bearer ${context_jwtAccessTokenRef.current}`
+          },
+          credentials: "include"
+        });
+      } catch(e) {
+        loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        throw e;
+      }
+
+      if(response.status===500) {
+        loadingModalDialogRef.current.close();
+        console.log("500: Internal server error");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        throw new Error();
+      }
+
+      if(response.status===400) {
+        loadingModalDialogRef.current.close();
+        console.log("400: Bad request");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        throw new Error();
+      }
+
+      if(response.status===404) {
+        setIsModalRedirectDialogToBeShown(true);
+        setModalRedirectDialogText("Couldn't delete this note as it has already been deleted. Redirecting to home page in 5 seconds");
+        setTimeout(() => {
+          navigateFuncReactRouter("/",{replace: true});
+        }, 5000);
+        throw new Error();
+      }
+
+      if(response.status===204) {
+        return;
+      }
+
+      //response status code is 401 for DELETE /api/v1/todos/{id}
+      try {
+        response=await fetch(`${context_backendUrl}/auth/v1/refresh`,{
+          method: "post",
+          credentials: "include" 
+        });
+      } catch(e) {
+        loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        throw new Error();
+      }
+
+      if(response.status===500) {
+        loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true)
+        setTextDialogText(somethingWentWrongMessage);
+        console.log("500: Internal server error");
+        throw new Error();
+      }
+
+      if(response.status===401) {
+        context_jwtAccessTokenRef.current="";
+        navigateFuncReactRouter("/auth/login",{replace:true});
+        throw new Error();
+      }
+
+      //response status is 200 for /auth/v1/refresh
+      let jwtAccessTokenParsedJsonObj=await response.json();
+      let newJwtAccessToken=jwtAccessTokenParsedJsonObj["jwt access token"];
+      context_jwtAccessTokenRef.current=newJwtAccessToken;
+
+      try {
+        response=await fetch(`${context_backendUrl}/api/v1/todos/${idOfNoteBeingEdited}`,{
+          method: "delete",
+          headers: {
+            "Authorization": `Bearer ${context_jwtAccessTokenRef.current}`
+          },
+          credentials: "include"
+        });
+      } catch(e) {
+        loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        throw e;
+      }
+
+      if(response.status===500) {
+        loadingModalDialogRef.current.close();
+        console.log("500: Internal server error");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        throw new Error();
+      }
+
+      if(response.status===400) {
+        loadingModalDialogRef.current.close();
+        console.log("400: Bad request");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        throw new Error();
+      }
+
+      if(response.status===404) {
+        setIsModalRedirectDialogToBeShown(true);
+        setModalRedirectDialogText("Couldn't delete this note as it has already been deleted. Redirecting to home page in 5 seconds");
+        setTimeout(() => {
+          navigateFuncReactRouter("/",{replace: true});
+        }, 5000);
+        throw new Error();
+      }
+
+      if(response.status===204) {
+        return;
+      }
+
+      //response status code is 401 for DELETE /api/v1/todos/{id}
+      loadingModalDialogRef.current.close();
+      console.log("Unexpected 401 response");
+      setIsTextDialogToBeShown(true);
+      setTextDialogText(somethingWentWrongMessage);
+      throw new Error();
+    }
 
     return (
       <div className={editNotePageStylesObj.editNotePageWrapper}>
         <AppBar/>
         <div className={editNotePageStylesObj.noteActionButtonsWrapper}>
-          <button className={editNotePageStylesObj.noteActionButton}>Delete</button>
+          <button className={editNotePageStylesObj.noteActionButton}
+            onClick={handleClickForDeleteButton}>Delete</button>
           <button className={editNotePageStylesObj.noteActionButton} 
             onClick={handleClickForSaveButton}>Save</button>
           <button className={editNotePageStylesObj.noteActionButton}
