@@ -5,6 +5,7 @@ import { BackendUrlContext } from "../../contexts/BackendUrlContext.js";
 import TextDialog from "./_TextDialog.js";
 import { useNavigate } from "react-router";
 import Quill from "quill";
+import ModalRedirectDialog from "./_ModalRedirectDialog.js";
 
 export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,parent_loadingModalDialogRef,parent_filterAndSortUrlSearchParamsObjRef,parent_todosAreaSelectedPageNo,parent_setTodosAreaSelectedPageNo}) {
   let context_jwtAccessTokenRef=React.useContext(JwtAccessTokenContext);
@@ -14,7 +15,9 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
 
   let [textDialogText,setTextDialogText]=React.useState("");
   let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
-
+  let [isModalRedirectDialogToBeShown,setIsModalRedirectDialogToBeShown]=React.useState(false);
+  let [modalRedirectDialogText,setModalRedirectDialogText]=React.useState("");
+  
   let readOnlyQuillEditorContainerDivsArrRef=React.useRef([]);
   let todoTitleTextFieldArrRef=React.useRef([]);
 
@@ -114,7 +117,7 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
       filterAndSortUrlSearchParamsObj.delete("offset");
       filterAndSortUrlSearchParamsObj.append("offset",(lastExistingPageNo-1)*10);
       try {
-        response=await fetch(`${context_backendUrl}/auth/v1/todos?${filterAndSortUrlSearchParamsObj.toString()}`,{
+        response=await fetch(`${context_backendUrl}/api/v1/todos?${filterAndSortUrlSearchParamsObj.toString()}`,{
           headers: {Authorization:`Bearer ${context_jwtAccessTokenRef.current}`},
           method: "get",
           credentials: "include"
@@ -216,7 +219,7 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
           filterAndSortUrlSearchParamsObj.delete("offset");
           filterAndSortUrlSearchParamsObj.append("offset",(lastExistingPageNo-1)*10);
           try {
-            response=await fetch(`${context_backendUrl}/auth/v1/todos?${filterAndSortUrlSearchParamsObj.toString()}`,{
+            response=await fetch(`${context_backendUrl}/api/v1/todos?${filterAndSortUrlSearchParamsObj.toString()}`,{
               headers: {Authorization:`Bearer ${context_jwtAccessTokenRef.current}`},
               method: "get",
               credentials: "include"
@@ -339,6 +342,31 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
     setTextDialogText(todoInfoDialogContentDivJsxObj);
   }
 
+  function handleClickForDeleteTodoDialogCancelButton(e) {
+    setIsTextDialogToBeShown(false)
+    setTextDialogText("");
+  }
+
+  function handleClickForDeleteTodoDialogYesButton(e,todoId) {
+    deleteTodoAndResetPage(todoId);
+  }
+
+  function handleClickForDeleteTodoSpan(e,todoId) {
+    let dialogContentJsxObj=(
+      <div>
+        <p>Are you sure you want to delete the note?</p>
+        <div className={todosAreaStylesObj.deleteTodoDialogButtonsWrapper}>
+          <button className={todosAreaStylesObj.deleteTodoDialogButton}
+            onClick={(e)=>handleClickForDeleteTodoDialogYesButton(e,todoId)}>Yes</button>
+          <button className={todosAreaStylesObj.deleteTodoDialogButton} 
+            onClick={handleClickForDeleteTodoDialogCancelButton}>Cancel</button>
+        </div>
+      </div>
+    );
+    setIsTextDialogToBeShown(true);
+    setTextDialogText(dialogContentJsxObj);
+  }
+
   let pageNoDivsJsxObjArr=[];
   let totalTodos=parent_todosPageObj.totalTodos;
   let noOfPages=Math.ceil(totalTodos/10);
@@ -381,13 +409,164 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
         }} className={`${todosAreaStylesObj.todoReadOnlyQuillEditor} ${todosAreaStylesObj.tempTodoReadOnlyQuillEditor}`}></div>
         <div className={todosAreaStylesObj.todoActionsWrapper}>
           <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.editTodoSpan}`} onClick={(e)=>handleClickForEditTodoSpan(e,todoId)}></span>
-          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.deleteTodoSpan}`}></span>
+          <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.deleteTodoSpan}`} onClick={(e)=>handleClickForDeleteTodoSpan(e,todoId)}></span>
           <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.todoInfoSpan}`} onClick={(e)=>handleClickForTodoInfoSpan(e,todoId)}></span>
         </div>
        </div>
     );
     readOnlyQuillEditorContainerDivJsxObjsArr.push(readOnlyQuillEditorContainerDivJsxObj);
   }
+
+  async function deleteTodoAndResetPage(todoId) {
+      parent_loadingModalDialogRef.current.showModal();
+      let networkErrorMessage="Network error: please check your network connection";
+      let somethingWentWrongMessage="Something went wrong: please try again";
+      let response;
+      try {
+        response=await fetch(`${context_backendUrl}/api/v1/todos/${todoId}`,{
+          method: "delete",
+          headers: {
+            "Authorization": `Bearer ${context_jwtAccessTokenRef.current}`
+          },
+          credentials: "include"
+        });
+      } catch(e) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        return;
+      }
+
+      if(response.status===500) {
+        parent_loadingModalDialogRef.current.close();
+        console.log("500: Internal server error");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        return;
+      }
+
+      if(response.status===400) {
+        parent_loadingModalDialogRef.current.close();
+        console.log("400: Bad request");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        return;
+      }
+
+      if(response.status===404) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(false);
+        setTextDialogText("");
+        setIsModalRedirectDialogToBeShown(true);
+        setModalRedirectDialogText("Couldn't delete this note as it has already been deleted. Resetting page in 3 seconds");
+        setTimeout(() => {
+          setIsModalRedirectDialogToBeShown(false);
+          setModalRedirectDialogText("");
+          fetchAndSetTodosPage(parent_todosAreaSelectedPageNo);
+        }, 3000);
+        return;
+      }
+
+      if(response.status===204) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(false);
+        setTextDialogText("");
+        fetchAndSetTodosPage(parent_todosAreaSelectedPageNo);
+        return;
+      }
+
+      //response status code is 401 for DELETE /api/v1/todos/{id}
+      try {
+        response=await fetch(`${context_backendUrl}/auth/v1/refresh`,{
+          method: "post",
+          credentials: "include" 
+        });
+      } catch(e) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        return;
+      }
+
+      if(response.status===500) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true)
+        setTextDialogText(somethingWentWrongMessage);
+        console.log("500: Internal server error");
+        return;
+      }
+
+      if(response.status===401) {
+        context_jwtAccessTokenRef.current="";
+        navigateFuncReactRouter("/auth/login",{replace:true});
+        return;
+      }
+
+      //response status is 200 for /auth/v1/refresh
+      let jwtAccessTokenParsedJsonObj=await response.json();
+      let newJwtAccessToken=jwtAccessTokenParsedJsonObj["jwt access token"];
+      context_jwtAccessTokenRef.current=newJwtAccessToken;
+
+      try {
+        response=await fetch(`${context_backendUrl}/api/v1/todos/${todoId}`,{
+          method: "delete",
+          headers: {
+            "Authorization": `Bearer ${context_jwtAccessTokenRef.current}`
+          },
+          credentials: "include"
+        });
+      } catch(e) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        return;
+      }
+
+      if(response.status===500) {
+        parent_loadingModalDialogRef.current.close();
+        console.log("500: Internal server error");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        return;
+      }
+
+      if(response.status===400) {
+        parent_loadingModalDialogRef.current.close();
+        console.log("400: Bad request");
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(somethingWentWrongMessage);
+        return;
+      }
+
+      if(response.status===404) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(false);
+        setTextDialogText("");
+        setIsModalRedirectDialogToBeShown(true);
+        setModalRedirectDialogText("Couldn't delete this note as it has already been deleted. Refreshing page in 3 seconds");
+        setTimeout(() => {
+          setIsModalRedirectDialogToBeShown(false);
+          setModalRedirectDialogText("");
+          fetchAndSetTodosPage(parent_todosAreaSelectedPageNo);
+        }, 3000);
+        return;
+      }
+
+      if(response.status===204) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(false);
+        setTextDialogText("");
+        fetchAndSetTodosPage(parent_todosAreaSelectedPageNo);
+        return;
+      }
+
+      //response status code is 401 for DELETE /api/v1/todos/{id}
+      parent_loadingModalDialogRef.current.close();
+      console.log("Unexpected 401 response");
+      setIsTextDialogToBeShown(true);
+      setTextDialogText(somethingWentWrongMessage);
+      return;
+    }
 
 
   return (
@@ -404,8 +583,11 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
             {readOnlyQuillEditorContainerDivJsxObjsArr}
         </div>
       </div>
-      {isTextDialogToBeShown && <TextDialog text={textDialogText} 
-        parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}/>}
+      {isTextDialogToBeShown && 
+        <TextDialog text={textDialogText} 
+         parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}/>}
+      {isModalRedirectDialogToBeShown && 
+        <ModalRedirectDialog text={modalRedirectDialogText} />}
     </>
   );
   
