@@ -3,6 +3,7 @@ package com.awesometodo.controller;
 import com.awesometodo.dto.*;
 import com.awesometodo.exception.*;
 import com.awesometodo.service.*;
+import com.awesometodo.springsecurity.SpringSecurityJwtFacade;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,14 +31,16 @@ public class AuthV1Controller {
     private UserForgotPasswordService userForgotPasswordService;
     private UserJwtRefreshService userJwtRefreshService;
     private UserLogoutService userLogoutService;
+    private SpringSecurityJwtFacade springSecurityJwtFacade;
 
-    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService, UserForgotPasswordService userForgotPasswordService, UserJwtRefreshService userJwtRefreshService,UserLogoutService userLogoutService) {
+    public AuthV1Controller(UserLoginService userLoginService, JwtService jwtService, UserSignupService userSignupService, UserForgotPasswordService userForgotPasswordService, UserJwtRefreshService userJwtRefreshService,UserLogoutService userLogoutService,SpringSecurityJwtFacade springSecurityJwtFacade) {
         this.userLoginService = userLoginService;
         this.jwtService=jwtService;
         this.userSignupService=userSignupService;
         this.userForgotPasswordService=userForgotPasswordService;
         this.userJwtRefreshService = userJwtRefreshService;
         this.userLogoutService=userLogoutService;
+        this.springSecurityJwtFacade=springSecurityJwtFacade;
     }
 
     @PostMapping("/auth/v1/login")
@@ -187,8 +190,7 @@ public class AuthV1Controller {
     @PostMapping("/auth/v1/logout")
     void logout(HttpServletRequest request,HttpServletResponse response) {
         logger.debug("/auth/v1/logout endpoint started running");
-        JwtAuthenticationToken authentication=(JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-        String userId=authentication.getName();
+        int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         logger.debug("Logout process attempted by user with id:{}",userId);
         logger.debug("Checking if the http request message contains any cookies in the Cookie request header");
         Cookie[] cookies=request.getCookies();

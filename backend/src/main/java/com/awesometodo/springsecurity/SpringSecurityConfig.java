@@ -1,5 +1,7 @@
-package com.awesometodo;
+package com.awesometodo.springsecurity;
 
+import com.awesometodo.CustomAuthenticationEntryPoint;
+import com.awesometodo.JwtAuthenticationFilter;
 import com.awesometodo.service.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

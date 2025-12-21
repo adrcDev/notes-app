@@ -7,6 +7,7 @@ import com.awesometodo.dto.TodoResponseDTO;
 import com.awesometodo.exception.PatchTodoRequestValidationException;
 import com.awesometodo.exception.TodoNotFoundForUserException;
 import com.awesometodo.service.TodoService;
+import com.awesometodo.springsecurity.SpringSecurityJwtFacade;
 import com.awesometodo.validation.util.TodoPatchRequestValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,19 +29,21 @@ import java.util.Map;
 
 @RestController
 @Validated
-public class TodoController {
-    private static final Logger logger= LoggerFactory.getLogger(TodoController.class);
+public class TodoV1Controller {
+    private static final Logger logger= LoggerFactory.getLogger(TodoV1Controller.class);
     private TodoService todoService;
+    private SpringSecurityJwtFacade springSecurityJwtFacade;
 
-    public TodoController(TodoService todoService) {
+    public TodoV1Controller(TodoService todoService, SpringSecurityJwtFacade springSecurityJwtFacade) {
         this.todoService=todoService;
+        this.springSecurityJwtFacade=springSecurityJwtFacade;
     }
 
     @GetMapping("/api/v1/todos")
     public TodoPageResponseDTO getMatchingTodos(@Valid TodoQueryParamsDTO todoQueryParamsDTO){
         logger.debug("/api/v1/todos endpoint started running");
         logger.debug("The received query parameters are {}", todoQueryParamsDTO);
-        int userId=getUserIdFromJwtAccessToken();
+        int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoPageResponseDTO todoPageResponseDTO=todoService.getMatchingTodosForUserId(userId,todoQueryParamsDTO);
         logger.debug("/api/v1/todos endpoint finished running");
         return todoPageResponseDTO;
@@ -48,21 +51,21 @@ public class TodoController {
 
     @GetMapping("/api/v1/todos/{id}")
     public TodoResponseDTO getTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId) {
-        int userId=getUserIdFromJwtAccessToken();
+        int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoResponseDTO todoResponseDTO=todoService.getTodoForUserId(todoId,userId);
         return todoResponseDTO;
     }
 
     @DeleteMapping("/api/v1/todos/{id}")
     public void deleteTodo(HttpServletResponse response,@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId) {
-        int userId=getUserIdFromJwtAccessToken();
+        int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         todoService.deleteTodoByUserId(todoId,userId);
         response.setStatus(204);
     }
 
     @PostMapping("/api/v1/todos")
     public TodoResponseDTO postTodo(HttpServletResponse response) {
-        int userId=getUserIdFromJwtAccessToken();
+        int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoResponseDTO createdTodoResponseDTO=todoService.createTodoForUserId(userId);
         response.setStatus(201);
         String locationResponseHeaderValue="/api/v1/todos/"+createdTodoResponseDTO.getId();
@@ -72,7 +75,7 @@ public class TodoController {
 
     @PutMapping("/api/v1/todos/{id}")
     public TodoResponseDTO putTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @Valid @RequestBody(required = false) TodoPutRequestDTO todoPutRequestDTO) {
-        int userId=getUserIdFromJwtAccessToken();
+        int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoResponseDTO fullUpdatedTodoResponseDTO=todoService.fullUpdateTodoForUserId(todoId,userId, todoPutRequestDTO);
         return fullUpdatedTodoResponseDTO;
     }
@@ -81,15 +84,9 @@ public class TodoController {
     public TodoResponseDTO patchTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @RequestBody(required = true)JsonNode requestBodyJsonNode) {
         Map<String,String> todoUpdateFieldsMap=
                 TodoPatchRequestValidator.validateAndReturnMap(requestBodyJsonNode);
-        int userId=getUserIdFromJwtAccessToken();
+        int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoResponseDTO partialUpdatedTodoResponseDTO=todoService.partialUpdateTodoForUserId(todoId,userId,todoUpdateFieldsMap);
         return partialUpdatedTodoResponseDTO;
-    }
-
-    private int getUserIdFromJwtAccessToken() {
-        JwtAuthenticationToken authenticationObj=(JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-        String subjectClaimValue=authenticationObj.getToken().getSubject();
-        return Integer.parseInt(subjectClaimValue);
     }
 
     @ExceptionHandler({PatchTodoRequestValidationException.class})
