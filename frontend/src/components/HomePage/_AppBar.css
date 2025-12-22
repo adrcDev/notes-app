@@ -44,13 +44,13 @@
   background-size: cover;
   cursor: pointer;
   /* border: 1px solid yellow; */
-  visibility: hidden;
+  display: none;
 }
 
-/* placeholder style rule*/
-.userOptions {
-  width: 9em;
-  margin-left: 0.3em;
+.userDisplayName {
+  display: flex; 
+  justify-content: center;
+  align-items: center; 
 }
 
 

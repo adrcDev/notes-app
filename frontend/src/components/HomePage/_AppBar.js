@@ -139,7 +139,7 @@ export default function AppBar({parent_loadingModalDialogRef}) {
       </div>
       <div className={appBarStylesObject.appThemeToggleAndUserOptionsWrapper}>
         <span className={appBarStylesObject.appThemeToggle} onClick={handleClickForAppThemeToggleSpan}>  </span>
-        <div className={appBarStylesObject.userOptions}>Hello {displayName}</div>
+        <div className={appBarStylesObject.userDisplayName}>Hello {displayName}</div>
       </div>
     </div>
   );
