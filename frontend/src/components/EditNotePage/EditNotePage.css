@@ -4,7 +4,6 @@
 
 .editNotePageWrapper {
   font-size: 1.25rem;
-  color: white
 }
 
 .noteActionButtonsWrapper {
@@ -14,6 +13,7 @@
   column-gap: 1em;
   row-gap: 0.5em;
   padding-left: 0.5em;
+  color: white;
 }
 
 .noteActionButton {
@@ -29,6 +29,7 @@
   grid-template-columns: 1.5fr 4fr;
   row-gap: 0.2em;
   column-gap: 0.3em;
+  color: white;
 }
 
  .timeStampLabel {
@@ -42,6 +43,7 @@
   row-gap: 0.5em;
   column-gap: 0.2em;
   padding: 0 0.5em;
+  color: white;
 }
 
 .textArea {
@@ -127,6 +129,7 @@
 .quillEditor {
   max-height: 40em;
   overflow-y: scroll;
+  color: white;
 }
 
 :global(.ql-toolbar) {

@@ -406,7 +406,8 @@ export default function TodosArea({parent_todosPageObj,parent_setTodosPageObj,pa
         </div>
         <div  ref={(domNode)=>{
           readOnlyQuillEditorContainerDivsArrRef.current[i]=domNode;
-        }} className={`${todosAreaStylesObj.todoReadOnlyQuillEditor} ${todosAreaStylesObj.tempTodoReadOnlyQuillEditor}`}></div>
+          }} 
+          className={`${todosAreaStylesObj.todoReadOnlyQuillEditor} ${todosAreaStylesObj.tempTodoReadOnlyQuillEditor}`}></div>
         <div className={todosAreaStylesObj.todoActionsWrapper}>
           <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.editTodoSpan}`} onClick={(e)=>handleClickForEditTodoSpan(e,todoId)}></span>
           <span className={`${todosAreaStylesObj.todoActionSpan} ${todosAreaStylesObj.deleteTodoSpan}`} onClick={(e)=>handleClickForDeleteTodoSpan(e,todoId)}></span>

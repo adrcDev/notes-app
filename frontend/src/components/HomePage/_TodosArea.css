@@ -39,9 +39,6 @@
   transform: scale(1.1);
 }
 
-/* :global(.ql-container) {
-  color: white;
-} */
 .todosWrapper {
   display: flex;
   flex-direction: column;
@@ -50,7 +47,6 @@
 }
 
 .todoWrapper {
-  color: white;
   padding: 0 0.5em;
   padding-bottom: 0.3em;
   padding-top: 0.5em;
@@ -73,6 +69,7 @@
 
 .todoTitleLabel {
   align-self: center;
+  color: white;
 }
 
 .todoActionsWrapper {
@@ -116,6 +113,7 @@
   font-size: 1.25rem;
   max-height: 10em;
   overflow-y: scroll;
+  color: white;
 }
 
 .todoInfoDialogContentWrapper {
