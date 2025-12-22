@@ -143,7 +143,7 @@ export default function HomePage() {
 
   return (
     <>
-      <AppBar/>
+      <AppBar parent_loadingModalDialogRef={loadingModalDialogRef}/>
       <FiltersAndSortBySetter parent_loadingModalDialogRef={loadingModalDialogRef}
         parent_setTodosPageObj={setTodosPageObj}
         parent_filterAndSortUrlSearchParamsObjRef={filterAndSortUrlSearchParamsObjRef}
