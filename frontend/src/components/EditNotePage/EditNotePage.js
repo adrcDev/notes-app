@@ -53,6 +53,7 @@ export default function EditNotePage() {
     },[]);
     
   React.useEffect(()=>{
+    let isResponseToBeIgnored=false;
     async function getAndSetNote() {
       loadingModalDialogRef.current.showModal();
       let networkErrorMessage="Network error: please check your network connection";
@@ -70,6 +71,10 @@ export default function EditNotePage() {
         loadingModalDialogRef.current.close();
         setIsTextDialogToBeShown(true);
         setTextDialogText(networkErrorMessage);
+        return;
+      }
+
+      if(isResponseToBeIgnored) {
         return;
       }
 
@@ -191,6 +196,10 @@ export default function EditNotePage() {
     }
 
     getAndSetNote();
+
+    return ()=> {
+      isResponseToBeIgnored=true;
+    }
     },[context_backendUrl,context_jwtAccessTokenRef,idOfNoteBeingEdited,navigateFuncReactRouter]);
 
     React.useEffect(()=> {
