@@ -189,6 +189,7 @@ public class AuthV1Controller {
 
     @PostMapping("/auth/v1/logout")
     void logout(HttpServletRequest request,HttpServletResponse response) {
+        response.setStatus(204);
         logger.debug("/auth/v1/logout endpoint started running");
         int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         logger.debug("Logout process attempted by user with id:{}",userId);
