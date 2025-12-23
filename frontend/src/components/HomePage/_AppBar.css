@@ -33,6 +33,7 @@
 .appThemeToggleAndUserOptionsWrapper {
   display: flex;
   /* border: 1px solid yellow; */
+  column-gap: 0.5em;
   height: 2.5em;
 }
 
@@ -48,9 +49,25 @@
 }
 
 .userDisplayName {
-  display: flex; 
+  display: flex;
   justify-content: center;
   align-items: center; 
+}
+
+.logoutButton {
+  align-self: center;
+  padding: 0.3em;
+}
+
+.logoutDialogButtonsWrapper {
+  display: flex;
+  justify-content: center;
+  column-gap: 0.75em;
+  margin-top: 0.5em;
+}
+
+.logoutDialogButton {
+  padding: 0.5em;
 }
 
 

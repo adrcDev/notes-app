@@ -4,6 +4,7 @@ import * as React from "react";
 import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
 import { BackendUrlContext } from "../../contexts/BackendUrlContext.js";
 import { useNavigate } from "react-router";
+import TextDialog from "./_TextDialog.js";
 
 export default function AppBar({parent_loadingModalDialogRef}) {
   let navigateFuncReactRouter=useNavigate();
@@ -15,14 +16,8 @@ export default function AppBar({parent_loadingModalDialogRef}) {
   let currentTheme=currentThemeInfoObj.theme;
   let changeCurrentTheme=currentThemeInfoObj.setTheme;
   let [displayName,setDisplayName]=React.useState("");
-  
-  
-  function handleClickForAppThemeToggleSpan(e) {
-    if(currentTheme==="light")
-      changeCurrentTheme("dark");
-    else
-      changeCurrentTheme("light");
-  }
+  let [isTextDialogToBeShown,setIsTextDialogToBeShown]=React.useState(false);
+  let [textDialogText,setTextDialogText]=React.useState("");
 
   React.useEffect(()=>{
     let isResponseToBeIgnored=false;
@@ -131,6 +126,30 @@ export default function AppBar({parent_loadingModalDialogRef}) {
     }
   },[context_backendUrl,context_jwtAccessTokenRef,navigateFuncReactRouter,parent_loadingModalDialogRef]);
 
+  function handleClickForAppThemeToggleSpan(e) {
+    if(currentTheme==="light")
+      changeCurrentTheme("dark");
+    else
+      changeCurrentTheme("light");
+  }
+
+  function handleClickForLogoutButton(e) {
+    let logoutConfirmDialogJsxObj=(
+      <div>
+        <p>Are you sure you want to log out?</p>
+        <div className={appBarStylesObject.logoutDialogButtonsWrapper}>
+          <button className={appBarStylesObject.logoutDialogButton}>Yes</button>
+          <button className={appBarStylesObject.logoutDialogButton}>Cancel</button>
+        </div>
+      </div>
+    );
+
+    setIsTextDialogToBeShown(true);
+    setTextDialogText(logoutConfirmDialogJsxObj);
+  }
+
+  
+
   return (
     <div className={appBarStylesObject.appBar}>
       <div className={appBarStylesObject.appLogoAndNameWrapper}>
@@ -140,7 +159,12 @@ export default function AppBar({parent_loadingModalDialogRef}) {
       <div className={appBarStylesObject.appThemeToggleAndUserOptionsWrapper}>
         <span className={appBarStylesObject.appThemeToggle} onClick={handleClickForAppThemeToggleSpan}>  </span>
         <div className={appBarStylesObject.userDisplayName}>Hello {displayName}</div>
+        <button className={appBarStylesObject.logoutButton}
+          onClick={handleClickForLogoutButton}>Logout</button>
       </div>
+      {isTextDialogToBeShown && 
+        <TextDialog text={textDialogText} 
+          parent_setIsTextDialogToBeShown={setIsTextDialogToBeShown}></TextDialog>}
     </div>
   );
 }
