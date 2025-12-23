@@ -133,13 +133,122 @@ export default function AppBar({parent_loadingModalDialogRef}) {
       changeCurrentTheme("light");
   }
 
+  function handleClickForLogoutDialogCancelButton(e) {
+    setIsTextDialogToBeShown(false);
+    setTextDialogText("");
+  }
+
+  async function handleClickForLogoutDialogYesButton(e) {
+    parent_loadingModalDialogRef.current.showModal();
+    let response;
+    let networkErrorMessage="Network error: please check your network connection";
+    let somethingWentWrongMessage="Something went wrong, please try again";
+    try {
+      response=await fetch(`${context_backendUrl}/auth/v1/logout`,{
+        method: "post",
+        headers: {
+          "Authorization": `Bearer ${context_jwtAccessTokenRef.current}`
+        },
+        credentials: "include"
+      });
+    } catch(e) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        return;
+    }
+
+    if(response.status===500) {
+      parent_loadingModalDialogRef.current.close();
+      console.log("500:Internal server error");
+      setIsTextDialogToBeShown(true);
+      setTextDialogText(somethingWentWrongMessage);
+      return;
+    }
+
+    if(response.ok) {
+      context_jwtAccessTokenRef.current="";
+      navigateFuncReactRouter("/auth/login",{replace:true});
+      return;
+    }
+
+    //response status is 401 for POST /auth/v1/logout endpoint
+    try {
+        response=await fetch(`${context_backendUrl}/auth/v1/refresh`,{
+          method: "post",
+          credentials: "include" 
+        });
+    } catch(e) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        return;
+    }
+
+    if(response.status===500) {
+      parent_loadingModalDialogRef.current.close();
+      setIsTextDialogToBeShown(true)
+      setTextDialogText(somethingWentWrongMessage);
+      console.log("500: Internal server error");
+      return;
+    }
+
+    if(response.status===401) {
+      context_jwtAccessTokenRef.current="";
+      navigateFuncReactRouter("/auth/login",{replace:true});
+      return;
+    }
+
+    //response status is 200 for POST /auth/v1/refresh
+    let jwtAccessTokenParsedJsonObj=await response.json();
+    let newJwtAccessToken=jwtAccessTokenParsedJsonObj["jwt access token"];
+    context_jwtAccessTokenRef.current=newJwtAccessToken;
+    try {
+      response=await fetch(`${context_backendUrl}/auth/v1/logout`,{
+        method: "post",
+        headers: {
+          "Authorization": `Bearer ${context_jwtAccessTokenRef.current}`
+        },
+        credentials: "include"
+      });
+    } catch(e) {
+        parent_loadingModalDialogRef.current.close();
+        setIsTextDialogToBeShown(true);
+        setTextDialogText(networkErrorMessage);
+        return;
+    }
+
+    if(response.status===500) {
+      parent_loadingModalDialogRef.current.close();
+      console.log("500:Internal server error");
+      setIsTextDialogToBeShown(true);
+      setTextDialogText(somethingWentWrongMessage);
+      return;
+    }
+
+    if(response.ok) {
+      context_jwtAccessTokenRef.current="";
+      navigateFuncReactRouter("/auth/login",{replace:true});
+      return;
+    }
+
+    //response status is 401 for POST /auth/v1/logout endpoint
+    parent_loadingModalDialogRef.current.close();
+    console.log("Unexpected 401 response");
+    setIsTextDialogToBeShown(true);
+    setTextDialogText(somethingWentWrongMessage);
+  }
+  
+
   function handleClickForLogoutButton(e) {
     let logoutConfirmDialogJsxObj=(
       <div>
         <p>Are you sure you want to log out?</p>
         <div className={appBarStylesObject.logoutDialogButtonsWrapper}>
-          <button className={appBarStylesObject.logoutDialogButton}>Yes</button>
-          <button className={appBarStylesObject.logoutDialogButton}>Cancel</button>
+          <button className={appBarStylesObject.logoutDialogButton}
+            onClick={handleClickForLogoutDialogYesButton}>Yes</button>
+          <button className={appBarStylesObject.logoutDialogButton}
+            onClick={handleClickForLogoutDialogCancelButton}>Cancel</button>
         </div>
       </div>
     );
@@ -147,6 +256,10 @@ export default function AppBar({parent_loadingModalDialogRef}) {
     setIsTextDialogToBeShown(true);
     setTextDialogText(logoutConfirmDialogJsxObj);
   }
+
+  
+
+  
 
   
 
