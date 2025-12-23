@@ -31,3 +31,69 @@ Note:- If you don't like this approach of putting :global(<selector>) for global
   }
 
 
+:global(.ql-toolbar) {
+  margin-top: 1em;
+}
+
+:global(.ql-editor) {
+  font-size: 1.25rem;
+}
+
+:global(.ql-toolbar.ql-toolbar button svg *),:global(.ql-toolbar .ql-size span svg *),:global(.ql-toolbar .ql-header span svg *),:global(.ql-toolbar .ql-align span svg *),
+:global(.ql-toolbar .ql-color span svg *),:global(.ql-toolbar .ql-background span svg polyline),:global(.ql-toolbar .ql-background span svg line) {
+  stroke: white;
+}
+
+/* drop down that appears when you click on align option in toolbar */
+:global(.ql-toolbar .ql-align .ql-picker-options) {
+  background-color: black;
+}
+
+/*text of font size option in toolbar */
+:global(.ql-toolbar .ql-size .ql-picker-label::before) {
+  color: white;
+  font-size: 1.25rem;
+}
+
+/* text of heaer size option in toolbar */
+:global(.ql-toolbar .ql-header .ql-picker-label::before) {
+  color: white;
+  font-size: 1rem;
+}
+
+:global(.ql-toolbar button svg),:global(.ql-toolbar span svg) {
+ transform: scale(1.8);
+}
+
+:global(.ql-toolbar .ql-formats > span),
+:global(.ql-toolbar .ql-formats > button) {
+  margin-left: 1.2em;
+  margin-top: 1em;
+}
+
+/* color squares within the font color change and background color change toolbar options*/
+:global(.ql-toolbar.ql-toolbar .ql-color .ql-picker-options > span),:global(.ql-toolbar.ql-toolbar .ql-background .ql-picker-options > span) {
+  display: inline-block;
+  width: 2.7em;
+  height: 2.7em;
+  margin-left: 0.3em;
+  margin-top: 0.3em;
+}
+
+/* align options in align feature of toolbar */
+:global(.ql-toolbar .ql-align .ql-picker-options > span) {
+  margin-top: 0.75em;
+}
+
+/* font size options in size feature of toolbar */
+:global(.ql-toolbar .ql-size .ql-picker-options>span) {
+  padding-top: 1em;
+  padding-bottom: 1em;
+
+}
+
+/* header size options in header feature of toolbar */
+:global(.ql-toolbar .ql-header .ql-picker-options>span) {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
