@@ -169,7 +169,7 @@ public class AuthV1Controller {
             throw new HttpRequestCookiesException(exceptionMessage);
         }
 
-        logger.debug("The http request message's Cookie header contained a coookie that matched the name that is expected to carry the jwt refresh token and its value has been extracted");
+        logger.debug("The http request message's Cookie header contained a cookie that matched the name that is expected to carry the jwt refresh token and its value has been extracted");
         JwtAuthTokensDTO jwtAuthTokensDTO= userJwtRefreshService.refresh(cookieValue);
         String newJwtRefreshToken=jwtAuthTokensDTO.getJwtRefreshToken();
         String jwtAccessToken=jwtAuthTokensDTO.getJwtAccessToken();
@@ -201,26 +201,20 @@ public class AuthV1Controller {
             throw new HttpRequestCookiesException(exceptionMessage);
         }
 
-        logger.debug("The http request message contains atleast one cookie in the Cookie request header. Checking if it contains more than one cookie");
-        boolean isRequestMessageContainsMoreThanOneCookie=cookies.length>1;
-        if(isRequestMessageContainsMoreThanOneCookie) {
-            String exceptionMessage="The http request message contained multiple cookies within the Cookie request header but only one cookie is expected";
-            logger.warn("{}. Aborting the logout process.",exceptionMessage);
+        logger.debug("The http request message contains atleast one cookie within the Cookie request header. Checking if one of the cookie's name matches the name that is expected for carrying the jwt refresh token value and getting its value");
+        String cookieValue=null;
+        for(Cookie cookie:cookies) {
+            if(cookie.getName().equals(JWT_REFRESH_TOKEN_COOKIE_NAME))
+                cookieValue=cookie.getValue().trim();
+        }
+
+        if(cookieValue==null) {
+            String exceptionMessage="The http request message's Cookie header did not contain any cookie whose name matches the name that is expected to carry the jwt refresh token";
+            logger.warn("{} ,Aborting the logout process.",exceptionMessage);
             throw new HttpRequestCookiesException(exceptionMessage);
         }
 
-        logger.debug("The http request message contains only a single cookie within the Cookie request header. Checking if the cookie's name matches the name that is expected for carrying the jwt refresh token value");
-        Cookie singleCookiePresentInRequestMessage=cookies[0];
-        String singleCookieName=singleCookiePresentInRequestMessage.getName();
-        boolean isCookieNameNotMatchExpectedName=!singleCookieName.equals(JWT_REFRESH_TOKEN_COOKIE_NAME);
-        if(isCookieNameNotMatchExpectedName) {
-            String exceptionMessage="The name of the received cookie in the http request message didn't match the name that is expected to carry the jwt refresh token value";
-            logger.warn("{}. Aborting the logout process.",exceptionMessage);
-            throw new HttpRequestCookiesException(exceptionMessage);
-        }
-
-        logger.debug("The name of the received cookie matched the name expected to carry the jwt refresh token value");
-        String cookieValue=singleCookiePresentInRequestMessage.getValue().trim();
+        logger.debug("The http request message's Cookie header contained a cookie that matched the name that is expected to carry the jwt refresh token and its value has been extracted");
         userLogoutService.logout(cookieValue);
         addInstructionToRemoveJwtRefreshTokenCookie(response);
         logger.debug("The jwt refresh token cookie was set in the http response message's Set-Cookie header with Max-Age cookie attribute having value of 0 seconds in order to make the browser delete the stored jwt refresh token cookie");
