@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -63,24 +64,28 @@ public class UserJwtRefreshService {
         if(isJwtRefreshTokenStatusValueIsCompromised) {
             User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
             logger.warn("The jwt refresh token row's status value is 'compromised' so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
-            jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
-            /* You can use a external service here to send an sms or email here to the user notifying them that a person was trying to access their account and so therefore as a security measure all of their existing logins were auto logged out
-            */
-            logger.warn("All stored jwt refresh tokens belong to user with id:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the jwt authentication refresh process",associatedUser.getId());
+            setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(associatedUser);
             throw new JwtRefreshTokenStatusNotValidException();
         }
 
         boolean isJwtRefreshTokenStatusValueIsInvalidated=
                 (jwtRefreshTokenStatus==JwtRefreshToken.Status.INVALIDATED);
         if(isJwtRefreshTokenStatusValueIsInvalidated) {
+            User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
             int invalidatedJwtRefreshTokenId=storedJwtRefreshToken.getId();
-            if(invalidatedJwtRefreshTokenExtensionPeriodRepository.isExtensionPeriodExpiredForInvalidatedJwtRefreshTokenId(invalidatedJwtRefreshTokenId).get()) {
-                User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
+            Optional<Boolean> optionalBoolean=invalidatedJwtRefreshTokenExtensionPeriodRepository.isExtensionPeriodExpiredForInvalidatedJwtRefreshTokenId(invalidatedJwtRefreshTokenId);
+            boolean isExtensionPeriodExpired;
+            try {
+                isExtensionPeriodExpired = optionalBoolean.orElseThrow();
+            } catch(NoSuchElementException e) {
+                logger.warn("The jwt refresh token doesn't have an associated row in the invalidated_jwt_refresh_token_extension_periods table,so this means that a jwt refresh token that was set to status of 'invalidated' by the logout endpoint is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
+                setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(associatedUser);
+                throw new JwtRefreshTokenStatusNotValidException();
+            }
+
+            if(isExtensionPeriodExpired) {
                 logger.warn("The jwt refresh token row's status value is 'invalidated' and it's extension period has expired, so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
-                jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
-                /* You can use a external service here to send an sms or email here to the user notifying them that a person was trying to access their account and so therefore as a security measure all of their existing logins were auto logged out
-                 */
-                logger.warn("All stored jwt refresh tokens belong to user with id:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the jwt authentication refresh process",associatedUser.getId());
+                setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(associatedUser);
                 throw new JwtRefreshTokenStatusNotValidException();
             }
 
@@ -121,6 +126,13 @@ public class UserJwtRefreshService {
         JwtRefreshToken jwtRefreshToken=new JwtRefreshToken(user,jtiClaimValueAsUUID,jwtRefreshTokenHash, JwtRefreshToken.Status.VALID,issuedAt,expiresAt);
         jwtRefreshTokenRepository.insert(jwtRefreshToken);
         return jwtRefreshTokenString;
+    }
+
+    private void setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(User associatedUser) {
+        jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
+        /* You can use a external service here to send an sms or email here to the user notifying them that a person was trying to access their account and so therefore as a security measure all of their existing logins were auto logged out
+         */
+        logger.warn("All stored jwt refresh tokens belong to user with id:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the jwt authentication refresh process",associatedUser.getId());
     }
 
 
