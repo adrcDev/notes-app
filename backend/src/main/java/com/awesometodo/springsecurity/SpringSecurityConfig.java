@@ -1,11 +1,9 @@
 package com.awesometodo.springsecurity;
 
-import com.awesometodo.CustomAuthenticationEntryPoint;
 import com.awesometodo.JwtAuthenticationFilter;
 import com.awesometodo.service.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;

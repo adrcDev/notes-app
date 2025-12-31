@@ -1,4 +1,4 @@
-package com.awesometodo;
+package com.awesometodo.springsecurity;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

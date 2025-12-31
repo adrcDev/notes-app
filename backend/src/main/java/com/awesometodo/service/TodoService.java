@@ -37,15 +37,23 @@ public class TodoService {
 
     public TodoPageResponseDTO getMatchingTodosForUserId(int userId, TodoQueryParamsDTO todoQueryParamsDTO) {
         TodoQueryCriteria todoQueryCriteria=new TodoQueryCriteria(todoQueryParamsDTO.getTitleSearch(),todoQueryParamsDTO.getDescriptionSearch(),todoQueryParamsDTO.getContentSearch(),todoQueryParamsDTO.getPriority(),todoQueryParamsDTO.getStatus(),todoQueryParamsDTO.getDueDateFrom(),todoQueryParamsDTO.getDueDateTo(),todoQueryParamsDTO.getSortBy(),todoQueryParamsDTO.getSortOrder(),todoQueryParamsDTO.getLimit(),todoQueryParamsDTO.getOffset());
+        logger.debug("Mapped TodoQueryParamsDTO object to TodoQueryCriteria object. {} --> {}",todoQueryParamsDTO,todoQueryCriteria);
+        logger.debug("Finding matching todos for user with id of {},query limit:{},query offset:{}",userId,todoQueryParamsDTO.getLimit(),todoQueryParamsDTO.getOffset());
         List<Todo> todosMatchingQueryCriteria=todoRepository.findByUserIdAndQueryCriteria(userId,todoQueryCriteria);
+        logger.debug("Found {} matching todos for user with id of {}, query limit:{}, query offset:{}",todosMatchingQueryCriteria.size(),userId,todoQueryParamsDTO.getLimit(),todoQueryParamsDTO.getOffset());
         List<TodoResponseDTO> todoResponseDTOs=new ArrayList<>();
         for(int i=0;i<todosMatchingQueryCriteria.size();i++) {
             Todo todo=todosMatchingQueryCriteria.get(i);
             todoResponseDTOs.add(new TodoResponseDTO(todo.getId(),todo.getTitle(),todo.getDescription(),todo.getContentDelta(),todo.getDueDate(), EnumUtil.convertToSpaceSeparatedLowerCaseString(todo.getPriority()).get(),EnumUtil.convertToSpaceSeparatedLowerCaseString(todo.getStatus()).get(),todo.getCreatedAt(),todo.getUpdatedAt()));
         }
+        logger.debug("Mapped List of Todo objects to List of TodoResponseDTO objects");
 
         TodoQueryFilter todoQueryFilter=new TodoQueryFilter(todoQueryParamsDTO.getTitleSearch(),todoQueryParamsDTO.getDescriptionSearch(),todoQueryParamsDTO.getContentSearch(),todoQueryParamsDTO.getPriority(),todoQueryParamsDTO.getStatus(),todoQueryParamsDTO.getDueDateFrom(),todoQueryParamsDTO.getDueDateTo());
+        logger.debug("Mapped TodoQueryParamsDTO object to TodoQueryFilter object. {} --> {}",todoQueryParamsDTO,todoQueryFilter);
+        logger.debug("Finding the total no of matching todos for user with id of {}",userId);
         int matchingTodosCount=todoRepository.findCountByUserIdAndQueryFilter(userId,todoQueryFilter);
+        logger.debug("There are a total no of {} todos belonging to user with id of {} that match the received query parameters",matchingTodosCount,userId);
+        logger.info("A page(limit={},offset={}) of matching todos containing {} todos along with the total count of matching todos({}) were retrieved for a user",todoQueryParamsDTO.getLimit(),todoQueryParamsDTO.getOffset(),todoResponseDTOs.size(),matchingTodosCount);
         return new TodoPageResponseDTO(todoResponseDTOs,matchingTodosCount);
     }
 

@@ -45,6 +45,7 @@ public class TodoV1Controller {
         logger.debug("The received query parameters are {}", todoQueryParamsDTO);
         int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoPageResponseDTO todoPageResponseDTO=todoService.getMatchingTodosForUserId(userId,todoQueryParamsDTO);
+        logger.debug("Retrieved todo page(limit={},offset={}) with {} todos and also the the total matching todos count which is {} for user with id of {}",todoQueryParamsDTO.getLimit(),todoQueryParamsDTO.getOffset(),todoPageResponseDTO.getTodos().size(),todoPageResponseDTO.getTotalTodos(),userId);
         logger.debug("/api/v1/todos endpoint finished running");
         return todoPageResponseDTO;
     }
@@ -90,7 +91,7 @@ public class TodoV1Controller {
     }
 
     @ExceptionHandler({PatchTodoRequestValidationException.class})
-    public void PatchTodoRequestValidationException(HttpServletResponse response,PatchTodoRequestValidationException e) {
+    public void handlePatchTodoRequestValidationException(HttpServletResponse response,PatchTodoRequestValidationException e) {
         response.setStatus(400);
     }
 

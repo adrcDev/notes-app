@@ -137,7 +137,7 @@ public class TodoQueryParamsDTO {
 
     @Override
     public String toString() {
-        return "TodoFilterAndSortQueryParamsDTO{" +
+        return "TodoQueryParamsDTO{" +
                 "titleSearch='" + titleSearch + '\'' +
                 ", descriptionSearch='" + descriptionSearch + '\'' +
                 ", contentSearch='" + contentSearch + '\'' +
