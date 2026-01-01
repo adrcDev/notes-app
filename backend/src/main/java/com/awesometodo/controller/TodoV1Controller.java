@@ -68,11 +68,15 @@ public class TodoV1Controller {
 
     @PostMapping("/api/v1/todos")
     public TodoResponseDTO postTodo(HttpServletResponse response) {
+        logger.debug("POST /api/v1/todos endpoint started running");
         int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoResponseDTO createdTodoResponseDTO=todoService.createTodoForUserId(userId);
         response.setStatus(201);
+        logger.debug("http response message's status code was set to 201");
         String locationResponseHeaderValue="/api/v1/todos/"+createdTodoResponseDTO.getId();
         response.setHeader("Location",locationResponseHeaderValue);
+        logger.debug("Location header with value of {} was added to http response message's headers section",locationResponseHeaderValue);
+        logger.debug("POST /api/v1/todos endpoint finished running");
         return createdTodoResponseDTO;
     }
 

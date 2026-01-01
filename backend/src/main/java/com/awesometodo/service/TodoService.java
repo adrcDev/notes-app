@@ -71,9 +71,12 @@ public class TodoService {
         Todo newTodo=new Todo();
         newTodo.setUser(user);
         newTodo=todoRepository.insertAndReturn(newTodo);
+        logger.debug("New todo with id of {} was created for user with id of {}",newTodo.getId(),userId);
         String priority=EnumUtil.convertToSpaceSeparatedLowerCaseString(newTodo.getPriority()).get();
         String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(newTodo.getStatus()).get();
         TodoResponseDTO todoResponseDTO=new TodoResponseDTO(newTodo.getId(), newTodo.getTitle(), newTodo.getDescription(), newTodo.getContentDelta(), newTodo.getDueDate(),priority,status,newTodo.getCreatedAt(),newTodo.getUpdatedAt());
+        logger.debug("Mapped newly created Todo object to a TodoResponseDTO object in order to return a representation of the newly created todo in the http response message's body as json");
+        logger.info("New todo was successfully created for the user");
         return todoResponseDTO;
     }
 
