@@ -52,8 +52,10 @@ public class TodoV1Controller {
 
     @GetMapping("/api/v1/todos/{id}")
     public TodoResponseDTO getTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId) {
+        logger.debug("GET /api/v1/todos/{id} endpoint started running");
         int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoResponseDTO todoResponseDTO=todoService.getTodoForUserId(todoId,userId);
+        logger.debug("GET /api/v1/todos/{id} endpoint finished running");
         return todoResponseDTO;
     }
 

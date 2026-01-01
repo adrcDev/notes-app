@@ -108,6 +108,7 @@ public class TodoService {
         Optional<Todo> optionalTodo=todoRepository.partialUpdateAndReturn(partialUpdateTodoCommand);
         boolean isTodoNotExists= optionalTodo.isEmpty();
         if(isTodoNotExists) {
+            logger.debug("Todo with id of {} belonging to user with id of {} was not found. Aborting partial todo update process",todoId,userId);
             logger.warn("No todo with the id specified in the last path segment of url was found belonging to the user. Aborting the partial todo update process");
             throw new TodoNotFoundForUserException();
         }
@@ -123,16 +124,22 @@ public class TodoService {
 
     @Transactional
     public TodoResponseDTO getTodoForUserId(int todoId,int userId) {
+        logger.debug("Trying to find todo with id of {} belonging to user with id of {}",todoId,userId);
         Optional<Todo> optionalTodo=todoRepository.findByIdAndUserId(todoId,userId);
         boolean isTodoNotFound=optionalTodo.isEmpty();
         if(isTodoNotFound) {
+            logger.debug("Todo with id of {} belonging to user with id of {} was not found",todoId,userId);
+            logger.warn("No todo with the id specified in the last path segment of url was found belonging to the user");
             throw new TodoNotFoundForUserException();
         }
 
+        logger.debug("Todo with id of {} belonging to user with id of {} was found",todoId,userId);
         Todo todo=optionalTodo.get();
         String priority=EnumUtil.convertToSpaceSeparatedLowerCaseString(todo.getPriority()).get();
         String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(todo.getStatus()).get();
         TodoResponseDTO todoResponseDTO=new TodoResponseDTO(todo.getId(),todo.getTitle(), todo.getDescription(), todo.getContentDelta(),todo.getDueDate(),priority,status,todo.getCreatedAt(),todo.getUpdatedAt());
+        logger.debug("Mapped retrieved Todo object to TodoResponseDTO object in order to send the  representation of the todo in the response body as json");
+        logger.info("The todo belonging to the user was found and retrieved");
         return todoResponseDTO;
     }
 }
