@@ -41,12 +41,12 @@ public class TodoV1Controller {
 
     @GetMapping("/api/v1/todos")
     public TodoPageResponseDTO getMatchingTodos(@Valid TodoQueryParamsDTO todoQueryParamsDTO){
-        logger.debug("/api/v1/todos endpoint started running");
+        logger.debug("GET /api/v1/todos endpoint started running");
         logger.debug("The received query parameters are {}", todoQueryParamsDTO);
         int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoPageResponseDTO todoPageResponseDTO=todoService.getMatchingTodosForUserId(userId,todoQueryParamsDTO);
         logger.debug("Retrieved todo page(limit={},offset={}) with {} todos and also the the total matching todos count which is {} for user with id of {}",todoQueryParamsDTO.getLimit(),todoQueryParamsDTO.getOffset(),todoPageResponseDTO.getTodos().size(),todoPageResponseDTO.getTotalTodos(),userId);
-        logger.debug("/api/v1/todos endpoint finished running");
+        logger.debug("GET /api/v1/todos endpoint finished running");
         return todoPageResponseDTO;
     }
 
@@ -76,8 +76,10 @@ public class TodoV1Controller {
 
     @PutMapping("/api/v1/todos/{id}")
     public TodoResponseDTO putTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @Valid @RequestBody(required = false) TodoPutRequestDTO todoPutRequestDTO) {
+        logger.debug("PUT /api/v1/todos/{id} endpoint started running");
         int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoResponseDTO fullUpdatedTodoResponseDTO=todoService.fullUpdateTodoForUserId(todoId,userId, todoPutRequestDTO);
+        logger.debug("PUT /api/v1/todos/{id} endpoint finished running");
         return fullUpdatedTodoResponseDTO;
     }
 

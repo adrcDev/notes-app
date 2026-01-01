@@ -80,17 +80,23 @@ public class TodoService {
     @Transactional
     public TodoResponseDTO fullUpdateTodoForUserId(int todoId, int userId, TodoPutRequestDTO todoPutRequestDTO) {
         FullUpdateTodoCommand fullUpdateTodoCommand =new FullUpdateTodoCommand(userId,todoId, todoPutRequestDTO.getTitle(), todoPutRequestDTO.getDescription(), todoPutRequestDTO.getContentText(), todoPutRequestDTO.getContentDelta(), todoPutRequestDTO.getDueDate(), todoPutRequestDTO.getPriority(), todoPutRequestDTO.getStatus());
+        logger.debug("Mapped todoId:{},userId:{} and TodoPutRequestDTO object to FullUpdateTodoCommand object",todoId,userId);
+        logger.debug("Trying to find and fully update the todo with id:{} belonging to user with id:{}",todoId,userId);
         Optional<Todo> optionalTodo=todoRepository.fullUpdateAndReturn(fullUpdateTodoCommand);
         boolean isTodoNotExists=optionalTodo.isEmpty();
         if(isTodoNotExists) {
+            logger.debug("Todo with id:{} does not exist for user with id:{}. Full update operation aborted",todoId,userId);
+            logger.warn("No todo exists for the user that matches the id specified in the url's last path segment. Full update operation aborted");
             throw new TodoNotFoundForUserException();
         }
 
+        logger.debug("Todo with id:{} belonging to user with id:{} was found and successfully fully updated",todoId,userId);
         Todo fullUpdatedTodo=optionalTodo.get();
         String priority=EnumUtil.convertToSpaceSeparatedLowerCaseString(fullUpdatedTodo.getPriority()).get();
         String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(fullUpdatedTodo.getStatus()).get();
         TodoResponseDTO fullUpdatedTodoResponseDTO=new TodoResponseDTO(fullUpdatedTodo.getId(),fullUpdatedTodo.getTitle(),fullUpdatedTodo.getDescription(), fullUpdatedTodo.getContentDelta(), fullUpdatedTodo.getDueDate(),priority,status,fullUpdatedTodo.getCreatedAt(),fullUpdatedTodo.getUpdatedAt());
-
+        logger.debug("Mapped updated Todo object to TodoResponseDTO object in order to send the updated representation of the todo in the response body as json");
+        logger.info("Todo belonging to user was found and successfully fully updated");
         return fullUpdatedTodoResponseDTO;
     }
 
