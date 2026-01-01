@@ -59,10 +59,15 @@ public class TodoService {
 
     @Transactional
     public void deleteTodoByUserId(int todoId,int userId) {
+        logger.debug("Trying to find and delete todo with id of {} belonging to user with id of {}",todoId,userId);
         boolean isTodoDeleted=todoRepository.deleteByIdAndUserId(todoId,userId);
         if(!isTodoDeleted) {
+            logger.debug("Todo with id of {} belonging to user with id of {} was not found and thus there was nothing to delete",todoId,userId);
+            logger.warn("Todo with id specified in last path segment of url and that belongs to the user was not found and thus there was nothing to delete");
             throw new TodoNotFoundForUserException();
         }
+        logger.debug("Todo with id of {} belonging to user with id of {} was found and successfully deleted",todoId,userId);
+        logger.info("Todo belonging to the user was found and successfully deleted");
     }
 
     @Transactional

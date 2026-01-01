@@ -61,9 +61,12 @@ public class TodoV1Controller {
 
     @DeleteMapping("/api/v1/todos/{id}")
     public void deleteTodo(HttpServletResponse response,@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId) {
+        logger.debug("DELETE /api/v1/todos/{id} endpoint started running");
         int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         todoService.deleteTodoByUserId(todoId,userId);
         response.setStatus(204);
+        logger.debug("http response message's status code was set to 204");
+        logger.debug("DELETE /api/v1/todos/{id} endpoint finished running");
     }
 
     @PostMapping("/api/v1/todos")
