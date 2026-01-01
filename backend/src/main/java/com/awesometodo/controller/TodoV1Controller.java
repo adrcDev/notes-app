@@ -85,10 +85,12 @@ public class TodoV1Controller {
 
     @PatchMapping("/api/v1/todos/{id}")
     public TodoResponseDTO patchTodo(@Min(value=1,message="The id path variable's(path segment) value should be a value >=1 in the URL /api/v1/todos/{id}") @PathVariable(name="id",required = true)int todoId, @RequestBody(required = true)JsonNode requestBodyJsonNode) {
+        logger.debug("PATCH /api/v1/todos/{id} endpoint started running");
         Map<String,String> todoUpdateFieldsMap=
                 TodoPatchRequestValidator.validateAndReturnMap(requestBodyJsonNode);
         int userId= springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         TodoResponseDTO partialUpdatedTodoResponseDTO=todoService.partialUpdateTodoForUserId(todoId,userId,todoUpdateFieldsMap);
+        logger.debug("PATCH /api/v1/todos/{id} endpoint finished running");
         return partialUpdatedTodoResponseDTO;
     }
 

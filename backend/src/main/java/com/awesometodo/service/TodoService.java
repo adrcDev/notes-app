@@ -103,15 +103,21 @@ public class TodoService {
     @Transactional
     public TodoResponseDTO partialUpdateTodoForUserId(int todoId, int userId, Map<String,String> todoUpdateFieldsMap) {
         PartialUpdateTodoCommand partialUpdateTodoCommand=new PartialUpdateTodoCommand(userId,todoId,todoUpdateFieldsMap);
+        logger.debug("Mapped userId:{},todoId:{} and todo update fields map to PartialUpdateTodoCommand object",userId,todoId);
+        logger.debug("Trying to find and partially update todo with id of {} belonging to the user with id of {}",todoId,userId);
         Optional<Todo> optionalTodo=todoRepository.partialUpdateAndReturn(partialUpdateTodoCommand);
         boolean isTodoNotExists= optionalTodo.isEmpty();
         if(isTodoNotExists) {
+            logger.warn("No todo with the id specified in the last path segment of url was found belonging to the user. Aborting the partial todo update process");
             throw new TodoNotFoundForUserException();
         }
+        logger.debug("Todo with id of {} belonging to the user with id of {} was found and successfully partially updated",todoId,userId);
         Todo partialUpdatedTodo=optionalTodo.get();
         String priority=EnumUtil.convertToSpaceSeparatedLowerCaseString(partialUpdatedTodo.getPriority()).get();
         String status=EnumUtil.convertToSpaceSeparatedLowerCaseString(partialUpdatedTodo.getStatus()).get();
         TodoResponseDTO partialUpdatedTodoResponseDTO=new TodoResponseDTO(partialUpdatedTodo.getId(),partialUpdatedTodo.getTitle(), partialUpdatedTodo.getDescription(), partialUpdatedTodo.getContentDelta(), partialUpdatedTodo.getDueDate(),priority,status,partialUpdatedTodo.getCreatedAt(),partialUpdatedTodo.getUpdatedAt());
+        logger.debug("Mapped partially updated Todo object to TodoResponseDTO object in order to send the updated representation of the todo in the response body as json");
+        logger.info("Todo belonging to user was found and successfully partially updated");
         return partialUpdatedTodoResponseDTO;
     }
 
