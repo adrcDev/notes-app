@@ -36,7 +36,7 @@ public class TodoPatchRequestValidator {
         }
         validateTitleFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
         validateDescriptionFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
-        validateContentTextAndDeltaPairIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
+        validateContentTextAndContentDeltaPairIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
         validateDueDateFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
         validatePriorityFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
         validateStatusFieldIfExists(requestBodyJsonNode,todoUpdateFieldsMap);
@@ -98,9 +98,16 @@ public class TodoPatchRequestValidator {
         }
     }
 
-    private static void validateContentTextAndDeltaPairIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
+    private static void validateContentTextAndContentDeltaPairIfExists(JsonNode requestBodyJsonNode, Map<String,String> todoUpdateFieldsMap) {
         JsonNode contentTextFieldValueJsonNode=requestBodyJsonNode.get("contentText");
         JsonNode contentDeltaFieldValueJsonNode=requestBodyJsonNode.get("contentDelta");
+        boolean isContentTextFieldAbsent=contentTextFieldValueJsonNode==null;
+        boolean isContentDeltaFieldAbsent=contentDeltaFieldValueJsonNode==null;
+        if(isContentTextFieldAbsent && isContentDeltaFieldAbsent) {
+            logger.debug("The received json does not contain contentText and contentDelta fields. Skipping contentText and contentDelta and pair validations");
+            return;
+        }
+
         boolean isContentTextFieldPresentInJsonObject=contentTextFieldValueJsonNode!=null;
         boolean isContentDeltaFieldPresentInJsonObject=contentDeltaFieldValueJsonNode!=null;
         boolean isContentTextAndDeltaPairNotPresentInJsonObject=
@@ -111,57 +118,56 @@ public class TodoPatchRequestValidator {
             throw new PatchTodoRequestValidationException();
         }
 
-        if(isContentTextFieldPresentInJsonObject && isContentDeltaFieldPresentInJsonObject) {
-            logger.debug("The received json contains both the contentText and contentDelta fields");
-            boolean isContentTextFieldValueNotTextNorNull=
-                    !(contentTextFieldValueJsonNode.isTextual() || contentTextFieldValueJsonNode.isNull());
-            if(isContentTextFieldValueNotTextNorNull) {
-                logger.warn("The contentText field value is neither a string nor null. Aborting partial todo update process.");
-                throw new PatchTodoRequestValidationException();
-            }
-            boolean isContentDeltaFieldValueNotTextNorNull=
-                    !(contentDeltaFieldValueJsonNode.isTextual() || contentDeltaFieldValueJsonNode.isNull());
-            if(isContentDeltaFieldValueNotTextNorNull) {
-                logger.warn("The contentDelta field value is neither a string nor null. Aborting partial todo update process.");
-                throw new PatchTodoRequestValidationException();
-            }
-
-            boolean isOneNonNullAndAnotherNull=
-                    (contentTextFieldValueJsonNode.isTextual() && contentDeltaFieldValueJsonNode.isNull()) || (contentTextFieldValueJsonNode.isNull() && contentDeltaFieldValueJsonNode.isTextual());
-            if(isOneNonNullAndAnotherNull) {
-                logger.warn("Among the contentText and contentDelta field values, one of the values is non null and the other is null. This is not allowed. They should both either be null or non null together. Aborting partial todo update process");
-                throw new PatchTodoRequestValidationException();
-            }
-
-            if(contentTextFieldValueJsonNode.isTextual()) {
-                logger.debug("The contentText field value is a string. Adding it to todo update fields map");
-                String contentTextFieldValue=contentTextFieldValueJsonNode.asText();
-                todoUpdateFieldsMap.put("contentText",contentTextFieldValue);
-            }
-            else {
-                logger.debug("The contentText field value is null. Adding it to todo update fields map");
-                todoUpdateFieldsMap.put("contentText",null);
-            }
-
-            if(contentDeltaFieldValueJsonNode.isTextual()) {
-                logger.debug("The contentDelta field value is a string");
-                String contentDeltaFieldValue=contentDeltaFieldValueJsonNode.asText();
-                if(contentDeltaFieldValue.trim().equals("")) {
-                    logger.warn("The contentDelta field value is an empty string. This is not allowed as contentDelta field value is expected to be in the quill editor's internal delta format which is a subset of the json format. Aborting the partial todo update process");
-                    throw new PatchTodoRequestValidationException();
-                }
-                if(!QuillDeltaValidator.isValid(contentDeltaFieldValue)) {
-                    logger.warn("The contentDelta field value is not in the quill editor's internal delta format which is a subset of the json format. Aborting the partial todo update process");
-                    throw new PatchTodoRequestValidationException();
-                }
-                logger.debug("The contentDelta field value is in the quill editor's internal delta format which is a subset of the json format. Adding it to the todo update fields map");
-                todoUpdateFieldsMap.put("contentDelta",contentDeltaFieldValue);
-            }
-            else {
-                logger.debug("The contentDelta field value is null. Adding it to todo update fields map");
-                todoUpdateFieldsMap.put("contentDelta",null);
-            }
+        logger.debug("The received json contains both the contentText and contentDelta fields");
+        boolean isContentTextFieldValueNotTextNorNull=
+                !(contentTextFieldValueJsonNode.isTextual() || contentTextFieldValueJsonNode.isNull());
+        if(isContentTextFieldValueNotTextNorNull) {
+            logger.warn("The contentText field value is neither a string nor null. Aborting partial todo update process.");
+            throw new PatchTodoRequestValidationException();
         }
+        boolean isContentDeltaFieldValueNotTextNorNull=
+                !(contentDeltaFieldValueJsonNode.isTextual() || contentDeltaFieldValueJsonNode.isNull());
+        if(isContentDeltaFieldValueNotTextNorNull) {
+            logger.warn("The contentDelta field value is neither a string nor null. Aborting partial todo update process.");
+            throw new PatchTodoRequestValidationException();
+        }
+
+        boolean isOneNonNullAndAnotherNull=
+                (contentTextFieldValueJsonNode.isTextual() && contentDeltaFieldValueJsonNode.isNull()) || (contentTextFieldValueJsonNode.isNull() && contentDeltaFieldValueJsonNode.isTextual());
+        if(isOneNonNullAndAnotherNull) {
+            logger.warn("Among the contentText and contentDelta field values, one of the values is non null and the other is null. This is not allowed. They should both either be null or non null together. Aborting partial todo update process");
+            throw new PatchTodoRequestValidationException();
+        }
+
+        if(contentTextFieldValueJsonNode.isTextual()) {
+            logger.debug("The contentText field value is a string. Adding it to todo update fields map");
+            String contentTextFieldValue=contentTextFieldValueJsonNode.asText();
+            todoUpdateFieldsMap.put("contentText",contentTextFieldValue);
+        }
+        else {
+            logger.debug("The contentText field value is null. Adding it to todo update fields map");
+            todoUpdateFieldsMap.put("contentText",null);
+        }
+
+        if(contentDeltaFieldValueJsonNode.isTextual()) {
+            logger.debug("The contentDelta field value is a string");
+            String contentDeltaFieldValue=contentDeltaFieldValueJsonNode.asText();
+            if(contentDeltaFieldValue.trim().equals("")) {
+                logger.warn("The contentDelta field value is an empty string. This is not allowed as contentDelta field value is expected to be in the quill editor's internal delta format which is a subset of the json format. Aborting the partial todo update process");
+                throw new PatchTodoRequestValidationException();
+            }
+            if(!QuillDeltaValidator.isValid(contentDeltaFieldValue)) {
+                logger.warn("The contentDelta field value is not in the quill editor's internal delta format which is a subset of the json format. Aborting the partial todo update process");
+                throw new PatchTodoRequestValidationException();
+            }
+            logger.debug("The contentDelta field value is in the quill editor's internal delta format which is a subset of the json format. Adding it to the todo update fields map");
+            todoUpdateFieldsMap.put("contentDelta",contentDeltaFieldValue);
+        }
+        else {
+            logger.debug("The contentDelta field value is null. Adding it to todo update fields map");
+            todoUpdateFieldsMap.put("contentDelta",null);
+        }
+
     }
 
     private static void validateDueDateFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
