@@ -52,50 +52,58 @@ public class TodoPatchRequestValidator {
 
     private static void validateTitleFieldIfExists(JsonNode requestBodyJsonNode, Map<String,String> todoUpdateFieldsMap) {
         JsonNode titleFieldValueJsonNode=requestBodyJsonNode.get("title");
-        boolean isTitleFieldPresentInJsonObject=titleFieldValueJsonNode!=null;
-        if(isTitleFieldPresentInJsonObject) {
-            logger.debug("The received json object contains the title field");
-            boolean isTitleFieldValueNotTextNorNull=
-                    !(titleFieldValueJsonNode.isTextual() || titleFieldValueJsonNode.isNull());
-            if(isTitleFieldValueNotTextNorNull) {
-                logger.warn("The title field value is neither a string nor null. Aborting partial todo update process.");
-                throw new PatchTodoRequestValidationException();
-            }
-
-            if(titleFieldValueJsonNode.isTextual()) {
-                logger.debug("The title field value is a string. Adding it to todo update fields map.");
-                String titleFieldValue=titleFieldValueJsonNode.asText();
-                todoUpdateFieldsMap.put("title",titleFieldValue);
-            }
-            else {
-                logger.debug("The title field value is null. Adding it to todo update fields map.");
-                todoUpdateFieldsMap.put("title",null);
-            }
+        boolean isTitleFieldAbsentInJsonObject=titleFieldValueJsonNode==null;
+        if(isTitleFieldAbsentInJsonObject) {
+            logger.debug("The received json object doesn't contain the title field. Skipping validation for title field");
+            return;
         }
+
+        logger.debug("The received json object contains the title field");
+        boolean isTitleFieldValueNotTextNorNull=
+                !(titleFieldValueJsonNode.isTextual() || titleFieldValueJsonNode.isNull());
+        if(isTitleFieldValueNotTextNorNull) {
+            logger.warn("The title field value is neither a string nor null. Aborting partial todo update process.");
+            throw new PatchTodoRequestValidationException();
+        }
+
+        if(titleFieldValueJsonNode.isTextual()) {
+            logger.debug("The title field value is a string. Adding it to todo update fields map.");
+            String titleFieldValue=titleFieldValueJsonNode.asText();
+            todoUpdateFieldsMap.put("title",titleFieldValue);
+        }
+        else {
+            logger.debug("The title field value is null. Adding it to todo update fields map.");
+            todoUpdateFieldsMap.put("title",null);
+        }
+
     }
 
     private static void validateDescriptionFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode descriptionFieldValueJsonNode=requestBodyJsonNode.get("description");
-        boolean isDescriptionFieldPresentInJsonObject=descriptionFieldValueJsonNode!=null;
-        if(isDescriptionFieldPresentInJsonObject) {
-            logger.debug("The received json object contains the description field");
-            boolean isDescriptionFieldValueNotTextNorNull=
-                    !(descriptionFieldValueJsonNode.isTextual() || descriptionFieldValueJsonNode.isNull());
-            if(isDescriptionFieldValueNotTextNorNull) {
-                logger.warn("The description field value is neither a string nor null. Aborting partial todo update process.");
-                throw new PatchTodoRequestValidationException();
-            }
-
-            if(descriptionFieldValueJsonNode.isTextual()) {
-                logger.debug("The description field value is a string. Adding it to todo update fields map.");
-                String descriptionFieldValue=descriptionFieldValueJsonNode.asText();
-                todoUpdateFieldsMap.put("description",descriptionFieldValue);
-            }
-            else {
-                logger.debug("The description field value is null. Adding it to todo update fields map.");
-                todoUpdateFieldsMap.put("description",null);
-            }
+        boolean isDescriptionFieldAbsentInJsonObject=descriptionFieldValueJsonNode==null;
+        if(isDescriptionFieldAbsentInJsonObject) {
+            logger.debug("The received json object doesn't contain the description field. Skipping validation for description field");
+            return;
         }
+
+        logger.debug("The received json object contains the description field");
+        boolean isDescriptionFieldValueNotTextNorNull=
+                !(descriptionFieldValueJsonNode.isTextual() || descriptionFieldValueJsonNode.isNull());
+        if(isDescriptionFieldValueNotTextNorNull) {
+            logger.warn("The description field value is neither a string nor null. Aborting partial todo update process.");
+            throw new PatchTodoRequestValidationException();
+        }
+
+        if(descriptionFieldValueJsonNode.isTextual()) {
+            logger.debug("The description field value is a string. Adding it to todo update fields map.");
+            String descriptionFieldValue=descriptionFieldValueJsonNode.asText();
+            todoUpdateFieldsMap.put("description",descriptionFieldValue);
+        }
+        else {
+            logger.debug("The description field value is null. Adding it to todo update fields map.");
+            todoUpdateFieldsMap.put("description",null);
+        }
+
     }
 
     private static void validateContentTextAndContentDeltaPairIfExists(JsonNode requestBodyJsonNode, Map<String,String> todoUpdateFieldsMap) {
@@ -172,95 +180,104 @@ public class TodoPatchRequestValidator {
 
     private static void validateDueDateFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode dueDateFieldValueJsonNode=requestBodyJsonNode.get("dueDate");
-        boolean isDueDateFieldPresentInJsonObject=dueDateFieldValueJsonNode!=null;
-        if(isDueDateFieldPresentInJsonObject) {
-            logger.debug("The received json contains the dueDate field");
-            boolean isDueDateFieldValueNotTextNorNull=
-                    !(dueDateFieldValueJsonNode.isTextual() || dueDateFieldValueJsonNode.isNull());
-            if(isDueDateFieldValueNotTextNorNull) {
-                logger.warn("The dueDate field value is neither a string nor null. Aborting the partial todo update process");
+        boolean isDueDateFieldAbsentInJsonObject=dueDateFieldValueJsonNode==null;
+        if(isDueDateFieldAbsentInJsonObject) {
+            logger.debug("The received json object doesn't contain the dueDate field. Skipping validation for dueDate field");
+            return;
+        }
+
+        logger.debug("The received json contains the dueDate field");
+        boolean isDueDateFieldValueNotTextNorNull=
+                !(dueDateFieldValueJsonNode.isTextual() || dueDateFieldValueJsonNode.isNull());
+        if(isDueDateFieldValueNotTextNorNull) {
+            logger.warn("The dueDate field value is neither a string nor null. Aborting the partial todo update process");
+            throw new PatchTodoRequestValidationException();
+        }
+
+        if(dueDateFieldValueJsonNode.isTextual()) {
+            logger.debug("The dueDate field value is a string");
+            String dueDateFieldValue=dueDateFieldValueJsonNode.asText();
+            try {
+                logger.debug("Checking if the dueDate field value string is a valid date in YYYY-MM-DD format");
+                LocalDate.parse(dueDateFieldValue);
+            } catch(DateTimeParseException e) {
+                logger.warn("The dueDate field value string is not a valid date in YYYY-MM-DD format. Aborting the partial todo update process");
                 throw new PatchTodoRequestValidationException();
             }
-
-            if(dueDateFieldValueJsonNode.isTextual()) {
-                logger.debug("The dueDate field value is a string");
-                String dueDateFieldValue=dueDateFieldValueJsonNode.asText();
-                try {
-                    logger.debug("Checking if the dueDate field value string is a valid date in YYYY-MM-DD format");
-                    LocalDate.parse(dueDateFieldValue);
-                } catch(DateTimeParseException e) {
-                    logger.warn("The dueDate field value string is not a valid date in YYYY-MM-DD format. Aborting the partial todo update process");
-                    throw new PatchTodoRequestValidationException();
-                }
-                logger.debug("The dueDate field value string is a valid date in YYYY-MM-DD format. Adding it to todo update fields map");
-                todoUpdateFieldsMap.put("dueDate",dueDateFieldValue);
-            }
-            else {
-                logger.debug("The dueDate field value is null. Adding it to todo update fields map");
-                todoUpdateFieldsMap.put("dueDate",null);
-            }
+            logger.debug("The dueDate field value string is a valid date in YYYY-MM-DD format. Adding it to todo update fields map");
+            todoUpdateFieldsMap.put("dueDate",dueDateFieldValue);
         }
+        else {
+            logger.debug("The dueDate field value is null. Adding it to todo update fields map");
+            todoUpdateFieldsMap.put("dueDate",null);
+        }
+
     }
 
     private static void validatePriorityFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode priorityFieldValueJsonNode=requestBodyJsonNode.get("priority");
-        boolean isPriorityFieldPresentInJsonObject=priorityFieldValueJsonNode!=null;
-        if(isPriorityFieldPresentInJsonObject) {
-            logger.debug("The received json object contains the priority field");
-            boolean isPriorityFieldValueNotTextNorNull=
-                    !(priorityFieldValueJsonNode.isTextual() || priorityFieldValueJsonNode.isNull());
-            if(isPriorityFieldValueNotTextNorNull) {
-                logger.warn("The priority field value is neither a string nor null. Aborting the partial todo update process");
+        boolean isPriorityFieldAbsentInJsonObject=priorityFieldValueJsonNode==null;
+        if(isPriorityFieldAbsentInJsonObject) {
+            logger.debug("The received json object doesn't contain the priority field. Skipping validation for priority field");
+            return;
+        }
+        logger.debug("The received json object contains the priority field");
+        boolean isPriorityFieldValueNotTextNorNull=
+                !(priorityFieldValueJsonNode.isTextual() || priorityFieldValueJsonNode.isNull());
+        if(isPriorityFieldValueNotTextNorNull) {
+            logger.warn("The priority field value is neither a string nor null. Aborting the partial todo update process");
+            throw new PatchTodoRequestValidationException();
+        }
+
+        if(priorityFieldValueJsonNode.isTextual()) {
+            logger.debug("The priority field value is a string");
+            String priorityFieldValue=priorityFieldValueJsonNode.asText();
+            Optional<Todo.Priority> optionalPriorityEnum= EnumUtil.convertStringToSpecifiedEnumClassConstant(priorityFieldValue, Todo.Priority.class);
+            boolean isPriorityFieldValueNotValid=optionalPriorityEnum.isEmpty();
+            if(isPriorityFieldValueNotValid) {
+                logger.warn("The priority field value string is not one of the valid todo priority values. Aborting the partial todo update process");
                 throw new PatchTodoRequestValidationException();
             }
-
-            if(priorityFieldValueJsonNode.isTextual()) {
-                logger.debug("The priority field value is a string");
-                String priorityFieldValue=priorityFieldValueJsonNode.asText();
-                Optional<Todo.Priority> optionalPriorityEnum= EnumUtil.convertStringToSpecifiedEnumClassConstant(priorityFieldValue, Todo.Priority.class);
-                boolean isPriorityFieldValueNotValid=optionalPriorityEnum.isEmpty();
-                if(isPriorityFieldValueNotValid) {
-                    logger.warn("The priority field value string is not one of the valid todo priority values. Aborting the partial todo update process");
-                    throw new PatchTodoRequestValidationException();
-                }
-                logger.debug("The priority field value string is one of the valid todo priority values. Adding it to todo update fields map");
-                todoUpdateFieldsMap.put("priority",priorityFieldValue);
-            }
-            else {
-                logger.debug("The priority field value is null. Adding it to todo update fields map");
-                todoUpdateFieldsMap.put("priority",null);
-            }
+            logger.debug("The priority field value string is one of the valid todo priority values. Adding it to todo update fields map");
+            todoUpdateFieldsMap.put("priority",priorityFieldValue);
+        }
+        else {
+            logger.debug("The priority field value is null. Adding it to todo update fields map");
+            todoUpdateFieldsMap.put("priority",null);
         }
     }
 
     private static void validateStatusFieldIfExists(JsonNode requestBodyJsonNode,Map<String,String> todoUpdateFieldsMap) {
         JsonNode statusFieldValueJsonNode=requestBodyJsonNode.get("status");
-        boolean isStatusFieldPresentInJsonObject=statusFieldValueJsonNode!=null;
-        if(isStatusFieldPresentInJsonObject) {
-            logger.debug("The received json contains the status field");
-            boolean isStatusFieldValueNotTextNorNull=
-                    !(statusFieldValueJsonNode.isTextual() || statusFieldValueJsonNode.isNull());
-            if(isStatusFieldValueNotTextNorNull) {
-                logger.warn("The status field value is neither a string nor null. Aborting the partial todo update process");
+        boolean isStatusFieldAbsentInJsonObject=statusFieldValueJsonNode==null;
+        if(isStatusFieldAbsentInJsonObject) {
+            logger.debug("The received json object doesn't contain the status field. Skipping validation for status field");
+            return;
+        }
+
+        logger.debug("The received json contains the status field");
+        boolean isStatusFieldValueNotTextNorNull=
+                !(statusFieldValueJsonNode.isTextual() || statusFieldValueJsonNode.isNull());
+        if(isStatusFieldValueNotTextNorNull) {
+            logger.warn("The status field value is neither a string nor null. Aborting the partial todo update process");
+            throw new PatchTodoRequestValidationException();
+        }
+
+        if(statusFieldValueJsonNode.isTextual()) {
+            logger.debug("The status field value is a string");
+            String statusFieldValue=statusFieldValueJsonNode.asText();
+            Optional<Todo.Status> optionalStatusEnum= EnumUtil.convertStringToSpecifiedEnumClassConstant(statusFieldValue, Todo.Status.class);
+            boolean isStatusFieldValueNotValid=optionalStatusEnum.isEmpty();
+            if(isStatusFieldValueNotValid) {
+                logger.warn("The status field value string is not one of the valid todo status values. Aborting the partial todo update process");
                 throw new PatchTodoRequestValidationException();
             }
-
-            if(statusFieldValueJsonNode.isTextual()) {
-                logger.debug("The status field value is a string");
-                String statusFieldValue=statusFieldValueJsonNode.asText();
-                Optional<Todo.Status> optionalStatusEnum= EnumUtil.convertStringToSpecifiedEnumClassConstant(statusFieldValue, Todo.Status.class);
-                boolean isStatusFieldValueNotValid=optionalStatusEnum.isEmpty();
-                if(isStatusFieldValueNotValid) {
-                    logger.warn("The status field value string is not one of the valid todo status values. Aborting the partial todo update process");
-                    throw new PatchTodoRequestValidationException();
-                }
-                logger.debug("The status field value string is one of the valid todo status values. Adding it to todo update fields map");
-                todoUpdateFieldsMap.put("status",statusFieldValue);
-            }
-            else {
-                logger.debug("The status field value is null. Adding it to todo update fields map");
-                todoUpdateFieldsMap.put("status",null);
-            }
+            logger.debug("The status field value string is one of the valid todo status values. Adding it to todo update fields map");
+            todoUpdateFieldsMap.put("status",statusFieldValue);
+        }
+        else {
+            logger.debug("The status field value is null. Adding it to todo update fields map");
+            todoUpdateFieldsMap.put("status",null);
         }
     }
 
