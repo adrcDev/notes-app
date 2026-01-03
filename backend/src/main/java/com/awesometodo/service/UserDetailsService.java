@@ -24,8 +24,11 @@ public class UserDetailsService {
     public UserDetailsResponseDTO getUserDetails(int userId) {
         Optional<User> optionalUser=userRepository.findById(userId);
         User user=optionalUser.get();
+        logger.debug("Obtained details for user with id:{} and username:{}",userId,user.getUserName());
         String gender= EnumUtil.convertToSpaceSeparatedLowerCaseString(user.getGender()).get();
         UserDetailsResponseDTO userDetailsResponseDTO=new UserDetailsResponseDTO(user.getId(),user.getUserName(),user.getDisplayName(),user.getEmail(),user.getDateOfBirth(),gender, user.getPhoneNo(), user.getAccountCreatedAt());
+        logger.debug("Mapped retrieved User object to UserDetailsResponseDTO object in order to return a representation of the user as json in the http response message's body, {} -> {}",user,userDetailsResponseDTO);
+        logger.info("Authenticated user's details were retrieved");
         return userDetailsResponseDTO;
     }
 }

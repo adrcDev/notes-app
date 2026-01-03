@@ -21,8 +21,10 @@ public class UserV1Controller {
 
     @GetMapping("/api/v1/users/me")
     public UserDetailsResponseDTO getUserDetailsForAuthenticatedUser() {
+        logger.debug("GET /api/v1/users/me endpoint started running");
         int userId=springSecurityJwtFacade.getUserIdFromJwtAccessToken();
         UserDetailsResponseDTO userDetailsResponseDTO=userDetailsService.getUserDetails(userId);
+        logger.debug("GET /api/v1/users/me endpoint finished running");
         return userDetailsResponseDTO;
     }
 }
