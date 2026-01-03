@@ -234,7 +234,7 @@ public class AuthV1Controller {
         response.addCookie(jwtRefreshTokenCookie);
     }
 
-    @ExceptionHandler({HttpRequestCookiesException.class,InvalidJwtRefreshTokenException.class,JwtRefreshTokenStatusNotValidException.class})
+    @ExceptionHandler({HttpRequestCookiesException.class,InvalidJwtRefreshTokenException.class,JwtRefreshTokenStatusNotValidException.class,JwtRefreshTokenStatusCompromisedException.class, InvalidatedStatusJwtRefreshTokenNoExtensionPeriodException.class, InvalidatedStatusJwtRefreshTokenExtensionPeriodExpiredException.class})
     void refreshAndLogoutExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
     }

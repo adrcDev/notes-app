@@ -4,8 +4,7 @@ import com.awesometodo.dto.JwtAuthTokensDTO;
 import com.awesometodo.entity.InvalidatedJwtRefreshTokenExtensionPeriod;
 import com.awesometodo.entity.JwtRefreshToken;
 import com.awesometodo.entity.User;
-import com.awesometodo.exception.InvalidJwtRefreshTokenException;
-import com.awesometodo.exception.JwtRefreshTokenStatusNotValidException;
+import com.awesometodo.exception.*;
 import com.awesometodo.repository.InvalidatedJwtRefreshTokenExtensionPeriodRepository;
 import com.awesometodo.repository.JwtRefreshTokenRepository;
 import org.slf4j.Logger;
@@ -47,7 +46,8 @@ public class UserJwtRefreshService {
     logging out the user from all his logins. The problem is that some of these jwt refresh tokens will still be stored in the user's browser's cookie storage.Assume a user who has been logged out of all his logins goes to any page of the website which will cause the /auth/v1/refresh endpoint to be called, then he will receive a 401 response and will then be taken to login page in the frontend so that he can re-login. After he logs in he gets new jwt refresh token cookie in his browser. After this assume the user tries to access the website on one his older devices which contains a 'compromised' status valued refresh token in the cookie as he had logged in before, the page will use the /auth/v1/refresh endpoint and again cause the user to be logged out of all his logins.
     */
     @Retryable(maxAttempts = 5,backoff = @Backoff(300L),retryFor = {PessimisticLockingFailureException.class},recover = "refreshRecoveryMethod")
-    @Transactional(isolation = Isolation.REPEATABLE_READ,noRollbackFor = {JwtRefreshTokenStatusNotValidException.class})
+    @Transactional(isolation = Isolation.REPEATABLE_READ,noRollbackFor = {JwtRefreshTokenStatusCompromisedException.class, InvalidatedStatusJwtRefreshTokenNoExtensionPeriodException.class,
+    InvalidatedStatusJwtRefreshTokenExtensionPeriodExpiredException.class})
     public JwtAuthTokensDTO refresh(String cookieValue) {
         logger.debug("Checking if the cookie's value is a valid jwt refresh token");
         if(!jwtService.isValidJwtRefreshToken(cookieValue)) {
@@ -73,7 +73,7 @@ public class UserJwtRefreshService {
             User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
             logger.warn("The jwt refresh token row's status value is 'compromised' so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
             setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(associatedUser);
-            throw new JwtRefreshTokenStatusNotValidException();
+            throw new JwtRefreshTokenStatusCompromisedException();
         }
 
         boolean isJwtRefreshTokenStatusValueIsInvalidated=
@@ -90,13 +90,13 @@ public class UserJwtRefreshService {
             } catch(NoSuchElementException e) {
                 logger.warn("The jwt refresh token doesn't have an associated row in the invalidated_jwt_refresh_token_extension_periods table,so this means that a jwt refresh token that was set to status of 'invalidated' by the logout endpoint is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised'");
                 setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(associatedUser);
-                throw new JwtRefreshTokenStatusNotValidException();
+                throw new InvalidatedStatusJwtRefreshTokenNoExtensionPeriodException();
             }
 
             if(isExtensionPeriodExpired) {
                 logger.warn("The jwt refresh token row's status value is 'invalidated' and it's extension period has expired, so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised'");
                 setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(associatedUser);
-                throw new JwtRefreshTokenStatusNotValidException();
+                throw new InvalidatedStatusJwtRefreshTokenExtensionPeriodExpiredException();
             }
 
             logger.debug("The jwt refresh token row's status value is 'invalidated' and it's extension period has not expired");
