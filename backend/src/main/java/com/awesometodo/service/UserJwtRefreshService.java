@@ -40,6 +40,12 @@ public class UserJwtRefreshService {
     }
 
 
+    /* Known limitation:-
+    If a jwt refresh token with 'compromised' status value or 'invalidated' status value+extension
+    period expired  or 'invalidated' status value+no associated extension period is received then all
+    of the user's associated jwt refresh token's will be set to a status value of 'compromised' thereby
+    logging out the user from all his logins. The problem is that some of these jwt refresh tokens will still be stored in the user's browser's cookie storage.Assume a user who has been logged out of all his logins goes to any page of the website which will cause the /auth/v1/refresh endpoint to be called, then he will receive a 401 response and will then be taken to login page in the frontend so that he can re-login. After he logs in he gets new jwt refresh token cookie in his browser. After this assume the user tries to access the website on one his older devices which contains a 'compromised' status valued refresh token in the cookie as he had logged in before, the page will use the /auth/v1/refresh endpoint and again cause the user to be logged out of all his logins.
+    */
     @Retryable(maxAttempts = 5,backoff = @Backoff(300L),retryFor = {PessimisticLockingFailureException.class},recover = "refreshRecoveryMethod")
     @Transactional(isolation = Isolation.REPEATABLE_READ,noRollbackFor = {JwtRefreshTokenStatusNotValidException.class})
     public JwtAuthTokensDTO refresh(String cookieValue) {
@@ -52,11 +58,13 @@ public class UserJwtRefreshService {
         logger.debug("The cookie's value is a valid jwt refresh token");
         String validJwtRefreshToken=cookieValue;
         String jtiClaimValue=jwtService.parseJtiClaimValue(validJwtRefreshToken);
+        logger.debug("The jti claim's value:{} (it is a UUID that uniquely identified a jwt refresh token within the jwt_refresh_tokens table) was extracted from the received jwt refresh token's payload section",jtiClaimValue);
         int associatedUserId=Integer.parseInt(jwtService.parseSubjectClaimValue(validJwtRefreshToken));
+        logger.debug("The sub claim's value:{} (it is user id) was extracted from the received jwt refresh token's payload section",associatedUserId);
         UUID jtiClaimValueAsUUID=UUID.fromString(jtiClaimValue);
         Optional<JwtRefreshToken> optional=jwtRefreshTokenRepository.findByJtiClaimValueUUIDAndUserId(jtiClaimValueAsUUID,associatedUserId,true);
         JwtRefreshToken storedJwtRefreshToken=optional.get();
-        logger.debug("Obtained the corresponding jwt refresh token row using the received jwt refresh token and put a row lock on it. It is associated to user with id:{}, username:{}, email:{}",storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getId(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getUserName(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getEmail());
+        logger.debug("Obtained the corresponding jwt refresh token row using the extracted jti claim value({}) and sub claim value({}) from jwt_refresh_tokens table and put a row lock on it. It is associated to user with id:{}, username:{}",jtiClaimValue,associatedUserId,storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getId(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getUserName());
 
         JwtRefreshToken.Status jwtRefreshTokenStatus=storedJwtRefreshToken.getStatus();
         boolean isJwtRefreshTokenStatusValueIsCompromised=
@@ -71,40 +79,44 @@ public class UserJwtRefreshService {
         boolean isJwtRefreshTokenStatusValueIsInvalidated=
                 (jwtRefreshTokenStatus==JwtRefreshToken.Status.INVALIDATED);
         if(isJwtRefreshTokenStatusValueIsInvalidated) {
+            logger.debug("The jwt refresh token row's status value is 'invalidated'");
             User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
             int invalidatedJwtRefreshTokenId=storedJwtRefreshToken.getId();
+            logger.debug("Checking whether the 'invalidated' status valued jwt refresh token's associated extension period in the invalidated_jwt_refresh_token_extension_periods table is expired");
             Optional<Boolean> optionalBoolean=invalidatedJwtRefreshTokenExtensionPeriodRepository.isExtensionPeriodExpiredForInvalidatedJwtRefreshTokenId(invalidatedJwtRefreshTokenId);
             boolean isExtensionPeriodExpired;
             try {
                 isExtensionPeriodExpired = optionalBoolean.orElseThrow();
             } catch(NoSuchElementException e) {
-                logger.warn("The jwt refresh token doesn't have an associated row in the invalidated_jwt_refresh_token_extension_periods table,so this means that a jwt refresh token that was set to status of 'invalidated' by the logout endpoint is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
+                logger.warn("The jwt refresh token doesn't have an associated row in the invalidated_jwt_refresh_token_extension_periods table,so this means that a jwt refresh token that was set to status of 'invalidated' by the logout endpoint is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised'");
                 setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(associatedUser);
                 throw new JwtRefreshTokenStatusNotValidException();
             }
 
             if(isExtensionPeriodExpired) {
-                logger.warn("The jwt refresh token row's status value is 'invalidated' and it's extension period has expired, so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
+                logger.warn("The jwt refresh token row's status value is 'invalidated' and it's extension period has expired, so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised'");
                 setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(associatedUser);
                 throw new JwtRefreshTokenStatusNotValidException();
             }
 
-            String jwtAcessToken=jwtService.generateJwtAccessToken(associatedUserId);
+            logger.debug("The jwt refresh token row's status value is 'invalidated' and it's extension period has not expired");
+            String jwtAccessToken=jwtService.generateJwtAccessToken(associatedUserId);
+            logger.debug("Jwt access token was created for user id {}",associatedUserId);
             String newJwtRefreshToken=createStoreAndReturnJwtRefreshTokenForUser(storedJwtRefreshToken.getUserAssociatedWithRefreshToken());
-            return new JwtAuthTokensDTO(jwtAcessToken,newJwtRefreshToken);
+            return new JwtAuthTokensDTO(jwtAccessToken,newJwtRefreshToken);
         }
 
-        logger.debug("The jwt refresh token row for user with id:{}, username:{} and email:{} has a status value of 'valid'. Trying to change the status value to 'invalidated'",associatedUserId,storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getUserName(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getEmail());
-        storedJwtRefreshToken.setStatus(JwtRefreshToken.Status.INVALIDATED);
-        invalidatedJwtRefreshTokenExtensionPeriodRepository.insert(new InvalidatedJwtRefreshTokenExtensionPeriod(storedJwtRefreshToken));
         User assoicatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
-        logger.debug("The status value of the jwt refresh token row for user with id:{}, username:{} and email:{} has been changed to 'invalidated'.",assoicatedUser.getId(),assoicatedUser.getUserName(),assoicatedUser.getEmail());
+        logger.debug("The jwt refresh token row for user with id:{}, username:{} and email:{} has a status value of 'valid'. Trying to change the status value to 'invalidated'",associatedUserId,assoicatedUser.getUserName(),assoicatedUser.getEmail());
+        storedJwtRefreshToken.setStatus(JwtRefreshToken.Status.INVALIDATED);
+        logger.debug("The status value of the jwt refresh token row for user with id:{} and username:{} has been changed to 'invalidated'.",assoicatedUser.getId(),assoicatedUser.getUserName());
+        invalidatedJwtRefreshTokenExtensionPeriodRepository.insert(new InvalidatedJwtRefreshTokenExtensionPeriod(storedJwtRefreshToken));
+        logger.debug("An extension period row was added to the invalidated_jwt_refresh_token_extension_periods table for the just newly changed to status value 'invalidated' jwt refresh token");
         int associatedUsersId=assoicatedUser.getId();
-        logger.debug("Trying to create and store a new jwt refresh token for user with id:{},username:{} and email:{}",assoicatedUser.getId(),assoicatedUser.getUserName(),assoicatedUser.getEmail());
+        logger.debug("Trying to create and store a new jwt refresh token for user with id:{},username:{} ",assoicatedUser.getId(),assoicatedUser.getUserName());
         String newStoredJwtRefreshToken= createStoreAndReturnJwtRefreshTokenForUser(assoicatedUser);
-        logger.debug("New jwt refresh token was created and stored for user with id:{},username:{} and email:{}",assoicatedUser.getId(),assoicatedUser.getUserName(),assoicatedUser.getEmail());
         String jwtAccessToken=jwtService.generateJwtAccessToken(associatedUsersId);
-        logger.debug("A jwt access token was generated for user with id:{},username:{} and email:{}",assoicatedUser.getId(),assoicatedUser.getUserName(),assoicatedUser.getEmail());
+        logger.debug("A jwt access token was generated for user with id:{},username:{}",assoicatedUser.getId(),assoicatedUser.getUserName());
         JwtAuthTokensDTO jwtAuthTokensDTO=new JwtAuthTokensDTO(jwtAccessToken,newStoredJwtRefreshToken);
         return jwtAuthTokensDTO;
     }
@@ -118,21 +130,24 @@ public class UserJwtRefreshService {
     private String createStoreAndReturnJwtRefreshTokenForUser(User user) {
         int userId=user.getId();
         String jwtRefreshTokenString=jwtService.generateJwtRefreshToken(userId);
+        logger.debug("New jwt refresh token was created associated to user id {}",userId);
         String jwtRefreshTokenHash=argon2IdPasswordEncoder.encode(jwtRefreshTokenString);
+        logger.debug("Hashed the jwt refresh token using Argon2Id hashing");
         String jtiClaimValue=jwtService.parseJtiClaimValue(jwtRefreshTokenString);
         UUID jtiClaimValueAsUUID=UUID.fromString(jtiClaimValue);
+        logger.debug("Parsed the jti claim value({}) from the newly created jwt refresh token and converted it to a UUID object",jtiClaimValue);
         OffsetDateTime issuedAt=jwtService.parseIssClaimValue(jwtRefreshTokenString);
         OffsetDateTime expiresAt=jwtService.parseExpClaimValue(jwtRefreshTokenString);
+        logger.debug("Parsed iss and exp claims from the newly created jwt refresh token as OffsetDateTime objects");
         JwtRefreshToken jwtRefreshToken=new JwtRefreshToken(user,jtiClaimValueAsUUID,jwtRefreshTokenHash, JwtRefreshToken.Status.VALID,issuedAt,expiresAt);
         jwtRefreshTokenRepository.insert(jwtRefreshToken);
+        logger.debug("Inserted the newly created 'valid' status valued jwt refresh token in the jwt_refresh_tokens table");
         return jwtRefreshTokenString;
     }
 
     private void setStatusAsCompromisedForAllJwtRefreshTokensAssociatedToUser(User associatedUser) {
         jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
-        /* You can use a external service here to send an sms or email here to the user notifying them that a person was trying to access their account and so therefore as a security measure all of their existing logins were auto logged out
-         */
-        logger.warn("All stored jwt refresh tokens belong to user with id:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the jwt authentication refresh process",associatedUser.getId());
+        logger.warn("All stored jwt refresh tokens belonging the user have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the jwt authentication refresh process");
     }
 
 

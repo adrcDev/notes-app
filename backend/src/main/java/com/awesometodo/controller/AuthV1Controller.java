@@ -174,13 +174,12 @@ public class AuthV1Controller {
         String newJwtRefreshToken=jwtAuthTokensDTO.getJwtRefreshToken();
         String jwtAccessToken=jwtAuthTokensDTO.getJwtAccessToken();
         addJwtRefreshTokenAsCookie(response,newJwtRefreshToken);
-        logger.debug("The new stored jwt refresh token assoicated to user with id:{} was added as a cookie along with cookie attributes to the Set-Cookie response header of the http response message",jwtService.parseSubjectClaimValue(newJwtRefreshToken));
-
+        logger.debug("The new stored jwt refresh token associated to user with id:{} was added as a cookie along with cookie attributes to the Set-Cookie response header of the http response message",jwtService.parseSubjectClaimValue(newJwtRefreshToken));
 
         Map<String,String> responseBodyMessage=new HashMap<>();
         responseBodyMessage.put(JWT_ACCESS_TOKEN_JSON_KEY_NAME,jwtAccessToken);
         logger.debug("The generated jwt access token associated to user with id:{} was put in the response message's body",jwtService.parseSubjectClaimValue(jwtAccessToken));
-        logger.info("The jwt authentication refresh process completed successfully. New jwt refresh token was generated and stored. A jwt access token was generated and sent in the response message's body. Both tokens are associated to user with id:{}",jwtService.parseSubjectClaimValue(newJwtRefreshToken));
+        logger.info("The jwt authentication refresh process completed successfully. New jwt refresh token was generated,stored and put in the Set-Cookie response header along with cookie attributes. A jwt access token was generated and sent in the response message's body");
         logger.debug("/auth/v1/refresh endpoint finished running");
         return responseBodyMessage;
     }
