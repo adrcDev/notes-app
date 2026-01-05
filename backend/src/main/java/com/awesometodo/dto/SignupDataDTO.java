@@ -1,17 +1,13 @@
 package com.awesometodo.dto;
 
-import com.awesometodo.validation.constraint.DateOfBirth;
-import com.awesometodo.validation.constraint.Gender;
-import com.awesometodo.validation.constraint.Password;
-import com.awesometodo.validation.constraint.PhoneNumberE164;
+import com.awesometodo.validation.constraint.*;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public class SignupDataDTO {
     @NotBlank
-    @Pattern(regexp = "^(?![a-zA-Z0-9._-]+[._-]{2})[a-zA-Z0-9][a-zA-Z0-9._-]{1,28}[a-zA-Z0-9]$",
-            message = "The received username did not match the required pattern")
+    @Username
     private String userName;
 
     @NotBlank

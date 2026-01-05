@@ -1,12 +1,12 @@
 package com.awesometodo.dto;
 
+import com.awesometodo.validation.constraint.Username;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public class SignupOtpVerificationDataDTO {
     @NotBlank
-    @Pattern(regexp = "^(?![a-zA-Z0-9._-]+[._-]{2})[a-zA-Z0-9][a-zA-Z0-9._-]{1,28}[a-zA-Z0-9]$",
-            message = "The received username did not match the required pattern")
+    @Username
     private String username;
 
     @NotBlank
