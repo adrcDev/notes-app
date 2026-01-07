@@ -131,15 +131,15 @@ export default function SignupForm() {
     .then((response)=>{
       loadingModalDialogRef.current.close();
       if(response.status===500) {
-        setTextDialogText("500: Internal server error!");
-        setIsTextDialogToBeShown(true);
-        return;
+        throw new Error("500")
+      }
+
+      if(response.status===400) {
+        throw new Error("400");
       }
 
       if(response.status===401) {
-        setTextDialogText("An user account with the provided details already exists.");
-        setIsTextDialogToBeShown(true);
-        return;
+        throw new Error("401");
       }
 
       if(response.ok) {
@@ -160,10 +160,30 @@ export default function SignupForm() {
 
       
     },(err) =>{
-      // console.log("fetch promise rejected callback ran");
+      throw new Error(null);
+    })
+    .catch((err)=>{
       loadingModalDialogRef.current.close();
-      setTextDialogText("Network error: Please check your network connection");
       setIsTextDialogToBeShown(true);
+      let somethingWentWrongMsg="Something went wrong, please try again";
+      if(err.message==="500") {
+        setTextDialogText(somethingWentWrongMsg);
+        console.log("500: Internal server error");
+        return;
+      }
+      if(err.message==="400") {
+        setTextDialogText(somethingWentWrongMsg);
+        console.log("400: Bad request");
+        return;
+      }
+      if(err.message==="401") {
+        setTextDialogText("An user account with the provided details already exists.");
+        return;
+      }
+      if(err.message==="null") {
+        setTextDialogText("Network error: Please check your network connection");
+        return;
+      }
     });
 
   }
