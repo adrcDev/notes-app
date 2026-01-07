@@ -138,8 +138,8 @@ export default function SignupForm() {
         throw new Error("400");
       }
 
-      if(response.status===401) {
-        throw new Error("401");
+      if(response.status===409) {
+        throw new Error("409");
       }
 
       if(response.ok) {
@@ -176,7 +176,7 @@ export default function SignupForm() {
         console.log("400: Bad request");
         return;
       }
-      if(err.message==="401") {
+      if(err.message==="409") {
         setTextDialogText("An user account with the provided details already exists.");
         return;
       }
