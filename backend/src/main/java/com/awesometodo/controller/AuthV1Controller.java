@@ -98,7 +98,12 @@ public class AuthV1Controller {
         logger.debug("/auth/v1/signup/resend-otps endpoint finished running");
     }
 
-    @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class, PendingSignupUserWithSameDetailsAlreadyExistsException.class,PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, SignupOtpMismatchException.class,SignupOtpsNotExpiredException.class})
+    @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class,PendingSignupUserWithSameDetailsAlreadyExistsException.class})
+    public void handleSameUserDetailsAlreadyExistsException(HttpServletResponse response) {
+        response.setStatus(409);
+    }
+
+    @ExceptionHandler({PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, SignupOtpMismatchException.class,SignupOtpsNotExpiredException.class})
     public void signupExceptionHandler(HttpServletResponse response) {
         response.setStatus(401);
     }
