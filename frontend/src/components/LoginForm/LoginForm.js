@@ -64,29 +64,31 @@ export default function LoginForm() {
     dataObj.password=dataObj.password.trim();
     // console.log(dataObj);
     let jsonToSend=JSON.stringify(dataObj);
-    /* Send login request to rest api and if the username/email and password is valid then send the user to the todo page and also get the jwt access token and store it. If the credentials are invalid then show the invalid login dialog to the user. In both of these cases the login processing dialog should be closed */
     fetch(`${context_backendUrl}/auth/v1/login`,{
       body: jsonToSend,
       method: "post",
       headers: {
         "Content-Type": "application/json"
       },
-
-      credentials: "include" //only added for development
+      credentials: "include"
     })
     .then((response)=>{
       loginProcessingModalDialogDomNode.close();
       if(response.status===500) {
-        throw new Error("500: Internal server error!");
+        throw new Error("500");
+      }
+
+      if(response.status===400) {
+        throw new Error("400")
       }
 
       if(response.status===401) {
-        throw new Error("Provided username/email or password is invalid!");
+        throw new Error("401");
       }
       return response.json();
     },(err)=>{
         loginProcessingModalDialogDomNode.close();
-        throw new Error("Network error: Please check your network connection");
+        throw new Error(null);
     })
     .then((parsedObjectFromJson)=>{
       let jwtAccessToken=parsedObjectFromJson["jwt access token"];
@@ -96,8 +98,26 @@ export default function LoginForm() {
       loginProcessingModalDialogDomNode.close();
     },(err)=>{
       loginProcessingModalDialogDomNode.close();
+      let somethingWentWrongMsg="Something went wrong,please try again";
       setIsTextDialogToBeShown(true);
-      setTextDialogText(err.message);
+      if(err.message==="500") {
+        setTextDialogText(somethingWentWrongMsg);
+        console.log("500: internal server error");
+        return;
+      }
+      if(err.message==="400") {
+        setTextDialogText(somethingWentWrongMsg);
+        console.log("400: bad request");
+        return;
+      }
+      if(err.message==="401") {
+        setTextDialogText("Provided username/email or password is invalid!");
+        return;
+      }
+      if(err.message==="null") {
+        setTextDialogText("Network error: please check your network connection");
+        return;
+      }
     });
 
   }
