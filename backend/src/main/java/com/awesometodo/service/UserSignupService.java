@@ -67,8 +67,8 @@ public class UserSignupService {
 
         logger.debug("No currently present user account in the database uses the received username:{} or email:{} or phone number:{}, so the signup process continues",receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
         logger.debug("Trying to find a pending signup user whose username,email and phone no exactly match the received ones: username: {}, email: {}, phone no: {}",receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
-        UserIdentityDTO userIdentityDTO=new UserIdentityDTO(receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
-        Optional<PendingSignupUser> optional=findMatchingPendingSignupUser(userIdentityDTO);
+        UserIdentityFilter userIdentityFilter=new UserIdentityFilter(receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
+        Optional<PendingSignupUser> optional=findMatchingPendingSignupUser(userIdentityFilter);
         boolean isMatchingPendingSignupUserExists=optional.isPresent();
         if(isMatchingPendingSignupUserExists) {
             PendingSignupUser matchingPendingSignupUser=optional.get();
@@ -318,8 +318,7 @@ public class UserSignupService {
         return Optional.empty();
     }
 
-    private Optional<PendingSignupUser> findMatchingPendingSignupUser(UserIdentityDTO userIdentityDTO) {
-        UserIdentityFilter userIdentityFilter=new UserIdentityFilter(userIdentityDTO.getUsername(), userIdentityDTO.getEmail(),userIdentityDTO.getPhoneNo());
+    private Optional<PendingSignupUser> findMatchingPendingSignupUser(UserIdentityFilter userIdentityFilter) {
         Optional<PendingSignupUser> optional=pendingSignupUserRepository.findByAndingUserIdentityFilter(userIdentityFilter);
         return optional;
     }
