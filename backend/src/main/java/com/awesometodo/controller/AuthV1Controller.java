@@ -103,9 +103,14 @@ public class AuthV1Controller {
         response.setStatus(409);
     }
 
-    @ExceptionHandler({PendingSignupUserDoesntExistException.class,SignupOtpsExpiredException.class, SignupOtpMismatchException.class,SignupOtpsNotExpiredException.class})
-    public void signupExceptionHandler(HttpServletResponse response) {
-        response.setStatus(401);
+    @ExceptionHandler({PendingSignupUserDoesntExistException.class})
+    public void handlePendingSignupUserDoesntExistException(HttpServletResponse response) {
+        response.setStatus(400);
+    }
+
+    @ExceptionHandler({SignupOtpsExpiredException.class, SignupOtpMismatchException.class,SignupOtpsNotExpiredException.class})
+    public void handleSignupOtpsRelatedExceptions(HttpServletResponse response) {
+        response.setStatus(400);
     }
 
     @PostMapping("/auth/v1/forgot-password/init")
