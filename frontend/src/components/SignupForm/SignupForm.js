@@ -284,6 +284,13 @@ export default function SignupForm() {
         return;
       }
 
+      if(response.status===400) {
+        setIsTextDialogToBeShown(true);
+        setTextDialogText("Something went wrong, please try again");
+        console.log("400: Bad request");
+        return;
+      }
+
       if(response.status===401) {
         setTextModalDialogText("One or both of the OTP's are invalid");
         setIsTextModalDialogToBeShown(true);
