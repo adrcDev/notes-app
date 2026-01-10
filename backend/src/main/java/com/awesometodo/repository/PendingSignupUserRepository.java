@@ -3,6 +3,7 @@ package com.awesometodo.repository;
 import com.awesometodo.dto.SignupDataDTO;
 import com.awesometodo.dto.UserIdentityDTO;
 import com.awesometodo.entity.PendingSignupUser;
+import com.awesometodo.repository.filter.UserIdentityFilter;
 import com.awesometodo.util.EnumUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Repository
@@ -77,6 +79,18 @@ public class PendingSignupUserRepository {
         try {
             PendingSignupUser pendingSignupUser =
                     (PendingSignupUser) em.createNativeQuery("SELECT * FROM pending_signup_users WHERE user_name=:username AND email=:email AND phone_no=:phoneNo AND date_of_birth=:dateOfBirth AND gender=:gender", PendingSignupUser.class).setParameter("username", usernameLC).setParameter("email", emailLC).setParameter("phoneNo", signupDataDTO.getPhoneNumber()).setParameter("dateOfBirth", dateOfBirthAsLocalDate).setParameter("gender", signupDataDTO.getGender()).getSingleResult();
+            return Optional.of(pendingSignupUser);
+        } catch(NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<PendingSignupUser> findByUserIdentity(UserIdentityFilter userIdentityFilter) {
+        String usernameLC=userIdentityFilter.getUsername().toLowerCase(Locale.ROOT);
+        String emailLC=userIdentityFilter.getEmail().toLowerCase(Locale.ROOT);
+        String phoneNo=userIdentityFilter.getPhoneNo();
+        try {
+            PendingSignupUser pendingSignupUser=(PendingSignupUser) em.createNativeQuery("SELECT * FROM pending_signup_users WHERE user_name=:username AND email=:email AND phone_no=:phoneNo", PendingSignupUser.class).setParameter("username", usernameLC).setParameter("email", emailLC).setParameter("phoneNo", phoneNo).getSingleResult();
             return Optional.of(pendingSignupUser);
         } catch(NoResultException e) {
             return Optional.empty();
