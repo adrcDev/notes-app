@@ -1,5 +1,6 @@
 package com.awesometodo;
 
+import com.awesometodo.dto.UserIdentityDTO;
 import com.awesometodo.repository.*;
 import com.awesometodo.service.JwtService;
 import jakarta.persistence.EntityManager;
