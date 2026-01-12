@@ -56,19 +56,6 @@ public class PendingSignupUserRepository {
         return Optional.of(pendingSignupUser);
     }
 
-    public Optional<PendingSignupUser> findBySignUpData(SignupDataDTO signupDataDTO) {
-        String usernameLC=signupDataDTO.getUserName().toLowerCase();
-        String emailLC=signupDataDTO.getEmail().toLowerCase();
-        LocalDate dateOfBirthAsLocalDate=LocalDate.parse(signupDataDTO.getDateOfBirth());
-        try {
-            PendingSignupUser pendingSignupUser =
-                    (PendingSignupUser) em.createNativeQuery("SELECT * FROM pending_signup_users WHERE user_name=:username AND display_name=:displayName AND email=:email AND phone_no=:phoneNo AND date_of_birth=:dateOfBirth AND gender=:gender", PendingSignupUser.class).setParameter("username", usernameLC).setParameter("displayName",signupDataDTO.getUserName()).setParameter("email", emailLC).setParameter("phoneNo", signupDataDTO.getPhoneNumber()).setParameter("dateOfBirth", dateOfBirthAsLocalDate).setParameter("gender", signupDataDTO.getGender()).getSingleResult();
-            return Optional.of(pendingSignupUser);
-        } catch(NoResultException e) {
-            return Optional.empty();
-        }
-    }
-    
     public Optional<PendingSignupUser> findByAndingUserIdentityFilter(UserIdentityFilter userIdentityFilter) {
         String usernameLC=userIdentityFilter.getUsername().toLowerCase(Locale.ROOT);
         String emailLC=userIdentityFilter.getEmail().toLowerCase(Locale.ROOT);
