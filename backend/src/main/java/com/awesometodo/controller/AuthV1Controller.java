@@ -108,9 +108,19 @@ public class AuthV1Controller {
         response.setStatus(400);
     }
 
-    @ExceptionHandler({SignupOtpsExpiredException.class, SignupOtpMismatchException.class,SignupOtpsNotExpiredException.class})
-    public void handleSignupOtpsRelatedExceptions(HttpServletResponse response) {
+    @ExceptionHandler({SignupOtpsExpiredException.class})
+    public void handleSignupOtpsExpiredException(HttpServletResponse response) {
         response.setStatus(400);
+    }
+
+    @ExceptionHandler({SignupOtpMismatchException.class})
+    public void handleSignupOtpMismatchException(HttpServletResponse response) {
+        response.setStatus(400);
+    }
+
+    @ExceptionHandler({SignupOtpsNotExpiredException.class})
+    public void handleSignupOtpsNotExpiredException(HttpServletResponse response) {
+        response.setStatus(409);
     }
 
     @PostMapping("/auth/v1/forgot-password/init")

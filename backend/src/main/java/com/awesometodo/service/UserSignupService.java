@@ -224,8 +224,8 @@ public class UserSignupService {
         String receivedEmailLC=signupDataDTO.getEmail().toLowerCase();
         String receivedPhoneNo=signupDataDTO.getPhoneNumber();
         UserIdentityFilter userIdentityFilter=new UserIdentityFilter(receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
-        logger.debug("Resending of otp's attempted by pending sign up user with username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
-        logger.debug("Checking if any user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
+        logger.debug("Resending of otps attempted by pending sign up user with username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
+        logger.debug("Checking if any user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number:{}",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
         boolean isUserWithSameDetailsAlreadyExists=userRepository.isExistsByOringUserIdentityFilter(userIdentityFilter);
 
         if(isUserWithSameDetailsAlreadyExists) {
@@ -311,7 +311,7 @@ public class UserSignupService {
         int rowsUpdated=signupOtpRepository.updatePhoneNumberOtpByPendingSignupUserId(newPhoneNumberOtp,pendingSignupUser.getId());
         rowsUpdated=signupOtpRepository.updateEmailOtpByPendingSignupUserId(newEmailOtp,pendingSignupUser.getId());
     }
-    
+
     private Optional<PendingSignupUser> findMatchingPendingSignupUser(UserIdentityFilter userIdentityFilter) {
         Optional<PendingSignupUser> optional=pendingSignupUserRepository.findByAndingUserIdentityFilter(userIdentityFilter);
         return optional;
