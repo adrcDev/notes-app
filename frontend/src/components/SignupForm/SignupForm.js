@@ -203,12 +203,21 @@ export default function SignupForm() {
       loadingModalDialogRef.current.close();
       if(response.status===500) {
         otpModalDialogRef.current.close();
-        setTextDialogText("500: Internal server error!");
+        setTextDialogText("Something went wrong, please try again");
         setIsTextDialogToBeShown(true);
+        console.log("500: Internal server error");
         return;
       }
 
-      if(response.status===401) {
+      if(response.status===400) {
+        otpModalDialogRef.current.close();
+        setTextDialogText("Something went wrong, please try again");
+        setIsTextDialogToBeShown(true);
+        console.log("400: Bad request");
+        return;
+      }
+
+      if(response.status===409) {
         otpModalDialogRef.current.close();
         setTextDialogText("An user account with the provided details already exists.");
         setIsTextDialogToBeShown(true);
@@ -231,8 +240,8 @@ export default function SignupForm() {
                 }   
                 return result;
               });
-          }, 1000);
-          intervalIdForOtpModalDialogTimerRef.current=intervalId;
+        }, 1000);
+        intervalIdForOtpModalDialogTimerRef.current=intervalId;
       }
 
     },(err)=>{
