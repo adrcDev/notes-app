@@ -1,7 +1,6 @@
 package com.awesometodo.repository;
 
 import com.awesometodo.dto.SignupDataDTO;
-import com.awesometodo.dto.UserIdentityDTO;
 import com.awesometodo.entity.PendingSignupUser;
 import com.awesometodo.repository.filter.UserIdentityFilter;
 import jakarta.persistence.EntityManager;
@@ -21,10 +20,10 @@ public class PendingSignupUserRepository {
         this.em=em;
     }
 
-    public List<PendingSignupUser> findByUsernameOrEmailOrPhoneNo(UserIdentityDTO userIdentityDTO) {
-        String username=userIdentityDTO.getUsername();
-        String email=userIdentityDTO.getEmail();
-        String phoneNo=userIdentityDTO.getPhoneNo();
+    public List<PendingSignupUser> findByOringUserIdentityFilter(UserIdentityFilter userIdentityFilter) {
+        String username=userIdentityFilter.getUsername().toLowerCase(Locale.ROOT);
+        String email=userIdentityFilter.getEmail().toLowerCase(Locale.ROOT);
+        String phoneNo=userIdentityFilter.getPhoneNo();
         List<PendingSignupUser> pendingSignupUsers=em.createNativeQuery("SELECT * FROM pending_signup_users WHERE user_name=:username OR email=:email OR phone_no=:phoneNo ORDER BY id", PendingSignupUser.class).setParameter("username",username).setParameter("email",email).setParameter("phoneNo",phoneNo).getResultList();
         return pendingSignupUsers;
     }

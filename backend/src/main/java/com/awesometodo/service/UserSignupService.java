@@ -79,8 +79,9 @@ public class UserSignupService {
 
         logger.debug("Couldn't find a pending signup user whose username,email and phone no exactly matches the received ones: username: {}, email: {}, phoneNo: {}",receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
         logger.debug("Checking if any pending sign up users already exist in database who have same username or email or phone number as the received username:{}, email:{} and phone number:{}",receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
+
         List<PendingSignupUser> pendingSignupUsers=
-                pendingSignupUserRepository.findByUsernameOrEmailOrPhoneNo(new UserIdentityDTO(receivedUserNameLC,receivedEmailLC,receivedPhoneNo));
+                pendingSignupUserRepository.findByOringUserIdentityFilter(userIdentityFilter);
 
         boolean isNoPendingSignUserPresentWithSameDetails=pendingSignupUsers.isEmpty();
 
@@ -223,6 +224,7 @@ public class UserSignupService {
     public void signupResendOtps(SignupDataDTO signupDataDTO) {
         String receivedUsernameLC=signupDataDTO.getUserName().toLowerCase();
         String receivedEmailLC=signupDataDTO.getEmail().toLowerCase();
+        String receivedPhoneNo=signupDataDTO.getPhoneNumber();
         logger.debug("Resending of otp's attempted by pending sign up user with username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
         logger.debug("Checking if any user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
         boolean isUserWithSameDetailsAlreadyExists=userRepository.isExistsByUsernameOrEmailOrPhoneNo(new UserIdentityDTO(receivedUsernameLC,receivedEmailLC,signupDataDTO.getPhoneNumber()));
@@ -254,8 +256,9 @@ public class UserSignupService {
 
         logger.debug("A pending signup user who exactly matched the received details:-username:{},email:{},---, could not be found ",receivedUsernameLC,receivedEmailLC);
         logger.debug("Checking if any pending sign up user already exists in database who have same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
+        UserIdentityFilter userIdentityFilter=new UserIdentityFilter(receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
         List<PendingSignupUser> pendingSignupUserList=
-                pendingSignupUserRepository.findByUsernameOrEmailOrPhoneNo(new UserIdentityDTO(receivedUsernameLC,receivedEmailLC,signupDataDTO.getPhoneNumber()));
+                pendingSignupUserRepository.findByOringUserIdentityFilter(userIdentityFilter);
 
         boolean isPendingSignUsersWithSameDetailsNotExists= pendingSignupUserList.isEmpty();
         if(isPendingSignUsersWithSameDetailsNotExists) {
