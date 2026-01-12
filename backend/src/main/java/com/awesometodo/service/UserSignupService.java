@@ -2,7 +2,6 @@ package com.awesometodo.service;
 
 import com.awesometodo.dto.SignupDataDTO;
 import com.awesometodo.dto.SignupOtpVerificationDataDTO;
-import com.awesometodo.dto.UserIdentityDTO;
 import com.awesometodo.entity.PendingSignupUser;
 import com.awesometodo.entity.SignupOtp;
 import com.awesometodo.entity.User;
@@ -230,54 +229,59 @@ public class UserSignupService {
         boolean isUserWithSameDetailsAlreadyExists=userRepository.isExistsByOringUserIdentityFilter(userIdentityFilter);
 
         if(isUserWithSameDetailsAlreadyExists) {
-            logger.warn("A user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
+            logger.debug("A user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number:{}",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
+            logger.warn("A user account already exists that uses the same username or email or phone number as the received username, email and phone number");
             throw new UserWithSameDetailsAlreadyExistsException();
         }
 
-        logger.debug("No user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
-        logger.debug("Checking if a existing pending sign up user exactly matches all the received details:- username:{}, email:{},-----",receivedUsernameLC,receivedEmailLC);
-        Optional<PendingSignupUser> optional=findExactMatchingPendingSignupUser(signupDataDTO);
-        boolean isExactMatchPendingSignupUserExists=optional.isPresent();
-        if(isExactMatchPendingSignupUserExists) {
-            logger.debug("An existing pending sign up user was found that matched all the received details:- username:{},email:{},----",receivedUsernameLC,receivedEmailLC);
-            PendingSignupUser pendingSignupUser=optional.get();
-            logger.debug("Checking if the signup otp's for exactly matching pending signup user with username:{} and email{} have expired",receivedUsernameLC,receivedEmailLC);
-            Optional<Boolean> optionalBoolean=signupOtpRepository.isOtpsForPendingSignupUserIdExpired(pendingSignupUser.getId());
+        logger.debug("No user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number:{}",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
+        logger.debug("Checking if a pending sign up user exists whose username,email and phone no exactly matches the received ones:- username:{}, email:{}, phone no:{}",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
+        Optional<PendingSignupUser> optional=findMatchingPendingSignupUser(userIdentityFilter);
+        boolean isMatchingPendingSignupUserExists=optional.isPresent();
+        if(isMatchingPendingSignupUserExists) {
+            logger.debug("An existing pending sign up user was found whose username,email and phone no exactly match the received ones:- username:{},email:{},phone no:{}",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
+            PendingSignupUser matchingPendingSignupUser=optional.get();
+            logger.debug("Checking if the signup otps for matching pending signup user with username:{} and email{}, phone no:{} have expired",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
+            Optional<Boolean> optionalBoolean=signupOtpRepository.isOtpsForPendingSignupUserIdExpired(matchingPendingSignupUser.getId());
             boolean isSignupOtpsExpired=optionalBoolean.get();
             if(isSignupOtpsExpired) {
-                logger.debug("Signup otp's for exactly matching pending signup user with username:{} and email{} have expired",receivedUsernameLC,receivedEmailLC);
-                updateSignupOtpsForPendingSignupUser(pendingSignupUser);
-                logger.info("Signup otp's were replaced with new ones and the expiry was also reset for the exactly matching pending sign up user with username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
+                logger.debug("Signup otps for matching pending signup user with username:{} and email:{} and phone no:{} have expired",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
+                updateSignupOtpsForPendingSignupUser(matchingPendingSignupUser);
+                logger.info("Signup otps were replaced with new ones and the expiry was also reset for the matching pending sign up user");
                 return;
             }
-            logger.warn("Signup otp's are not expired for the exactly matching pending signup user with username:{} and email{} and thus new signup otps are not generated,sent and stored as the current signup otp's are still active",receivedUsernameLC,receivedEmailLC);
+            logger.warn("Signup otps are not expired for the matching pending signup user and thus new signup otps are not generated,sent and stored as the current signup otp's are still active");
             throw new SignupOtpsNotExpiredException();
         }
 
-        logger.debug("A pending signup user who exactly matched the received details:-username:{},email:{},---, could not be found ",receivedUsernameLC,receivedEmailLC);
-        logger.debug("Checking if any pending sign up user already exists in database who have same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
+        logger.debug("A pending signup user whose username, email and phone no exactly matched the received ones(username:{},email:{},phone no:{}) could not be found ",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
+        logger.debug("Checking if any pending sign up user already exists in database who have same username or email or phone number as the received username:{}, email:{} and phone number:{}",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
         List<PendingSignupUser> pendingSignupUserList=
                 pendingSignupUserRepository.findByOringUserIdentityFilter(userIdentityFilter);
 
         boolean isPendingSignUsersWithSameDetailsNotExists= pendingSignupUserList.isEmpty();
         if(isPendingSignUsersWithSameDetailsNotExists) {
-            logger.debug("No pending signup user existed with same username or email or phone number as received username:{}, email:{} and phone number so new pending signup user will be created and phone number otp and email otp will also be generated,stored and sent",receivedUsernameLC,receivedEmailLC);
+            logger.debug("No pending signup user existed with same username or email or phone number as received username:{}, email:{} and phone number:{} so new pending signup user will be created and phone number otp and email otp will also be generated,stored and sent",receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
             PendingSignupUser createdPendingSignupUser;
             try {
                 createdPendingSignupUser = createAndReturnPendingSignupUser(signupDataDTO);
-                logger.info("New pending signup user created with id:{},username:{}, and email:{}",createdPendingSignupUser.getId(),createdPendingSignupUser.getUserName(),createdPendingSignupUser.getEmail());
+                logger.debug("New pending signup user created with id:{},username:{}, and email:{}",createdPendingSignupUser.getId(),createdPendingSignupUser.getUserName(),createdPendingSignupUser.getEmail());
+                logger.info("New pending signup user created");
             } catch(DataIntegrityViolationException e) {
-                logger.warn("Pending signup user creation process failed for user with username:{} and email:{} due to concurrent execution by a user with the same username or email or phone number",receivedUsernameLC,receivedEmailLC);
+                logger.debug("Pending signup user creation process failed for user with username:{} and email:{} due to concurrent execution by a user with the same username or email or phone number",receivedUsernameLC,receivedEmailLC);
+                logger.warn("Pending signup user creation process failed for user due to concurrent execution by a user with the same username or email or phone number");
                 throw new PendingSignupUserWithSameDetailsAlreadyExistsException();
             }
             createSignupOtpsForCreatedPendingSignupUser(createdPendingSignupUser);
-            logger.info("Phone number and email otps were generated,stored and sent for newly created pending signup user with id:{}, username:{} and email:{}",createdPendingSignupUser.getId(),createdPendingSignupUser.getUserName(),createdPendingSignupUser.getEmail());
+            logger.debug("Phone number and email otps were generated,stored and sent for newly created pending signup user with id:{}, username:{} and email:{}",createdPendingSignupUser.getId(),createdPendingSignupUser.getUserName(),createdPendingSignupUser.getEmail());
+            logger.info("Phone number and email otps were generated,stored and sent for newly created pending signup user");
             return;
         }
 
         logger.debug("Atleast one pending signup user with same username or email or phone number as the received username:{},email:{} and phone number already exists in the database. Trying to check whether all of their signup otp's are expired.",receivedUsernameLC,receivedEmailLC);
         if(!isOtpsForAllPendingSignupUsersExpired(pendingSignupUserList)) {
-            logger.warn("Pending signup user creation process failed for user with username:{} and email:{} as atleast one pending signup user with the same username or email or phone number and non expired otp's already exists in the database",receivedUsernameLC,receivedEmailLC);
+            logger.debug("Pending signup user creation process failed for user with username:{} and email:{} as atleast one pending signup user with the same username or email or phone number and non expired otps already exists in the database",receivedUsernameLC,receivedEmailLC);
+            logger.warn("Pending signup user creation process failed for user as atleast one pending signup user with the same username or email or phone number and non expired otps already exists in the database");
             throw new PendingSignupUserWithSameDetailsAlreadyExistsException();
         }
 
@@ -288,14 +292,17 @@ public class UserSignupService {
             deletePendingSignupUsersWhoseOtpsWereExpired(pendingSignupUserList);
             logger.debug("All {} pending signup up users whose otp's had expired were deleted successfully",pendingSignupUserList.size());
         } catch(InvalidDataAccessApiUsageException e) {
-            logger.warn("Pending signup user creation process failed for user with username:{} and emai:{} due to concurrent execution of the creation process by a user with the same username or email or phone number",receivedUsernameLC,receivedEmailLC);
+            logger.debug("Pending signup user creation process failed for user with username:{} and email:{} due to concurrent execution of the creation process by a user with the same username or email or phone number",receivedUsernameLC,receivedEmailLC);
+            logger.warn("Pending signup user creation process failed for user due to concurrent execution of the creation process by a user with the same username or email or phone number");
             throw new PendingSignupUserWithSameDetailsAlreadyExistsException();
         }
 
         PendingSignupUser createdPendingSignupUser=createAndReturnPendingSignupUser(signupDataDTO);
-        logger.info("New pending signup user created with id:{},username:{}, and email:{}",createdPendingSignupUser.getId(),createdPendingSignupUser.getUserName(),createdPendingSignupUser.getEmail());
+        logger.debug("New pending signup user created with id:{},username:{}, and email:{}",createdPendingSignupUser.getId(),createdPendingSignupUser.getUserName(),createdPendingSignupUser.getEmail());
+        logger.info("New pending signup user created");
         createSignupOtpsForCreatedPendingSignupUser(createdPendingSignupUser);
-        logger.info("Phone number and email otps were generated,stored and sent for newly created pending signup user with id:{}, username:{} and email:{}",createdPendingSignupUser.getId(),createdPendingSignupUser.getUserName(),createdPendingSignupUser.getEmail());
+        logger.debug("Phone number and email otps were generated,stored and sent for newly created pending signup user with id:{}, username:{} and email:{}",createdPendingSignupUser.getId(),createdPendingSignupUser.getUserName(),createdPendingSignupUser.getEmail());
+        logger.info("Phone number and email otps were generated,stored and sent for newly created pending signup user");
     }
 
     private void updateSignupOtpsForPendingSignupUser(PendingSignupUser pendingSignupUser) {
