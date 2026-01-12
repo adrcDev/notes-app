@@ -311,22 +311,7 @@ public class UserSignupService {
         int rowsUpdated=signupOtpRepository.updatePhoneNumberOtpByPendingSignupUserId(newPhoneNumberOtp,pendingSignupUser.getId());
         rowsUpdated=signupOtpRepository.updateEmailOtpByPendingSignupUserId(newEmailOtp,pendingSignupUser.getId());
     }
-
-    private Optional<PendingSignupUser> findExactMatchingPendingSignupUser(SignupDataDTO signupDataDTO) {
-        Optional<PendingSignupUser> optional=pendingSignupUserRepository.findBySignUpData(signupDataDTO);
-        if(optional.isEmpty())
-            return Optional.empty();
-
-        PendingSignupUser pendingSignupUser=optional.get();
-        String receivedPassword=signupDataDTO.getPassword();
-        String unicodeNormalizedPassword= Normalizer.normalize(receivedPassword, Normalizer.Form.NFC);
-        boolean isPendingSignupUserWithExactMatchingDetailsExists=argon2IdPasswordEncoder.matches(unicodeNormalizedPassword,pendingSignupUser.getPasswordHash());
-        if(isPendingSignupUserWithExactMatchingDetailsExists)
-            return Optional.of(pendingSignupUser);
-
-        return Optional.empty();
-    }
-
+    
     private Optional<PendingSignupUser> findMatchingPendingSignupUser(UserIdentityFilter userIdentityFilter) {
         Optional<PendingSignupUser> optional=pendingSignupUserRepository.findByAndingUserIdentityFilter(userIdentityFilter);
         return optional;
