@@ -1,12 +1,13 @@
 package com.awesometodo.repository;
 
-import com.awesometodo.dto.UserIdentityDTO;
 import com.awesometodo.entity.User;
+import com.awesometodo.repository.filter.UserIdentityFilter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 
@@ -47,10 +48,10 @@ public class UserRepository {
 
     }
 
-    public boolean isExistsByUsernameOrEmailOrPhoneNo(UserIdentityDTO userIdentityDTO) {
-        String username=userIdentityDTO.getUsername();
-        String email=userIdentityDTO.getEmail();
-        String phoneNo=userIdentityDTO.getPhoneNo();
+    public boolean isExistsByOringUserIdentityFilter(UserIdentityFilter userIdentityFilter) {
+        String username=userIdentityFilter.getUsername().toLowerCase(Locale.ROOT);
+        String email=userIdentityFilter.getEmail().toLowerCase(Locale.ROOT);
+        String phoneNo=userIdentityFilter.getPhoneNo();
 
         List<User> users=em.createNativeQuery("SELECT * FROM users WHERE user_name=:username OR email=:email OR phone_no=:phoneNo",User.class).setParameter("username",username).setParameter("email",email).setParameter("phoneNo",phoneNo)
                 .getResultList();

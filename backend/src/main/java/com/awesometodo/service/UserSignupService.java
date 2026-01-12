@@ -55,10 +55,10 @@ public class UserSignupService {
         String receivedUserNameLC=signupDataDTO.getUserName().toLowerCase();
         String receivedEmailLC=signupDataDTO.getEmail().toLowerCase();
         String receivedPhoneNo=signupDataDTO.getPhoneNumber();
-
+        UserIdentityFilter userIdentityFilter=new UserIdentityFilter(receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
         logger.debug("Signup initialisation attempt made with username:{}, email:{}",receivedUserNameLC,receivedEmailLC);
         logger.debug("Checking if any user account already exists in database who have same username or email or phone number as the received username:{}, email:{} and phone number",receivedUserNameLC,receivedEmailLC);
-        boolean isUserWithSameDetailsAlreadyExists=userRepository.isExistsByUsernameOrEmailOrPhoneNo(new UserIdentityDTO(receivedUserNameLC, receivedEmailLC,receivedPhoneNo));
+        boolean isUserWithSameDetailsAlreadyExists=userRepository.isExistsByOringUserIdentityFilter(userIdentityFilter);
 
         if(isUserWithSameDetailsAlreadyExists) {
             logger.warn("Signup initialisation attempt failed as the received username:{} or email:{} or phone number is already in use by an existing user account in the database",receivedUserNameLC,receivedEmailLC);
@@ -67,7 +67,6 @@ public class UserSignupService {
 
         logger.debug("No currently present user account in the database uses the received username:{} or email:{} or phone number:{}, so the signup process continues",receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
         logger.debug("Trying to find a pending signup user whose username,email and phone no exactly match the received ones: username: {}, email: {}, phone no: {}",receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
-        UserIdentityFilter userIdentityFilter=new UserIdentityFilter(receivedUserNameLC,receivedEmailLC,receivedPhoneNo);
         Optional<PendingSignupUser> optional=findMatchingPendingSignupUser(userIdentityFilter);
         boolean isMatchingPendingSignupUserExists=optional.isPresent();
         if(isMatchingPendingSignupUserExists) {
@@ -225,9 +224,10 @@ public class UserSignupService {
         String receivedUsernameLC=signupDataDTO.getUserName().toLowerCase();
         String receivedEmailLC=signupDataDTO.getEmail().toLowerCase();
         String receivedPhoneNo=signupDataDTO.getPhoneNumber();
+        UserIdentityFilter userIdentityFilter=new UserIdentityFilter(receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
         logger.debug("Resending of otp's attempted by pending sign up user with username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
         logger.debug("Checking if any user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
-        boolean isUserWithSameDetailsAlreadyExists=userRepository.isExistsByUsernameOrEmailOrPhoneNo(new UserIdentityDTO(receivedUsernameLC,receivedEmailLC,signupDataDTO.getPhoneNumber()));
+        boolean isUserWithSameDetailsAlreadyExists=userRepository.isExistsByOringUserIdentityFilter(userIdentityFilter);
 
         if(isUserWithSameDetailsAlreadyExists) {
             logger.warn("A user account already exists that uses the same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
@@ -256,7 +256,6 @@ public class UserSignupService {
 
         logger.debug("A pending signup user who exactly matched the received details:-username:{},email:{},---, could not be found ",receivedUsernameLC,receivedEmailLC);
         logger.debug("Checking if any pending sign up user already exists in database who have same username or email or phone number as the received username:{}, email:{} and phone number",receivedUsernameLC,receivedEmailLC);
-        UserIdentityFilter userIdentityFilter=new UserIdentityFilter(receivedUsernameLC,receivedEmailLC,receivedPhoneNo);
         List<PendingSignupUser> pendingSignupUserList=
                 pendingSignupUserRepository.findByOringUserIdentityFilter(userIdentityFilter);
 
