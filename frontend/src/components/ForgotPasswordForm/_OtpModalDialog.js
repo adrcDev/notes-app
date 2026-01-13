@@ -88,11 +88,28 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
       body: forgotPasswordDataObjAsJson
     })
     .then((response)=>{
+      let somethingWentWrongMsg="Something went wrong, please try again";
       parent_loadingModalDialogRef.current.close();
       if(response.status===500) {
         parent_setTextModalDialogText("500: Internal server error");
         parent_setIsTextModalDialogToBeShown(true);
         parent_setIsOtpModalDialogToBeShown(false); 
+        return;
+      }
+
+      if(response.status===400) {
+        parent_setTextModalDialogText(somethingWentWrongMsg);
+        parent_setIsTextModalDialogToBeShown(true);
+        parent_setIsOtpModalDialogToBeShown(false);
+        console.log("400: Bad request");
+        return;
+      }
+
+      if(response.status===409) {
+        parent_setTextModalDialogText(somethingWentWrongMsg);
+        parent_setIsTextModalDialogToBeShown(true);
+        parent_setIsOtpModalDialogToBeShown(false);
+        console.log("409: Conflict");
         return;
       }
 
