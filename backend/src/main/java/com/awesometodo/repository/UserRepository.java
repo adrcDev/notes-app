@@ -68,8 +68,10 @@ public class UserRepository {
     }
 
     public Optional<User> findByUsernameAndEmail(String username,String email) {
+        String usernameLC=username.toLowerCase(Locale.ROOT);
+        String emailLC=email.toLowerCase(Locale.ROOT);
         try {
-            User user = (User) em.createNativeQuery("SELECT * FROM users WHERE user_name=:username AND email=:email", User.class).setParameter("username", username).setParameter("email", email).getSingleResult();
+            User user = (User) em.createNativeQuery("SELECT * FROM users WHERE user_name=:usernameLC AND email=:emailLC", User.class).setParameter("usernameLC", usernameLC).setParameter("emailLC", emailLC).getSingleResult();
             return Optional.of(user);
         } catch(NoResultException e) {
             return Optional.empty();
