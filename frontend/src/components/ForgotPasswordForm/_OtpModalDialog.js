@@ -320,7 +320,15 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
       })
       .then((response)=>{
         if(response.status===500) {
-          throw new Error("500:Internal server error!");
+          throw new Error("500");
+        }
+
+        if(response.status===400) {
+          throw new Error("400");
+        }
+
+        if(response.status===409) {
+          throw new Error("409");
         }
 
         if(response.ok) {
@@ -328,7 +336,7 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
         }
 
       },(err)=>{
-        throw new Error("Network error: Please check your network connection");
+        throw new Error("network error");
       })
       .then((passwordResetTokenObj)=>{
         parent_loadingModalDialogRef.current.close();
@@ -338,17 +346,32 @@ export default function OtpModalDialog({parent_setIsOtpModalDialogToBeShown,pare
         parent_setIsPasswordResetModalDialogToBeShown(true);
       },(err)=>{
         parent_loadingModalDialogRef.current.close();
-        if(err.message==="500:Internal server error!") {
+        let somethingWentWrongMsg="Something went wrong: please try again";
+        let networkErrorMsg="Network error: Please check your network connection";
+        if(err.message==="500") {
           parent_setIsOtpModalDialogToBeShown(false);
           parent_setIsTextDialogToBeShown(true);
-          parent_setTextDialogText(err.message);
-        } 
-        else if(err.message==="Network error: Please check your network connection") {
-          parent_setIsOtpModalDialogToBeShown(false);
-          parent_setIsTextDialogToBeShown(true);
-          parent_setTextDialogText(err.message);
+          parent_setTextDialogText(somethingWentWrongMsg);
+          console.log("500: Internal server error");
         }
-        else { /*json parsing error*/
+        else if(err.message==="400") {
+          parent_setIsOtpModalDialogToBeShown(false);
+          parent_setIsTextDialogToBeShown(true);
+          parent_setTextDialogText(somethingWentWrongMsg);
+          console.log("400: Bad request");
+        }
+        else if(err.message==="409") {
+          parent_setIsOtpModalDialogToBeShown(false);
+          parent_setIsTextDialogToBeShown(true);
+          parent_setTextDialogText(somethingWentWrongMsg);
+          console.log("409: Conflict");
+        }
+        else if(err.message==="network error") {
+          parent_setIsOtpModalDialogToBeShown(false);
+          parent_setIsTextDialogToBeShown(true);
+          parent_setTextDialogText(networkErrorMsg);
+        }
+        else { /*json parsing error(No json object in body)*/
           parent_setIsTextModalDialogToBeShown(true);
           parent_setTextModalDialogText("One or both of the entered otps are invalid!");
         }
