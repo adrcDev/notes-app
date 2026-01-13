@@ -119,26 +119,26 @@ public class UserForgotPasswordService {
         Optional<User> optional=userRepository.findByUsernameAndEmail(receivedUsernameLC,receivedEmailLC);
         boolean userAccountDoesntExist=optional.isEmpty();
         if(userAccountDoesntExist) {
-            logger.warn("No user account exists that has the same username and email as the received username:{} and email:{} respectively.Aborting the forgot password otp's verification process",receivedUsernameLC,receivedEmailLC);
+            logger.warn("No user account exists that has the same username and email as the received username and email.Aborting the forgot password otps verification process");
             throw new UserDoesntExistException();
         }
 
         logger.debug("An user account exists the has that has the same username and email as the received username:{} and email:{} respectively",receivedUsernameLC,receivedEmailLC);
         User user=optional.get();
-        logger.debug("Checking if forgot password otp's exist for user with username:{} and email:{}",user.getUserName(),user.getEmail());
+        logger.debug("Checking if forgot password otps exist for user with username:{} and email:{}",user.getUserName(),user.getEmail());
         List<ForgotPasswordOtp> forgotPasswordOtpList=forgotPasswordOtpRepository.findByUserIdAndOrderByTypeASC(user.getId());
 
         boolean isUserDoesntHaveForgotPasswordOtps=forgotPasswordOtpList.isEmpty();
         if(isUserDoesntHaveForgotPasswordOtps) {
-            logger.warn("No forgot password otp's exist for user with username:{} and email:{}. Aborting the forgot password otp's verification process",user.getUserName(),user.getEmail());
+            logger.warn("No forgot password otps exist for user. Aborting the forgot password otps verification process");
             throw new UserDoesntHaveForgotPasswordOtpsException();
         }
 
-        logger.debug("Forgot pasword otp's exist for the user with username:{} and email:{}. Checking if both the forgot password otp's are expired",user.getUserName(),user.getEmail());
+        logger.debug("Forgot password otps exist for the user with username:{} and email:{}. Checking if both the forgot password otps are expired",user.getUserName(),user.getEmail());
         Optional<Boolean> optionalBoolean=forgotPasswordOtpRepository.isForgotPasswordOtpsExpiredForUserId(user.getId());
         boolean isForgotPasswordOtpsExpiredForUser=optionalBoolean.get();
         if(isForgotPasswordOtpsExpiredForUser) {
-            logger.warn("The forgot password otp's are expired for user with username:{} and email:{}. Aborting the forgot password otp's verification process",user.getUserName(),user.getEmail());
+            logger.warn("The forgot password otps are expired for the user. Aborting the forgot password otp's verification process");
             throw new ForgotPasswordOtpsExpiredException();
         }
 
@@ -146,7 +146,7 @@ public class UserForgotPasswordService {
         String receivedEmailOtp=forgotPasswordOtpVerificationDataDTO.getEmailOtp();
         String storedEmailOtp=forgotPasswordOtpList.get(0).getOtp();
         if(!receivedEmailOtp.equals(storedEmailOtp)) {
-            logger.warn("The received email otp and stored email forgot password otp did not match for the user with username:{} and email:{}. Aborting the forgot password otp's verification process",user.getUserName(),user.getEmail());
+            logger.warn("The received email otp and stored email forgot password otp did not match for the user. Aborting the forgot password otps verification process");
             throw new ForgotPasswordOtpMismatchException("The received email forgot password otp did not match the stored email forgot password otp");
         }
 
@@ -154,7 +154,7 @@ public class UserForgotPasswordService {
         String receivedPhoneNoOtp= forgotPasswordOtpVerificationDataDTO.getPhoneNumberOtp();
         String storedPhoneNoOtp=forgotPasswordOtpList.get(1).getOtp();
         if(!receivedPhoneNoOtp.equals(storedPhoneNoOtp)) {
-            logger.warn("The received phone number otp and stored phone number forgot password otp did not match for the user with username:{} and email:{}. Aborting the forgot password otp's verification process",user.getUserName(),user.getEmail());
+            logger.warn("The received phone number otp and stored phone number forgot password otp did not match for the user. Aborting the forgot password otps verification process");
             throw new ForgotPasswordOtpMismatchException("The received phone number forgot password otp did not match the stored phone number forgot password otp");
         }
 
@@ -172,7 +172,7 @@ public class UserForgotPasswordService {
         logger.debug("The stored phone number forgot password otp was deleted for user with username:{} and email:{}",user.getUserName(),user.getEmail());
         
         String passwordResetToken=createPasswordResetTokenForUser(user);
-        logger.info("Forgot password otp's verification was successful and new password reset token was created and associated to user with username:{} and email:{}",user.getUserName(),user.getEmail());
+        logger.info("Forgot password otp's verification was successful and new password reset token was created and associated to the user");
         return passwordResetToken;
     }
 

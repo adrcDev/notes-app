@@ -136,12 +136,13 @@ public class AuthV1Controller {
         String passwordResetToken=userForgotPasswordService.forgotPasswordVerifyOtps(forgotPasswordOtpVerificationDataDTO);
         HashMap<String,String> responseBodyMessageMap=new HashMap<>();
         responseBodyMessageMap.put("password reset token",passwordResetToken);
+        logger.debug("Json object containing the password reset token will be added to the http response message's body");
         logger.debug("/auth/v1/forgot-password/verify-otps endpoint finished running");
         return responseBodyMessageMap;
     }
 
     @ExceptionHandler({UserDoesntHaveForgotPasswordOtpsException.class, ForgotPasswordOtpsExpiredException.class,ForgotPasswordOtpMismatchException.class})
-    void forgotPasswordVerifyOtpsExceptionHandler(HttpServletResponse response) {
+    void forgotPasswordOtpsExceptionsHandler(HttpServletResponse response) {
         response.setStatus(200);
     }
 
