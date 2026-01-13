@@ -49,10 +49,26 @@ export default function ForgotPasswordForm() {
       body: dataAsJson
     })
     .then((response)=>{
+      let somethingWentWrongMsg="Something went wrong, please try again";
       loadingModalDialogRef.current.close();
       if(response.status===500) {
-        setTextDialogText("500: Internal server error!");
+        setTextDialogText(somethingWentWrongMsg);
         setIsTextDialogToBeShown(true);  
+        console.log("500: Internal server error");
+        return;
+      }
+
+      if(response.status===400) {
+        setTextDialogText(somethingWentWrongMsg);
+        setIsTextDialogToBeShown(true);
+        console.log("400: Bad request");
+        return;
+      }
+
+      if(response.status===409) {
+        setTextDialogText(somethingWentWrongMsg);
+        setIsTextDialogToBeShown(true);
+        console.log("409: Conflict");
         return;
       }
 
@@ -64,7 +80,8 @@ export default function ForgotPasswordForm() {
       loadingModalDialogRef.current.close();
       setTextDialogText("Network error: Please check your network connection");
       setIsTextDialogToBeShown(true);
-    })
+    });
+
   }
 
   return (
