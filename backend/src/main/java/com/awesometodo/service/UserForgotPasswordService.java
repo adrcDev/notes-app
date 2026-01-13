@@ -58,7 +58,7 @@ public class UserForgotPasswordService {
         Optional<User> optional=userRepository.findByUsernameAndEmail(receivedUsernameLC,receivedEmailLC);
         boolean isUserDoesntExist=optional.isEmpty();
         if(isUserDoesntExist) {
-            logger.warn("No user account exists whose username and email exactly match the received username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
+            logger.warn("No user account exists whose username and email exactly match the received username and email");
             throw new UserDoesntExistException();
         }
 
@@ -78,8 +78,8 @@ public class UserForgotPasswordService {
                 logger.debug("Deleted the stored phone number forgot password otp for user with username:{} and email:{}",user.getUserName(),user.getEmail());
                 logger.debug("Both forgot-password-otp's were deleted for the user account with username:{} and email:{}",user.getUserName(),user.getEmail());
             } catch(InvalidDataAccessApiUsageException e) {
-                String exceptionMessage="Forgot password initialisation process attempt failed for user with username:"+user.getUserName()+" and email:"+user.getEmail()+". The same user concurrently tried to start the forgot password initialisation process so the deletion of a otp failed in one of the threads as it had already been deleted by another thread";
-                throw new ConcurrentOperationException(exceptionMessage,e);
+                logger.warn("Forgot password initialisation process attempt failed for user. The same user concurrently tried to start the forgot password initialisation process so the deletion of a otp failed in one of the threads as it had already been deleted by another thread");
+                throw new ConcurrentOperationException();
             }
         }
         else {
@@ -91,8 +91,8 @@ public class UserForgotPasswordService {
             createForgotPasswordOtpsForUser(user);
             logger.info("Forgot-password-otp's were created,stored and sent for the user account with username:{} and email:{} ",user.getUserName(),user.getEmail());
         } catch(DataIntegrityViolationException e) {
-            String exceptionMessage="Forgot password initialisation process attempt failed for user with username:"+user.getUserName()+" and email:"+user.getEmail()+". The same user concurrently tried to start the forgot password initialisation process so the insertion of a otp failed in one of the threads as it had already been inserted before by another thread leading to violation of composite unique constraint on user_id(FK) and type columns";
-            throw new ConcurrentOperationException(exceptionMessage,e);
+            logger.warn("Forgot password initialisation process attempt failed for user. The same user concurrently tried to start the forgot password initialisation process so the insertion of a otp failed in one of the threads as it had already been inserted before by another thread leading to violation of composite unique constraint on user_id(FK) and type columns");
+            throw new ConcurrentOperationException();
         }
     }
 
@@ -165,8 +165,8 @@ public class UserForgotPasswordService {
             forgotPasswordOtpRepository.delete(storedEmailOtpObj);
             logger.debug("The stored email forgot password otp was deleted for user with username:{} and email:{}",user.getUserName(),user.getEmail());
         } catch(InvalidDataAccessApiUsageException e) {
-            String exceptionMessage="The same user with username:"+user.getUserName()+" and email:"+user.getEmail()+" tried to concurrently delete their forgot password email otp due to which one of the deletions threw an exception.Aborting the forgot password otp's verification process";
-            throw new ConcurrentOperationException(exceptionMessage,e);
+            logger.warn("The same user with same username and email tried to concurrently delete their forgot password email otp due to which one of the deletions threw an exception.Aborting the forgot password otps verification process");
+            throw new ConcurrentOperationException();
         }
         forgotPasswordOtpRepository.delete(storedPhoneNoOtpObj);
         logger.debug("The stored phone number forgot password otp was deleted for user with username:{} and email:{}",user.getUserName(),user.getEmail());

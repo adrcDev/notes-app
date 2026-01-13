@@ -140,15 +140,19 @@ public class AuthV1Controller {
         return responseBodyMessageMap;
     }
 
-    @ExceptionHandler({UserDoesntExistException.class,UserDoesntHaveForgotPasswordOtpsException.class, ForgotPasswordOtpsExpiredException.class,ForgotPasswordOtpMismatchException.class})
-    void forgotPasswordInitAndVerifyOtpsExceptionHandler(HttpServletResponse response) {
+    @ExceptionHandler({UserDoesntHaveForgotPasswordOtpsException.class, ForgotPasswordOtpsExpiredException.class,ForgotPasswordOtpMismatchException.class})
+    void forgotPasswordVerifyOtpsExceptionHandler(HttpServletResponse response) {
+        response.setStatus(200);
+    }
+
+    @ExceptionHandler({UserDoesntExistException.class})
+    void handleUserDoesntExistException(HttpServletResponse response) {
         response.setStatus(200);
     }
 
     @ExceptionHandler({ConcurrentOperationException.class})
-    void forgotPasswordInitAndVerifyOtpsConcurrentOperationExceptionHandler(HttpServletResponse response,ConcurrentOperationException e) {
-        response.setStatus(200);
-        logger.warn(e.getMessage(),e);
+    void handleConcurrentOperationException(HttpServletResponse response) {
+        response.setStatus(409);
     }
 
     @PostMapping("/auth/v1/forgot-password/reset-password")
