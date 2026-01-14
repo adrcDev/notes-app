@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as editNotePageStylesObj from "./EditNotePage.css";
-import { useLocation } from "react-router";
+import { Navigate, useLocation } from "react-router";
 import AppBar from "./_AppBar.js";
 import Quill from "quill";
 import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext.js";
@@ -15,6 +15,9 @@ export default function EditNotePage() {
   let navigateFuncReactRouter=useNavigate();
   let locationReactRouterObj=useLocation();
   let idOfNoteBeingEdited=locationReactRouterObj.state;
+  // console.log(`id of note being edited:${idOfNoteBeingEdited}`);
+  let isEditNotePageAccessedDirectlyByUrl=idOfNoteBeingEdited===null;
+  
 
   let context_jwtAccessTokenRef=React.useContext(JwtAccessTokenContext);
   let context_backendUrl=React.useContext(BackendUrlContext);
@@ -626,6 +629,11 @@ export default function EditNotePage() {
       throw new Error();
     }
 
+
+    if(isEditNotePageAccessedDirectlyByUrl) {
+      return (<Navigate to="/" replace={true}/>);
+    }
+    
     return (
       <div className={editNotePageStylesObj.editNotePageWrapper}>
         <AppBar/>
