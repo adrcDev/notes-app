@@ -241,7 +241,7 @@ public class AuthV1Controller {
         userLogoutService.logout(cookieValue);
         addInstructionToRemoveJwtRefreshTokenCookie(response);
         logger.debug("The jwt refresh token cookie was set in the http response message's Set-Cookie header with Max-Age cookie attribute having value of 0 seconds in order to make the browser delete the stored jwt refresh token cookie");
-        logger.info("The logout process has successfully completed for user with id:{}",userId);
+        logger.info("The logout process has successfully completed for the user");
         logger.debug("/auth/v1/logout endpoint finished running");
     }
 

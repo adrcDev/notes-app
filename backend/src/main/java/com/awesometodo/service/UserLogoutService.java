@@ -32,17 +32,8 @@ public class UserLogoutService {
         this.jwtService = jwtService;
     }
 
-    /* Known limitation:-
-    If a jwt refresh token with 'compromised' status value or 'invalidated' status value is received then all
-    of the user's associated jwt refresh token's will be set to a status value of 'compromised' thereby
-    logging out the user from all his logins. The problem is that some of these jwt refresh tokens will
-    still be stored in the user's browser's cookie storage.Assume a user who has been logged out of all his logins goes to any page of the website which will cause the /auth/v1/refresh endpoint to be called, then he will receive a 401 response and will then be taken to login page in the frontend so that he can re-login. After he logs in he gets new jwt refresh token cookie in his browser.  After this assume
-    the user tries to access the website on one his older devices which contains
-    a 'compromised' status valued refresh token in the cookie as he had logged in before, the page will use
-    the /auth/v1/refresh endpoint and again cause the user to be logged out of all his logins.
-    */
     @Retryable(maxAttempts = 5,backoff = @Backoff(300L),retryFor = {PessimisticLockingFailureException.class},recover = "logoutRecoveryMethod")
-    @Transactional(isolation = Isolation.REPEATABLE_READ,noRollbackFor = {InvalidatedStatusJwtRefreshTokenException.class})
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void logout(String cookieValue) {
         logger.debug("Checking if the cookie's value is a valid jwt refresh token");
         if(!jwtService.isValidJwtRefreshToken(cookieValue)) {
@@ -57,16 +48,13 @@ public class UserLogoutService {
         UUID jtiClaimValueAsUUID=UUID.fromString(jtiClaimValue);
         Optional<JwtRefreshToken> optional=jwtRefreshTokenRepository.findByJtiClaimValueUUIDAndUserId(jtiClaimValueAsUUID,associatedUserId,true);
         JwtRefreshToken storedJwtRefreshToken=optional.get();
-        logger.debug("Obtained the corresponding jwt refresh token row using the received jwt refresh token. It is associated to user with id:{}, username:{}, email:{}",storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getId(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getUserName(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getEmail());
+        logger.debug("Obtained the corresponding jwt refresh token row using the received jwt refresh token and put a row lock on it. It is associated to user with id:{}, username:{}, email:{}",storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getId(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getUserName(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getEmail());
 
         JwtRefreshToken.Status jwtRefreshTokenStatus=storedJwtRefreshToken.getStatus();
-        boolean isJwtRefreshTokenStatusNotValid=
+        boolean isJwtRefreshTokenStatusOfInvalidated=
                 (jwtRefreshTokenStatus==JwtRefreshToken.Status.INVALIDATED);
-        if(isJwtRefreshTokenStatusNotValid) {
-            User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
-            logger.warn("The jwt refresh token row's status is not 'valid' so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
-//            jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
-            logger.warn("All stored jwt refresh tokens belong to user with id:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the logout process",associatedUser.getId());
+        if(isJwtRefreshTokenStatusOfInvalidated) {
+            logger.warn("The jwt refresh token row's status is 'invalidated'. Aborting the logout process");
             throw new InvalidatedStatusJwtRefreshTokenException();
         }
 
