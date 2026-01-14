@@ -162,8 +162,8 @@ public class AuthV1Controller {
     }
 
     @ExceptionHandler({PasswordResetTokenDoesntExistException.class, PasswordResetTokenExpiredException.class})
-    public void forgotPasswordResetPasswordExceptionHandler(HttpServletResponse response) {
-        response.setStatus(401);
+    public void passwordResetTokenExceptionsHandler(HttpServletResponse response) {
+        response.setStatus(200);
     }
 
 

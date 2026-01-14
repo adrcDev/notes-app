@@ -241,7 +241,7 @@ public class UserForgotPasswordService {
         logger.debug("Trying to delete the stored password reset token for user with username:{} and email:{} as its purpose has been served",associatedUser.getUserName(),associatedUser.getEmail());
         passwordResetTokenRepository.delete(storedPasswordResetToken);
         logger.debug("Deleted the stored password reset token for user with username:{} and email:{}",associatedUser.getUserName(),associatedUser.getEmail());
-        logger.info("Password reset process completed successfully for user with username:{} and email:{} and the user was also logged out of all his existing logins",associatedUser.getUserName(),associatedUser.getEmail());
+        logger.info("Password reset process completed successfully for the user and the user was also logged out of all his existing logins");
     }
 
     @Recover
