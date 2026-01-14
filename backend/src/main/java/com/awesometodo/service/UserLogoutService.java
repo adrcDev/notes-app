@@ -61,11 +61,11 @@ public class UserLogoutService {
 
         JwtRefreshToken.Status jwtRefreshTokenStatus=storedJwtRefreshToken.getStatus();
         boolean isJwtRefreshTokenStatusNotValid=
-                (jwtRefreshTokenStatus==JwtRefreshToken.Status.INVALIDATED) || (jwtRefreshTokenStatus==JwtRefreshToken.Status.COMPROMISED);
+                (jwtRefreshTokenStatus==JwtRefreshToken.Status.INVALIDATED);
         if(isJwtRefreshTokenStatusNotValid) {
             User associatedUser=storedJwtRefreshToken.getUserAssociatedWithRefreshToken();
             logger.warn("The jwt refresh token row's status is not 'valid' so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
-            jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
+//            jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
             logger.warn("All stored jwt refresh tokens belong to user with id:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the logout process",associatedUser.getId());
             throw new JwtRefreshTokenStatusNotValidException();
         }

@@ -26,7 +26,7 @@ public class JwtRefreshToken {
     private String refreshTokenHash;
 
     public enum Status {
-        VALID, INVALIDATED, COMPROMISED;
+        VALID, INVALIDATED;
     }
 
     @Column(name="status",nullable = false)
