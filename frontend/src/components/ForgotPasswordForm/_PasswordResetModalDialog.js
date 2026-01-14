@@ -64,11 +64,11 @@ parent_passwordResetTokenRef
     })
     .then((response)=>{
       if(response.status===500) {
-        throw new Error("500: Internal server error!");
+        throw new Error("500");
       }
 
-      if(response.status===401) {
-        throw new Error("Password reset session expired, please start the process from the beginning");
+      if(response.status===400) {
+        throw new Error("400");
       }
 
       if(response.ok) {
@@ -83,24 +83,25 @@ parent_passwordResetTokenRef
       }
 
     },(err)=>{
-      throw new Error("Network error: Please check your network connection");
+      throw new Error("network error");
     })
     .catch((err)=>{
       parent_loadingModalDialogRef.current.close();
       parent_setIsPasswordResetModalDialogToBeShown(false);
       parent_setIsOtpModalDialogToBeShown(false);
       parent_setIsTextDialogToBeShown(true);
-      if(err.message==="500: Internal server error!") {  
-        parent_setTextDialogText(err.message);
+      let somethingWentWrongMessage="Something went wrong, please try again";
+      if(err.message==="500") {  
+        parent_setTextDialogText(somethingWentWrongMessage);
+        console.log("500: Internal server error");
       }
-      else if(err.message==="Network error: Please check your network   connection") {
-        parent_setTextModalDialogText(err.message);
+      else if(err.message==="400") {
+        parent_setTextDialogText(somethingWentWrongMessage);
+        console.log("400: Bad request");
+      }
+      else if(err.message==="network error") {
+        parent_setTextDialogText("Network error: please check your network connection");
       } 
-      else if(err.message==="Password reset session expired, please start the process from the beginning") {
-        parent_setTextDialogText(err.message);
-      }
-
-  
     });
 
   }
