@@ -113,31 +113,5 @@ public class TodoV1Controller {
         response.setStatus(404);
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    public void handleMethodArguemntNotValidException(HttpServletResponse response, MethodArgumentNotValidException e) {
-        response.setStatus(400);
-        logger.warn("The request message body's json which was deserialized to a java object was not considered valid by hibernate validator or the request message's query parameter values failed validation, so a MethodArgumentNotValidException was thrown by spring framework. The exception's message:-\n{}",e.getMessage());
-    }
-
-    @ExceptionHandler({ConstraintViolationException.class})
-    public void handleConstraintViolationException(HttpServletRequest request,HttpServletResponse response, ConstraintViolationException e) {
-        response.setStatus(400);
-        logger.warn("A {} was thrown while accessing {} {} endpoint:-",e.getClass().getSimpleName(),request.getMethod(),request.getRequestURI(),e);
-    }
-
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class})
-    public void handleMethodArgumentTypeMismatchException(HttpServletRequest request,HttpServletResponse response,MethodArgumentTypeMismatchException e) {
-        response.setStatus(400);
-        logger.warn("A {} was thrown while accessing {} {} endpoint:-",e.getClass().getSimpleName(),request.getMethod(),request.getRequestURI(),e);
-    }
-
-    @ExceptionHandler({HttpMessageNotReadableException.class})
-    public void handleHttpMessageNotReadableException(HttpServletResponse response,HttpMessageNotReadableException e) {
-        response.setStatus(400);
-        logger.warn("The json deserialization of http request message's body failed:- ",e);
-    }
-
-
-
 
 }

@@ -33,27 +33,22 @@ public class TodoAppBackendApplication {
 		*/
 //		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 //		StatusPrinter.print(lc);
-		EntityManager em=springIOCContainer.getBean(EntityManager.class);
-		TransactionTemplate transactionTemplate=springIOCContainer.getBean(TransactionTemplate.class);
-		UserRepository userRepository=springIOCContainer.getBean(UserRepository.class);
-		JwtService jwtService=springIOCContainer.getBean(JwtService.class);
-		PendingSignupUserRepository pendingSignupUserRepository=springIOCContainer.getBean(PendingSignupUserRepository.class);
-		SignupOtpRepository signupOtpRepository=springIOCContainer.getBean(SignupOtpRepository.class);
-		PasswordResetTokenRepository passwordResetTokenRepository=springIOCContainer.getBean(PasswordResetTokenRepository.class);
-		JwtRefreshTokenRepository jwtRefreshTokenRepository=springIOCContainer.getBean(JwtRefreshTokenRepository.class);
-		TodoRepository todoRepository=springIOCContainer.getBean(TodoRepository.class);
-		Argon2PasswordEncoder argon2IdPasswordEncoder=springIOCContainer.getBean(Argon2PasswordEncoder.class);
-
-		transactionTemplate.executeWithoutResult((transactionStatus)-> {
-			/*Test repository methods or service methods or EntityManager operations here */
-
-
-		});
-
-
-
-
-
+//		EntityManager em=springIOCContainer.getBean(EntityManager.class);
+//		TransactionTemplate transactionTemplate=springIOCContainer.getBean(TransactionTemplate.class);
+//		UserRepository userRepository=springIOCContainer.getBean(UserRepository.class);
+//		JwtService jwtService=springIOCContainer.getBean(JwtService.class);
+//		PendingSignupUserRepository pendingSignupUserRepository=springIOCContainer.getBean(PendingSignupUserRepository.class);
+//		SignupOtpRepository signupOtpRepository=springIOCContainer.getBean(SignupOtpRepository.class);
+//		PasswordResetTokenRepository passwordResetTokenRepository=springIOCContainer.getBean(PasswordResetTokenRepository.class);
+//		JwtRefreshTokenRepository jwtRefreshTokenRepository=springIOCContainer.getBean(JwtRefreshTokenRepository.class);
+//		TodoRepository todoRepository=springIOCContainer.getBean(TodoRepository.class);
+//		Argon2PasswordEncoder argon2IdPasswordEncoder=springIOCContainer.getBean(Argon2PasswordEncoder.class);
+//
+//		transactionTemplate.executeWithoutResult((transactionStatus)-> {
+//			/*Test repository methods or service methods or EntityManager operations here */
+//
+//
+//		});
 	}
 
 

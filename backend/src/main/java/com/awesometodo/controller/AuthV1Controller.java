@@ -262,21 +262,4 @@ public class AuthV1Controller {
         response.setStatus(401);
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    public void handleMethodArguemntNotValidException(HttpServletResponse response,MethodArgumentNotValidException e) {
-        response.setStatus(400);
-        logger.warn("The request message body's json which was deserialized to a java object was not considered valid by hibernate validator, so a MethodArgumentNotValidException was thrown by spring framework. The exception's message:-\n{}",e.getMessage());
-
-    }
-
-    @ExceptionHandler({HttpMessageNotReadableException.class})
-    public void handleHttpMessageNotReadableExceptionException(HttpServletResponse response,HttpMessageNotReadableException e) {
-        response.setStatus(400);
-        logger.warn("The request message's body could not be deserialized to the expected java object. The exception's message:-\n{} ",e.getMessage());
-    }
-
-
-
-
-
 }
