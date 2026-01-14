@@ -3,7 +3,7 @@ package com.awesometodo.service;
 import com.awesometodo.entity.JwtRefreshToken;
 import com.awesometodo.entity.User;
 import com.awesometodo.exception.InvalidJwtRefreshTokenException;
-import com.awesometodo.exception.JwtRefreshTokenStatusNotValidException;
+import com.awesometodo.exception.InvalidatedStatusJwtRefreshTokenException;
 import com.awesometodo.repository.JwtRefreshTokenRepository;
 import com.awesometodo.repository.UserRepository;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class UserLogoutService {
     the /auth/v1/refresh endpoint and again cause the user to be logged out of all his logins.
     */
     @Retryable(maxAttempts = 5,backoff = @Backoff(300L),retryFor = {PessimisticLockingFailureException.class},recover = "logoutRecoveryMethod")
-    @Transactional(isolation = Isolation.REPEATABLE_READ,noRollbackFor = {JwtRefreshTokenStatusNotValidException.class})
+    @Transactional(isolation = Isolation.REPEATABLE_READ,noRollbackFor = {InvalidatedStatusJwtRefreshTokenException.class})
     public void logout(String cookieValue) {
         logger.debug("Checking if the cookie's value is a valid jwt refresh token");
         if(!jwtService.isValidJwtRefreshToken(cookieValue)) {
@@ -67,7 +67,7 @@ public class UserLogoutService {
             logger.warn("The jwt refresh token row's status is not 'valid' so this means that a jwt refresh token is being reused which means that an attacker probably got hold of a jwt refresh token therefore as a security measure,trying to set the status of all the jwt refresh tokens of the associated user to 'compromised' and associated user has id:{}",associatedUser.getId());
 //            jwtRefreshTokenRepository.updateStatusOfAllJwtRefreshTokensForUserId(associatedUser.getId(), JwtRefreshToken.Status.COMPROMISED);
             logger.warn("All stored jwt refresh tokens belong to user with id:{} have been set with a status value of 'compromised' and thus the user has been logged out of all his current logins. Aborting the logout process",associatedUser.getId());
-            throw new JwtRefreshTokenStatusNotValidException();
+            throw new InvalidatedStatusJwtRefreshTokenException();
         }
 
         logger.debug("The jwt refresh token row for user with id:{}, username:{} and email:{} has a status value of 'valid'. Trying to change the status value to 'invalidated'",associatedUserId,storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getUserName(),storedJwtRefreshToken.getUserAssociatedWithRefreshToken().getEmail());
