@@ -58,6 +58,7 @@ public class SpringSecurityConfig {
         CorsConfiguration corsConfiguration=new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("http://localhost:8081");
         corsConfiguration.addAllowedOrigin("http://192.168.1.105:8081");
+        corsConfiguration.addAllowedOrigin("https://notes-app-react-frontend.onrender.com");
         corsConfiguration.addAllowedHeader(CorsConfiguration.ALL);
         corsConfiguration.addAllowedMethod(CorsConfiguration.ALL);
         corsConfiguration.setAllowCredentials(true);
