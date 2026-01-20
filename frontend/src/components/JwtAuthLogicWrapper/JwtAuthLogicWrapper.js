@@ -29,15 +29,12 @@ export default function JwtAuthLogicWrapper({children}) {
           throw new Error("response ignored");
         }
 
-        if(response.status===401 || response.status===500) {
-          let urlPathString=currentUrlObj.pathname;
-          if(!urlPathString.startsWith("/auth")) {
-            navigateFuncReactRouter("/auth/login",{replace:true});
-          } 
-          else {
-            setIsChildrenPropToBeRendered(true);
-          }
-          throw new Error("401 or 500");
+        if(response.status===500) {
+          throw new Error("500");
+        }
+
+        if(response.status===401) {
+          throw new Error("401");
         }
 
         if(response.ok) {
@@ -56,7 +53,23 @@ export default function JwtAuthLogicWrapper({children}) {
         }
       })
       .catch((err)=>{
-        if(err.message!=="response ignored" && err.message!=="401 or 500") {
+        let isNetworkError=err.message!=="response ignored" && err.message!=="500" &&
+        err.message!=="401";
+        if(err.message==="500") {
+          setIsTextModalDialogToBeShown(true);
+          setTextModalDialogText("Something went wrong. Please reload the page to try again");
+          console.log("500: Internal server error!");
+        }
+        else if(err.message==="401") {
+          let urlPathString=currentUrlObj.pathname;
+          if(!urlPathString.startsWith("/auth")) {
+            navigateFuncReactRouter("/auth/login",{replace:true});
+          } 
+          else {
+            setIsChildrenPropToBeRendered(true);
+          }
+        }
+        else if(isNetworkError) {
           setIsTextModalDialogToBeShown(true);
           setTextModalDialogText("Network error: couldn't complete the request. Please reload the page to try again.");
         }
