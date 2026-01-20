@@ -2,6 +2,7 @@ import * as React from "react";
 import { JwtAccessTokenContext } from "../../contexts/JwtAcessTokenContext";
 import { useLocation, useNavigate } from "react-router";
 import LoadingModalDialog from "./_LoadingModalDialog";
+import TextModalDialog from "./_TextModalDialog";
 import {BackendUrlContext} from "../../contexts/BackendUrlContext";
 
 
@@ -10,16 +11,13 @@ export default function JwtAuthLogicWrapper({children}) {
   let context_backendUrl=React.useContext(BackendUrlContext);
 
   let [isChildrenPropToBeRendered,setIsChildrenPropToBeRendered]=React.useState(false);
-  let loadingModalDialogRef=React.useRef(null);
+  let [isTextModalDialogToBeShown,setIsTextModalDialogToBeShown]=React.useState(false);
+  let [textModalDialogText,setTextModalDialogText]=React.useState("");
   let currentUrlObj=useLocation();
   let navigateFuncReactRouter=useNavigate();
   // console.log(currentUrlObj);
 
   React.useEffect(()=>{
-    if(!isChildrenPropToBeRendered) {
-      loadingModalDialogRef.current.showModal();
-    }
-    
     let isNotAlreadyHaveJwtAccessToken=jwtAccessTokenRef.current==="";
     if(isNotAlreadyHaveJwtAccessToken) {
       let ignoreResponse=false;
@@ -27,35 +25,40 @@ export default function JwtAuthLogicWrapper({children}) {
         method: "POST",
         credentials: "include"
       }).then((response)=>{
-        if(ignoreResponse)
+        if(ignoreResponse) {
           throw new Error("response ignored");
+        }
 
         if(response.status===401 || response.status===500) {
           let urlPathString=currentUrlObj.pathname;
           if(!urlPathString.startsWith("/auth")) {
             navigateFuncReactRouter("/auth/login",{replace:true});
+          } 
+          else {
+            setIsChildrenPropToBeRendered(true);
           }
-          setIsChildrenPropToBeRendered(true);
+          throw new Error("401 or 500");
         }
 
         if(response.ok) {
           return response.json();
         }
-      }).then((jwtAccessTokenObj)=>{
+      })
+      .then((jwtAccessTokenObj)=>{
         let jwtAccessToken=jwtAccessTokenObj["jwt access token"];
         jwtAccessTokenRef.current=jwtAccessToken;
         let urlPathString=currentUrlObj.pathname;
         if(urlPathString.startsWith("/auth")) {
           navigateFuncReactRouter("/",{replace:true});
         }
-        setIsChildrenPropToBeRendered(true);
-      }).catch((err)=>{
-        if(err.message!=="response ignored") {
-          if(!isChildrenPropToBeRendered) {
-          /* Can show dialog for network error */
-
-          }
-
+        else {
+          setIsChildrenPropToBeRendered(true);
+        }
+      })
+      .catch((err)=>{
+        if(err.message!=="response ignored" && err.message!=="401 or 500") {
+          setIsTextModalDialogToBeShown(true);
+          setTextModalDialogText("Network error: couldn't complete the request. Please reload the page to try again.");
         }
       });
 
@@ -68,11 +71,22 @@ export default function JwtAuthLogicWrapper({children}) {
     if(urlPathString.startsWith("/auth")) {
       navigateFuncReactRouter("/",{replace:true});
     }
-    setIsChildrenPropToBeRendered(true);
-  },[jwtAccessTokenRef,currentUrlObj,navigateFuncReactRouter,isChildrenPropToBeRendered]);
+    else {
+      setIsChildrenPropToBeRendered(true);
+    }
+  },[jwtAccessTokenRef,currentUrlObj,navigateFuncReactRouter,isChildrenPropToBeRendered,context_backendUrl]);
 
-  if(isChildrenPropToBeRendered)
+  if(isChildrenPropToBeRendered) {
     return children;
-  else
-    return <LoadingModalDialog ref={loadingModalDialogRef} />;
+  }
+  else {
+  
+    return (
+      <>
+        {isTextModalDialogToBeShown && <TextModalDialog text={textModalDialogText}/>}
+        <LoadingModalDialog/>
+      </>
+    );
+  }
+
 }

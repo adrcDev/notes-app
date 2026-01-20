@@ -1,0 +1,38 @@
+
+.dialogText {
+  margin-top: 0.5em;
+}
+
+.modalRedirectDialog {
+  background-color: rgb(53, 57, 53);
+  color: white;
+  border: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  padding: 0.3em;
+  font-size: 1.25rem;
+}
+
+/* for phones in landscape and for small tablets */
+@media (min-width: 37.5em) {
+  .modalRedirectDialog {
+    width: 50%;
+  }
+}
+
+/* for large tablets */
+@media (min-width: 62em) {
+  .modalRedirectDialog {
+    font-size: 1.4rem;
+  }
+}
+
+/* for laptops and desktops */
+@media (min-width: 75em) {
+  .modalRedirectDialog {
+    width: 37.5%;
+  }
+}
