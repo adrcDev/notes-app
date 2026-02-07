@@ -1,11 +1,10 @@
 package com.awesometodo.dto;
 
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public class ForgotPassswordDataDTO {
+public class ForgotPasswordDataDTO {
     @NotBlank
     private String username;
 
@@ -14,7 +13,7 @@ public class ForgotPassswordDataDTO {
             message ="The received email did not match the required pattern" )
     private String email;
 
-    public ForgotPassswordDataDTO(String username, String email) {
+    public ForgotPasswordDataDTO(String username, String email) {
         this.username = username;
         this.email = email;
     }

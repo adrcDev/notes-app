@@ -1,6 +1,6 @@
 package com.awesometodo.service;
 
-import com.awesometodo.dto.ForgotPassswordDataDTO;
+import com.awesometodo.dto.ForgotPasswordDataDTO;
 import com.awesometodo.dto.ForgotPasswordOtpVerificationDataDTO;
 import com.awesometodo.dto.ForgotPasswordResetDataDTO;
 import com.awesometodo.entity.ForgotPasswordOtp;
@@ -50,9 +50,9 @@ public class UserForgotPasswordService {
     }
 
     @Transactional
-    public void forgotPasswordInitialisation(ForgotPassswordDataDTO forgotPassswordDataDTO) {
-        String receivedUsernameLC=forgotPassswordDataDTO.getUsername().toLowerCase();
-        String receivedEmailLC=forgotPassswordDataDTO.getEmail().toLowerCase();
+    public void forgotPasswordInitialisation(ForgotPasswordDataDTO forgotPasswordDataDTO) {
+        String receivedUsernameLC= forgotPasswordDataDTO.getUsername().toLowerCase();
+        String receivedEmailLC= forgotPasswordDataDTO.getEmail().toLowerCase();
         logger.debug("Forgot password initialisation process started with received username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
         logger.debug("Checking to see if an user account exists whose username and email exactly match the received username:{} and email:{}",receivedUsernameLC,receivedEmailLC);
         Optional<User> optional=userRepository.findByUsernameAndEmail(receivedUsernameLC,receivedEmailLC);

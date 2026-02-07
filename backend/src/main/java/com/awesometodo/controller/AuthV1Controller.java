@@ -10,8 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -120,7 +118,7 @@ public class AuthV1Controller {
     }
 
     @PostMapping("/auth/v1/forgot-password/init")
-    public void forgotPasswordInit(@RequestBody @Valid ForgotPassswordDataDTO forgotPasswordDataDTO) {
+    public void forgotPasswordInit(@RequestBody @Valid ForgotPasswordDataDTO forgotPasswordDataDTO) {
         logger.debug("/auth/v1/forgot-password/init endpoint started running");
         userForgotPasswordService.forgotPasswordInitialisation(forgotPasswordDataDTO);
         logger.debug("/auth/v1/forgot-password/init endpoint finished running");
