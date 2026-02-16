@@ -85,13 +85,6 @@ public class AuthV1Controller {
         logger.debug("/auth/v1/signup/verify-otps endpoint finished running");
     }
 
-    @PostMapping("/auth/v1/signup/resend-otps")
-    public void signupResendOtps(@RequestBody @Valid SignupDataDTO signupDataDTO) {
-        logger.debug("/auth/v1/signup/resend-otps endpoint started running");
-        userSignupService.signupResendOtps(signupDataDTO);
-        logger.debug("/auth/v1/signup/resend-otps endpoint finished running");
-    }
-
     @ExceptionHandler({UserWithSameDetailsAlreadyExistsException.class,PendingSignupUserWithSameDetailsAlreadyExistsException.class})
     public void handleSameUserDetailsAlreadyExistsException(HttpServletResponse response) {
         response.setStatus(409);
