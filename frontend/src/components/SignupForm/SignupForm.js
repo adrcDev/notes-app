@@ -192,7 +192,7 @@ export default function SignupForm() {
     loadingModalDialogRef.current.showModal();
     let signupDataJson=signupDataJsonRef.current;
     // console.log(signupDataJson);
-    fetch(`${context_backendUrl}/auth/v1/signup/resend-otps`,{
+    fetch(`${context_backendUrl}/auth/v1/signup/init`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json"
