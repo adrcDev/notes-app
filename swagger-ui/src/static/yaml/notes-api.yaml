@@ -1,0 +1,1113 @@
+openapi: 3.0.0
+info:
+  title: Notes API
+  description: |
+    ## Regarding access to protected endpoints
+    In order to access the protected endpoints, caller must authenticate themselves by specifying a valid jwt access token within the Authorization request header under the Bearer authentication shceme. example: Authorization: Bearer \<jwt-access-token\>. The jwt access token is obtained via the /auth/v1/login endpoint and it is short lived.
+
+    If the protected endpoints are called using a expired jwt access token then they will return a response message with a status of 401. To get a new jwt access token, the /auth/v1/refresh endpoint must be called with a jwt refresh token set in the Cookie header. This jwt refresh token to be used in the /auth/v1/refresh endpoint is obtained via the /auth/v1/login endpoint whose successful response message's Set-Cookie header contains the jwt refresh token and it is long lived. The /auth/v1/refresh endpoint also returns a new jwt refresh token within the Set-Cookie header of the successful response message as a jwt refresh token can only be used once to get a new jwt access token and thus a new jwt refresh token is given to the caller as the one used in the request to the refresh endpoint will be marked as used.
+    
+    If the /auth/v1/refresh endpoint also returns a repsonse message with a status of 401 despite putting a jwt refresh token obtained via /auth/v1/login or /auth/v1/refresh endpoint within the Cookie header of the request message, then it means that the jwt refresh token is expired and thus the /auth/v1/login endpoint must be used again to get a new jwt access token and a new jwt refresh token.
+    
+    ## Regarding why 'todos' is used as resource name instead of 'notes'
+    The project started as a Todo application and later evolved into a Notes application with rich text support. Resource name hasn't been changed to avoid unnecessary frontend and backend refactoring.    
+  version: "1"
+  
+
+servers:
+  - url: https://notes-app-backend-fxov.onrender.com
+    description: Deployed url of the server program 
+  
+paths:
+  /auth/v1/login:
+    post:
+      tags: 
+        - auth
+      #description:         
+      requestBody: 
+        required: true
+        #description: 
+        content: 
+          application/json: 
+            examples:
+              ex1: 
+                summary: Using username
+                value:
+                  userNameOrEmail: rahul1234
+                  password: apple1234
+              ex2:
+                summary: Using email
+                value:
+                  userNameOrEmail: rahul1234@gmail.com
+                  password: apple1234            
+            schema: 
+              type: object
+              #description:
+              #example:           
+              required:
+                - userNameOrEmail
+                - password
+              properties:
+                userNameOrEmail: 
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: >
+            This response is returned when the received details match an existing user account. The returned jwt access token can be used to access the protected endpoints by putting it in the Authorization request header's value under the 'Bearer' authentication scheme in the http request message. The jwt access token is short lived.
+          headers:
+            Set-Cookie:
+              description: >
+                Contains a jwt refresh token as a cookie along with cookie attributes. The jwt refresh token is long lived. Example header value: jwt_refresh_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.----.----; Max-Age=2678398; Expires=Thu, 05 Mar 2026 10:44:12 GMT; Path=/auth/v1; Secure; HttpOnly; SameSite=None
+              schema:
+                type: string                      
+          content:
+            application/json:
+              example:
+                jwt access token: 
+                  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.----.----"
+              schema:
+                type: object
+                properties:
+                  jwt access token:
+                    type: string
+                    description: A valid jwt access token
+        "401":
+          description: |
+            This response is returned when login is unsuccessful. Exact reason is not revealed for security reasons.
+        "400":
+          $ref: "#/components/responses/requestBodyErrorResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+
+  /auth/v1/signup/init:
+    post:
+      tags: 
+        - auth
+      description: >
+        Starts the user signup process. Email and sms signup otps are not actually sent and instead a value of 100000 is stored for each of them respectively. In a production system, a otp service provider would be used to actually generate a random otp and send it to the to be registered user's specified email and phone no.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              userName: arvind1234
+              email: arvind923@gmail.com
+              password: apple1234
+              dateOfBirth: 2000-01-18
+              gender: male
+              phoneNumber: "+913433432345"
+            schema: 
+              type: object
+              required:
+                - userName
+                - email
+                - password
+                - dateOfBirth
+                - gender
+                - phoneNumber
+              properties:
+                userName:
+                  $ref: "#/components/schemas/username"
+                email: 
+                  type: string
+                  pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+                password:
+                  $ref: "#/components/schemas/password"
+                dateOfBirth: 
+                  type: string
+                  format: date
+                  description: >
+                    The string must be in YYYY-MM-DD format. It should also be behind or equal to the server's current local date at the time of the request.
+                    The allowed min value for YYYY(year)
+                    = server's current local date's YYYY value at time of request-160
+                gender: 
+                  $ref: "#/components/schemas/gender"
+                phoneNumber:
+                  $ref: "#/components/schemas/phoneNo"        
+      responses:
+        "200":
+          description: >
+            This response is returned when the received details have been saved as part of the signup process and associated email and sms signup otps have been successfully created. The signup otps are short lived. Otps are not actually sent and instead stored with value of 100000.
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "400":
+          $ref: "#/components/responses/requestBodyErrorResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+
+  /auth/v1/signup/verify-otps:
+    post:
+      tags:
+        - auth
+      description: >
+        Finishes the user signup process, leading to the creation of an user account.
+      requestBody:
+        description: >
+          The /auth/v1/signup/init endpoint does not generate and send signup otps, instead they are stored with a value of 100000. So the only valid value for phoneNumberOtp and emailOtp fields in the request body json object is 100000. In a production system, a otp service provider would be used to actually generate a random otp and send it to the to be registered user's specified email and phone no.
+        required: true
+        content:
+          application/json:
+            example:
+              username: cool1234
+              phoneNumberOtp: "100000"
+              emailOtp: "100000"
+            schema:
+              type: object
+              required:
+                - username
+                - phoneNumberOtp
+                - emailOtp
+              properties:
+                username:
+                  $ref: "#/components/schemas/username"
+                phoneNumberOtp:
+                  $ref: "#/components/schemas/otp"
+                emailOtp:
+                  $ref: "#/components/schemas/otp"
+      responses:
+        "200":
+          description: >
+            This response is returned when new user account has been successfully created.
+        "400":
+          description: |
+            This response is returned for the following cases:-
+            - When user account creation fails. The reason for failure isn't revealed for security reasons.
+            - When there is an error in json deserialization.
+            - When there is a validation error.          
+        "409":
+          description: >
+            This response is returned when user account creation fails due to concurrent request for user account creation with same details.      
+        "500":
+          $ref: "#/components/responses/500_response"
+        
+  /auth/v1/forgot-password/init:
+    post:
+      tags:
+        - auth
+      description: >
+        Starts the password reset process for a user account. Email and sms otps are not actually sent and instead a value of 100000 is stored for each of them respectively. In a production system, a otp service provider would be used to actually generate a random otp and send it to the user's associated email and phone no.
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            example:
+              username: mega1234
+              email: mega1234@gmail.com
+            schema:
+              type: object
+              required:
+                - username
+                - email
+              properties: 
+                username: 
+                  type: string
+                email:
+                  $ref: "#/components/schemas/email"              
+      responses:
+        "200":
+          description: >
+            This response is returned regardless of whether an user account exists whose username and email match the received ones. This is done to prevent caller from doing user account enumeration. In the case where an user account does exist, email and sms otps are stored with value 100000 each and associated to the user account.
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "400": 
+          $ref: "#/components/responses/requestBodyErrorResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+
+  /auth/v1/forgot-password/verify-otps:
+    post: 
+      tags:
+        - auth
+      description: >
+        Verifies the email and sms otps and returns password reset token which is used for resetting the password of the user it is associated with.
+      requestBody:
+        required: true
+        description: >
+          The /auth/v1/forgot-password/init endpoint does not generate and send otps, instead they are stored with a value of 100000. So the only valid value for phoneNumberOtp and emailOtp fields in the request body json object is 100000. In a production system, a otp service provider would be used to actually generate a random otp and send it to the user's associated email and phone no.
+        content: 
+          application/json:
+            example:
+              username: mega1234
+              email: mega1234@gmail.com
+              emailOtp: "100000"
+              phoneNumberOtp: "100000"
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - emailOtp
+                - phoneNumberOtp
+              properties:
+                username: 
+                  type: string
+                email:
+                  $ref: "#/components/schemas/email"
+                emailOtp:
+                  $ref: "#/components/schemas/otp"
+                phoneNumberOtp:
+                  $ref: "#/components/schemas/otp"
+      responses:
+        "200": 
+          description: |
+            This response is returned in the following cases:-
+            - When the otps verification process succeeds for the user and thus a password reset token is stored and returned in the response message's body. It is used for resetting the password of the user it is associated with.
+            - When there is failure in otps verification process. The exact reason for failure is not revealed for security reasons. The response message doesn't contain a body in this case.
+          content:          
+            application/json:
+              #example:
+              schema: 
+                type: object
+                properties: 
+                  password reset token:
+                    $ref: "#/components/schemas/passwordResetToken"
+        "400":
+          $ref: "#/components/responses/requestBodyErrorResponse"            
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "500": 
+          $ref: "#/components/responses/500_response"
+
+  /auth/v1/forgot-password/reset-password:
+    post:
+      tags:
+        - auth
+      description: >
+        Resets the password for the user account associated with the received password reset token and also logs the user out of all his logins.
+      requestBody:
+        required: true
+        #description:
+        content:
+          application/json:
+            example:
+              passwordResetToken: "50e4f25e-9d58-5c73-fff6-17c8f52e"
+              newPassword: mega2343
+            schema: 
+              type: object
+              required:
+                - passwordResetToken
+                - newPassword
+              properties:
+                passwordResetToken:
+                  $ref: "#/components/schemas/passwordResetToken"
+                newPassword:
+                  $ref: "#/components/schemas/password"          
+      responses:
+        "200": 
+          description: |
+            This response is returned in the following cases:-
+            - When the password reset process completeles successfully for the user account assoicated with the password reset token. The user is also logged out of all his logins.
+            - When the password reset process fails. The exact reason for failure is not revealed for security reasons.
+        "400":
+          $ref: "#/components/responses/requestBodyErrorResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+      
+  /auth/v1/refresh:
+    post:
+      tags:
+        - auth
+      description: >
+        Creates and returns a new jwt access token. 
+      parameters:
+        - $ref: "#/components/parameters/jwtRefreshTokenCookie"
+      responses:
+        "200":
+          description: >
+            This response is returned when the received jwt refresh token
+            cookie is valid. The received jwt access token is short lived and is used to access the protected endpoints that require user authentication. The jwt refresh token received in the Set-Cookie response header is long lived and is used to obtain a new jwt access token by hitting this endpoint when the jwt access token expires. 
+          headers:
+            Set-Cookie:
+              description: >
+                Contains a new jwt refresh token as a cookie along with cookie attributes. The jwt refresh token is long lived. Example header value: jwt_refresh_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.----.----; Max-Age=2678398; Expires=Thu, 05 Mar 2026 10:44:12 GMT; Path=/auth/v1; Secure; HttpOnly; SameSite=None
+              schema:
+                type: string
+          content:
+            application/json:
+              example:
+                jwt access token: 
+                  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.----.----"
+              schema:
+                type: object
+                properties:
+                  jwt access token: 
+                    type: string
+                    description: A valid jwt access token.
+        "401":
+          description: >
+            This response is returned when the refresh process fails and thus new jwt access token and new jwt refresh token are not generated and sent. The exact reason for failure is not revealed for security reasons.
+        "500":
+          $ref: "#/components/responses/500_response"
+
+  /auth/v1/logout:
+    post:
+      tags:
+        - auth
+      #description:         
+      parameters:
+        - $ref: "#/components/parameters/jwtRefreshTokenCookie"
+      security: 
+        - jwtAccessTokenInAuthorizationHeader: []     
+      responses:
+        "204":
+          description: >
+            This response is returned if the user is successfully logged out.
+          headers: 
+            Set-Cookie:
+              description: >
+                A jwt refresh token cookie with no value along with cookie attributes is set with the intention of telling the client to delete the cookie on it's side. Example header value: jwt_refresh_token=; Max-Age=0; Path=/auth/v1; Secure; HttpOnly; SameSite=None             
+              schema: 
+                type: string        
+        "401":
+          description: >
+            This response is returned if the logout process fails. The exact reason for failure is not revealed for security reasons.
+        "500":
+          $ref: "#/components/responses/500_response"
+  
+  /api/v1/users/me:
+    get:
+      tags:
+        - core
+      description: >
+        Returns the details for the user associated with the jwt access token.
+      security:
+        - jwtAccessTokenInAuthorizationHeader: []
+      responses:
+        "200":
+          description: Successful response containing the details for the user associated with the jwt access token.
+          content:
+            application/json:
+              example:
+                id: 103
+                username: mega1234
+                displayName: Mega1234
+                email: mega1234@gmail.com
+                dateOfBirth: "2000-03-19"
+                gender: male
+                phoneNo: "+917344348348"
+                accountCreatedAt: "2025-09-27T07:54:24.478533Z"
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    minimum: 1                    
+                  username:
+                    type: string
+                  displayName:
+                    type: string
+                  email:
+                    $ref: "#/components/schemas/email"
+                  dateOfBirth:
+                    type: string
+                    description: >
+                      Date in YYYY-MM-DD format.
+                  gender:
+                    $ref: "#/components/schemas/gender"
+                  phoneNo:
+                    $ref: "#/components/schemas/phoneNo"                  
+                  accountCreatedAt:
+                    type: string
+                    description: >
+                      A UTC timestamp.
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+
+  /api/v1/todos/{id}:
+    get:
+      tags:
+        - core
+      description: >
+        Gets the details of a single note by id value that is owned by the user associated with the jwt access token.
+      security:
+        - jwtAccessTokenInAuthorizationHeader: []
+      parameters:
+        - $ref: "#/components/parameters/noteIdPathParameter"
+      responses:
+        "200":
+          description: >
+            This response is returned when a note is found whose id value matches the received one and the user associated to the received jwt access token is also the owner of that note.
+          content: 
+            application/json:
+              examples:
+                example:
+                  $ref: "#/components/examples/noteDataResponseObjectExample"
+              schema:
+                $ref: "#/components/schemas/noteDataResponseObject"
+        "404":
+          description: |
+            This response is returned in the following cases:-
+            - When no note is found whose id value matches the received one.
+            - When a note is found whose id value matches the received one but the user associated to the received jwt access token is not the owner of that note. 
+        "400":
+          description: >
+            This response is returned when there is a validation error related to the id path variable.            
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+  
+    delete:
+      tags: 
+        - core
+      description: >
+        Deletes a single note by id value that is owned by the user associated with the jwt access token.
+      security:
+        - jwtAccessTokenInAuthorizationHeader: []
+      parameters:
+        - $ref: "#/components/parameters/noteIdPathParameter"
+      responses:
+        "204":
+          description: >
+            This response is returned when a note with the received id value belonging to the user associated with the received jwt access token is found and deleted.
+        "404":
+          description: |
+            This response is returned in the following cases:-
+            - When note deletion didn't happen as no note was found with the received id value.
+            - When note deletion didn't happen as the note with the received id value did not belong to the user associated with the jwt access token.
+        "400":
+          $ref: "#/components/responses/idPathVariableValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+
+    put:
+      tags:
+        - core
+      description: >
+        Fully updates a note by id that belongs to the user associated with the jwt access token.
+      security:
+        - jwtAccessTokenInAuthorizationHeader: []
+      parameters:
+        - $ref: "#/components/parameters/noteIdPathParameter"
+      requestBody:
+        description: >
+          The contentText and contentDelta field values must be null together or non null together i.e. one field having null as value while other field having a non null value is not allowed.
+        required: false
+        content:          
+          application/json:            
+            examples:
+              ex1: 
+                $ref: "#/components/examples/noteUpdateRequestExample1"
+              ex2:
+                $ref: "#/components/examples/noteUpdateRequestExample2"
+            schema:              
+              type: object
+              properties:
+                title: 
+                  type: string
+                  nullable: true
+                  description: Default is null if not provided.
+                description:
+                  type: string
+                  nullable: true
+                  description: Default is null if not provided.
+                contentText:
+                  type: string
+                  nullable: true
+                  description: Default is null if not provided.                  
+                contentDelta:
+                  type: string
+                  nullable: true                                    
+                  description: >
+                    A Quill editor delta (subset of json). It must not be an empty string. Default is null if not provided.
+                  externalDocs: 
+                    description: Find more info here
+                    url: https://github.com/slab/delta
+                dueDate:
+                  type: string
+                  nullable: true
+                  description: >
+                    Date in YYYY-MM-DD format. Default is null if not provided.
+                priority:
+                  nullable: true
+                  type: string
+                  enum:
+                    - low
+                    - medium
+                    - high
+                  default: low
+                  description: If not provided or null, the default value is used.
+                status:
+                  nullable: true
+                  type: string
+                  enum:
+                    - not completed
+                    - completed
+                  default: not completed
+                  description: If not provided or null, the default value is used.
+      responses:
+        "200":
+          description: >
+            This response is returned when a note with the received id value belonging to the user associated with the received jwt access token is found and fully updated. The response message's body contains a json representation of the fully updated note.
+          content:
+            application/json:
+              examples:
+                example:
+                  $ref: "#/components/examples/noteDataResponseObjectExample"
+              schema: 
+                $ref: "#/components/schemas/noteDataResponseObject"
+        "404":
+          description: |
+            This response is returned in the following cases:-
+            - When note full updation didn't happen as no note was found with the received id value.
+            - When note full updation didn't happen as the note with the received id value did not belong to the user associated with the jwt access token.
+        "400":
+          "$ref": "#/components/responses/requestBodyAndPathVariableErrorResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+
+    patch:
+      tags:
+        - core
+      description: >
+        Partially updates a note by id that belongs to the user associated with the jwt access token.
+      security:
+        - jwtAccessTokenInAuthorizationHeader: []
+      parameters:
+        - $ref: "#/components/parameters/noteIdPathParameter"
+      requestBody:
+        description: |
+          At least one of the following fields must be provided:-
+          - title
+          - description
+          - contentText + contentDelta (Both can either be null or non null together i.e. one field is null and the other is non null is not allowed).
+          - dueDate
+          - priority
+          - status
+        required: true
+        content:          
+          application/json:
+            examples:
+              ex1: 
+                $ref: "#/components/examples/noteUpdateRequestExample1"
+              ex2:
+                $ref: "#/components/examples/noteUpdateRequestExample2"
+            schema:
+              type: object
+              additionalProperties: false
+              properties: 
+                title:
+                  type: string
+                  nullable: true
+                description:
+                  type: string
+                  nullable: true
+                contentText:
+                  type: string
+                  nullable: true
+                contentDelta:
+                  type: string
+                  nullable: true
+                  description: >
+                    A Quill editor Delta (subset of json). An empty string as a value is not allowed.
+                  externalDocs:
+                    description: Find more info here 
+                    url: https://github.com/slab/delta
+                dueDate:
+                  type: string
+                  nullable: true
+                  description: A date in YYYY-MM-DD format
+                priority:
+                  type: string
+                  enum: 
+                    - low
+                    - medium
+                    - high
+                status:
+                  type: string
+                  enum:
+                    - not completed
+                    - completed
+              anyOf: 
+                - required: [title]
+                - required: [description]
+                - required: [contentText,contentDelta]
+                - required: [dueDate]
+                - required: [priority]
+                - required: [status]
+                                                    
+      responses:
+        "200":
+          description: >
+            This response is returned when a note with the received id value belonging to the user associated with the received jwt access token is found and partially updated. The response message's body contains a json representation of the partially updated note.
+          content:
+            application/json:
+              examples:
+                example:
+                  $ref: "#/components/examples/noteDataResponseObjectExample"
+              schema: 
+                $ref: "#/components/schemas/noteDataResponseObject"
+        "404":
+          description: |
+            This response is returned in the following cases:-
+            - When note partial updation didn't happen as no note was found with the received id value.
+            - When note partial updation didn't happen as the note with the received id value did not belong to the user associated with the jwt access token.
+        "400":
+          "$ref": "#/components/responses/requestBodyAndPathVariableErrorResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+      
+      
+
+  /api/v1/todos:
+    post:
+      tags:
+        - core
+      description: >
+        Creates a note. All nullable note related fields are set to null and non nullable fields having default value are set with their default value.
+      security:
+        - jwtAccessTokenInAuthorizationHeader: []
+      responses:
+        "201":
+          description: >
+            This response is returned when a note is created for the user associated with the jwt access token. The response message's body contains a json representation of the newly created note.
+          headers:
+            Location: 
+              description: >
+                This header's value will contain the url of the newly created note.
+              schema:
+                type: string
+                example: "/api/v1/todos/123"
+          content:
+            application/json:
+              example:
+                id: 123
+                title: null
+                description: null
+                contentDelta: null
+                dueDate: null
+                priority: "low"
+                status: "not completed"
+                createdAt: "2026-02-11T16:22:41.820907Z" 
+                updatedAt: "2026-02-11T16:22:41.820907Z"
+              schema:
+                type: object
+                properties:
+                  id:
+                    $ref: "#/components/schemas/idObjectProperty"
+                  title:
+                    $ref: "#/components/schemas/alwaysNullResponseObjectStringField"
+                  description:
+                    $ref: "#/components/schemas/alwaysNullResponseObjectStringField"
+                  contentDelta:
+                    $ref: "#/components/schemas/alwaysNullResponseObjectStringField"
+                  dueDate:
+                    $ref: "#/components/schemas/alwaysNullResponseObjectStringField"
+                  priority:
+                    type: string
+                    description: >
+                      The value of this field is always 'low' which
+                      is the default value for note priority.
+                  status:
+                    type: string
+                    description: >
+                      The value of this field is always 'not completed' which is the default value for note status.
+                  createdAt:
+                    $ref: "#/components/schemas/utcTimestamp"
+                  updatedAt:
+                    $ref: "#/components/schemas/utcTimestamp"
+                                                    
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+
+    get:
+      tags:
+        - core
+      description: |
+        Retrieves a page of notes after filtering and sorting them based on the supported query parameters. Each note in the page belongs to the user associated with the jwt access token.
+        ## Using dueDateFrom and dueDateTo query parameters together
+        Using the dueDateFrom and dueDateTo query params you can filter notes by their dueDate field value:-
+        - If both parameters are specified then all notes whose dueDate field value falls within the date range are retrieved. The date range formed includes the date values specified in the query params also. Note- The dueDateFrom query param must contain a date value that is before or equal to the date value present in dueDateTo query param. Example usage: ---/todos?dueDateFrom=2025-08-13&dueDateTo=2026-02-01 
+        - If both parameters are specified with the same date value then all notes having dueDate field value with that exact same date are retrieved. Example usage: ---/todos?dueDateFrom=2025-08-13&dueDateTo=2025-08-13             
+      security:
+        - jwtAccessTokenInAuthorizationHeader: []
+      parameters:
+        - in: query
+          name: titleSearch
+          description: >
+            Empty string value is not allowed.          
+            Example: ---/todos?titleSearch=search%20text
+          schema:
+            type: string
+            minLength: 1
+        - in: query
+          name: descriptionSearch
+          description: >
+            Empty string value is not allowed.            
+            Example: ---/todos?descriptionSearch=search%20text
+          schema:
+            type: string
+            minLength: 1
+        - in: query
+          name: contentSearch
+          description: >
+            Empty string value is not allowed.            
+            Example: ---/todos?contentSearch=search%20text
+          schema:
+            type: string
+            minLength: 1
+        - in: query
+          name: priority
+          description: >
+            Example: ---/todos?priority=high
+          schema:
+            type: string            
+            enum: 
+              - low
+              - medium
+              - high
+        - in: query
+          name: status
+          description: >
+            Example: ---/todos?status=completed
+          schema:
+            type: string
+            enum:
+              - not completed
+              - completed
+        - in: query
+          name: dueDateFrom
+          description: >
+            This filter is used to find all notes whose dueDate field value contains a date that is >=dueDateFrom query param date value. It's value is a date in YYYY-MM-DD format.  Exmple: ---/todos?dueDateFrom=2025-08-13
+          schema:
+            type: string
+            description: >
+              Date in YYYY-MM-DD format.
+            minLength: 1
+        - in: query
+          name: dueDateTo
+          description: >
+            This filter is used to find all notes whose dueDate field value contains a date that is <=dueDateTo query param date value. It's value is a date in YYYY-MM-DD format.  Exmple: ---/todos?dueDateTo=2026-02-01
+          schema:
+            type: string
+            description: >
+              Date in YYYY-MM-DD format.
+            minLength: 1
+        - in: query
+          name: sortBy
+          description: >
+            Example: ---/todos?sortBy=creation%20date%20and%20time
+          schema:
+            type: string
+            enum:
+              - due date
+              - priority
+              - creation date and time
+              - last updation date and time 
+            default: due date
+        - in: query
+          name: sortOrder
+          description: >
+            Example: ---/todos?sortOrder=descending
+          schema:
+            type: string
+            enum:
+              - ascending
+              - descending
+            default: ascending
+        - in: query
+          name: limit
+          description: >
+            Sets the page size i.e. number of notes to return per page. Example: ---/todos?limit=10
+          schema:
+            type: integer
+            default: 10
+            minimum: 0
+        - in: query
+          name: offset
+          description: >
+            Sets how many notes should be skipped. It can be used to set which page number should be retrieved. Example: If page number 4 is needed and limit(page size)=10 then we need to skip (4-1)\*10=30 notes to get page number 4, so we will set the offset as 30. In general if we want page number 'n' then we need to set offset as (n-1)\*limit where limit is also basically the page size. Example usage: ---/todos?offset=0
+          schema:
+            type: integer
+            default: 0
+            minimum: 0                                  
+      responses:        
+        "200":
+          description: >
+            The response message's body contains a page of notes along with the total count of notes that match the set filters. Each note in the page belongs to the user associated with the jwt access token.      
+          content:
+            application/json:
+              examples:
+                ex1:
+                  summary: Example 1
+                  description: >
+                    A note page with a single note returned
+                    when notes are found that match the set filters.
+                  value:
+                    todos:
+                      - id: 127
+                        title: This is the note title
+                        description: This is the note description
+                        contentDelta: "{\"ops\":[{\"insert\": \"This is the note content\\n\"}]}"
+                        dueDate: "2026-12-21"
+                        priority: low
+                        status: not completed
+                        createdAt: "2026-01-14T11:29:50.230909Z"
+                        updatedAt: "2026-02-11T16:22:41.820907Z"                   
+                    totalTodos: 323
+                ex2:
+                  summary: Example 2
+                  description: >
+                    When no notes are found that match the set filters.
+                  value:
+                    todos: []
+                    totalTodos: 0
+                ex3:
+                  summary: Example 3
+                  description: >
+                    When notes are found that match the set filters and offset query parameter value exceeds or is equal to the total no of notes that matched the set filters(totalTodos field value).
+                  value:
+                    todos: []
+                    totalTodos: 323
+              schema:
+                type: object
+                properties:
+                  todos:
+                    type: array
+                    description: >
+                      Contains a page of notes.
+                    minItems: 0
+                    items: 
+                      $ref: "#/components/schemas/noteDataResponseObject"
+                  totalTodos:
+                    type: integer
+                    minimum: 0
+                    description: >
+                      The total number of notes belonging to the user associated with the jwt access token that match the set filters.
+        "400":
+          description: >
+            This response is returned when there is a validation error related to the query parameter/parameters.
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/500_response"
+
+      
+      
+        
+
+      
+
+
+  
+
+       
+
+
+
+
+
+
+
+
+
+components:
+  schemas:
+    username:
+      type: string
+      minLength: 3
+      maxLength: 30
+      description: >
+        The received string must match this regex: ^[a-zA-Z0-9][a-zA-Z0-9._-]{1,28}[a-zA-Z0-9]$ and also must not contain consecutive special characters. The allowed special characters are .(dot), _ (underscore) and -(hyphen).
+    otp:
+        type: string
+        minLength: 6
+        maxLength: 6
+        pattern: "^[a-zA-Z0-9]{6}$"
+        description: >
+          The received string must be a alphanumeric string of
+          length 6. Note- Otps are not actually generated and sent by this server and instead always a value of 100000 is stored as otp. So the only valid value for otp is 100000. In a production system, a otp service provider would be used to actually generate a random otp and send it to emails and phone nos.
+    email:
+      type: string
+      pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+    passwordResetToken:
+      type: string
+      description: A version 4 UUID.
+      minLength: 32
+      maxLength: 32
+      pattern: '^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$'
+    password:
+      type: string
+      format: password
+      minLength: 8
+      maxLength: 128
+      description: |
+        The received string must match all the following regular expressions:-
+        - ^\X{8,128}$, where \X is used to match a unicode character.
+        - ^[^\s]+$. This regex is used to disallow whitespace characters.
+    gender:
+      type: string
+      enum:
+        - male
+        - female
+        - other
+        - rather not say
+    phoneNo:
+      type: string
+      description: >
+        The string must be in the E.164 format: +\<Country code\>\<national number\>
+      example: >
+        "eg1: +919234843832, eg2: +1310555019"
+    idObjectProperty:
+      type: integer
+      minimum: 1
+    alwaysNullResponseObjectStringField:    
+      type: string
+      nullable: true
+      description: >
+       The value of this field is always null.
+    utcTimestamp:
+      type: string
+      description: A UTC timestamp.
+    noteDataResponseObject:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/idObjectProperty"
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        contentDelta:
+          type: string                  
+          nullable: true
+          description: >
+            A Quill editor Delta (subset of json).
+          externalDocs:
+            description: Find more info here 
+            url: https://github.com/slab/delta
+        dueDate:
+          type: string
+          nullable: true
+          description: >
+            A date string in YYYY-MM-DD format.
+        priority:
+          type: string
+          enum: 
+            - low
+            - medium
+            - high                    
+        status:
+          type: string
+          enum:
+            - not completed
+            - completed
+        createdAt:
+          $ref: "#/components/schemas/utcTimestamp"
+        updatedAt:
+          $ref: "#/components/schemas/utcTimestamp"
+    
+    
+
+
+  responses:
+    "500_response":
+      description: >
+            This response is returned when there is an internal server error.
+    requestBodyErrorResponse:
+      description: |
+        This response is returned in the following cases:-
+        - When there is an error in json deserialization.
+        - When there is a validation error in the request body json.
+    requestBodyAndPathVariableErrorResponse:
+      description: |
+        This response is returned in the following cases:-
+        - When there is an error in json deserialization.
+        - When there is a validation error in the request body json.
+        - When there is a validation error for a path variable.
+    conflictResponse:
+      description: >
+        This response is returned when the request conflicts with server state. Exact reason is not revealed for security reasons.
+    unauthorizedResponse:
+      description: >
+        This response is returned when the request fails the authentication checks. The exact reason for failure is not revealed for security reasons.
+    idPathVariableValidationErrorResponse:
+      description: >
+        This response is returned when there is a validation error related to the id path variable.
+
+
+  securitySchemas:
+    jwtAccessTokenInAuthorizationHeader:
+      type: http
+      description: >
+        In order to access the protected endpoints, caller must authenticate themselves by specifying a valid jwt access token within the Authorization request header under the Bearer authentication shceme.
+      scheme: bearer
+      bearerFormat: Bearer token is a json web token (jwt).
+
+
+  parameters:
+    jwtRefreshTokenCookie:
+      in: cookie
+      name: "jwt_refresh_token"
+      required: true
+      schema:
+        type: string
+      description: >
+        Requires a jwt refresh token as a cookie in the Cookie request header. Example: Cookie: jwt_refresh_token=\<jwt-refresh-token\>
+    noteIdPathParameter:
+      in: path
+      name: id
+      required: true
+      description: "Note id (>=1)"
+      schema:        
+        type: integer
+        minimum: 1        
+  
+  examples: 
+    noteDataResponseObjectExample:
+      value:
+        id: 127
+        title: This is the note title
+        description: This is the note description
+        contentDelta: "{\"ops\":[{\"insert\": \"This is the note content\\n\"}]}"
+        dueDate: "2026-12-21"
+        priority: low
+        status: not completed
+        createdAt: "2026-01-14T11:29:50.230909Z"
+        updatedAt: "2026-02-11T16:22:41.820907Z"
+    noteUpdateRequestExample1:
+      summary: Example with all fields
+      value:
+        title: This is the note title
+        description: null
+        contentText: This is the note content
+        contentDelta: "{\"ops\":[{\"insert\": \"This is the note content\\n\"}]}"
+        dueDate: "2026-05-22"
+        priority: high
+        status: completed
+    noteUpdateRequestExample2:
+      summary: Example with some fields
+      value:
+        description: This is the note description
+        dueDate: "2026-05-22"
+
+
+
+  
+
+  
+
+
+
+
+
+
+              
+
+              
+        

@@ -1,14 +1,21 @@
 # RULES FOR frontend folder
 /frontend/dist/
 /frontend/node_modules/
-/frontend/.vscode/  # Optional: exclude IDE settings
+/frontend/.vscode/  
 /frontend/.eslintcache
 /frontend/.cache/
+
+# RULES FOR swagger-ui folder
+/swagger-ui/dist/
+/swagger-ui/node_modules/
+/swagger-ui/.vscode/
+/swagger-ui/.eslintcache
+/swagger-ui/.cache/
 
 # Logs
 /frontend/npm-debug.log*
 
-# OS clutter (optional but safe to keep)
+# OS clutter
 **/.DS_Store
 **/Thumbs.db
 **/Desktop.ini
@@ -23,7 +30,7 @@
 !/backend/**/src/test/**/target/
 /backend/*.log
 
-### STS ###
+### Spring Tool Suite ###
 /backend/**/.apt_generated
 /backend/**/.classpath
 /backend/**/.factorypath
