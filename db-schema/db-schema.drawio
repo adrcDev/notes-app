@@ -1,0 +1,122 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0" version="29.3.4">
+  <diagram name="Page-1" id="llDqxAmrYKn0VKabkEd5">
+    <mxGraphModel dx="1042" dy="1671" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-1" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="users" vertex="1">
+          <mxGeometry height="80" width="160" x="220" y="-120" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-2" parent="ZCX_lda17CIB2RwFypBJ-1" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="-id (PK)" vertex="1">
+          <mxGeometry height="30" width="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-3" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="todos" vertex="1">
+          <mxGeometry height="90" width="160" x="10" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-4" parent="ZCX_lda17CIB2RwFypBJ-3" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="-id (PK)&lt;div&gt;-user_id (FK)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-6" edge="1" parent="1" source="ZCX_lda17CIB2RwFypBJ-2" style="fontSize=12;html=1;endArrow=ERzeroToMany;startArrow=ERmandOne;rounded=0;exitX=0.072;exitY=1.1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="ZCX_lda17CIB2RwFypBJ-3" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <Array as="points">
+              <mxPoint x="232" y="20" />
+              <mxPoint x="50" y="20" />
+              <mxPoint x="50" y="60" />
+            </Array>
+            <mxPoint x="240" y="-30" as="sourcePoint" />
+            <mxPoint x="44" y="70" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-8" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="pending_signup_users" vertex="1">
+          <mxGeometry height="80" width="160" x="780" y="-160" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-9" parent="ZCX_lda17CIB2RwFypBJ-8" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="-id (PK)&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-10" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="signup_otps" vertex="1">
+          <mxGeometry height="130" width="199" x="750" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-11" parent="ZCX_lda17CIB2RwFypBJ-10" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="-id (PK)&lt;div&gt;-pending_signup_user_id (FK)&lt;/div&gt;&lt;div&gt;-UNIQUE(pending_signup_user_id, type)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="199" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-13" edge="1" parent="1" source="ZCX_lda17CIB2RwFypBJ-9" style="fontSize=12;html=1;endArrow=ERoneToMany;startArrow=ERmandOne;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.559;entryY=-0.008;entryDx=0;entryDy=0;entryPerimeter=0;" target="ZCX_lda17CIB2RwFypBJ-10" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="715" y="30" as="sourcePoint" />
+            <mxPoint x="860" y="-13" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-15" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1:2 from pending_signup_users to signup_otps" vertex="1">
+          <mxGeometry height="40" width="120" x="730" y="-60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-22" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="jwt_refresh_tokens" vertex="1">
+          <mxGeometry height="90" width="160" x="190" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-23" parent="ZCX_lda17CIB2RwFypBJ-22" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="&lt;div&gt;-id (PK)&lt;/div&gt;&lt;div&gt;-user_id (FK)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-24" edge="1" parent="1" source="ZCX_lda17CIB2RwFypBJ-2" style="fontSize=12;html=1;endArrow=ERzeroToMany;startArrow=ERmandOne;rounded=0;exitX=0.202;exitY=1.073;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.375;entryY=-0.033;entryDx=0;entryDy=0;entryPerimeter=0;" target="ZCX_lda17CIB2RwFypBJ-22" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="370" y="210" as="sourcePoint" />
+            <mxPoint x="320" y="30" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-25" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="invalidated_jwt_refresh_token_extension_periods" vertex="1">
+          <mxGeometry height="90" width="320" x="110" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-26" parent="ZCX_lda17CIB2RwFypBJ-25" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="-id (PK)&lt;br&gt;-invalidated_jwt_refresh_token_id (FK)" vertex="1">
+          <mxGeometry height="40" width="320" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-28" edge="1" parent="1" style="fontSize=12;html=1;endArrow=ERzeroToOne;startArrow=ERmandOne;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ZCX_lda17CIB2RwFypBJ-25" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="269.5" y="160" as="sourcePoint" />
+            <mxPoint x="270" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-30" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="forgot_password_otps" vertex="1">
+          <mxGeometry height="110" width="160" x="370" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-31" parent="ZCX_lda17CIB2RwFypBJ-30" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="&lt;div&gt;-id (PK)&lt;/div&gt;&lt;div&gt;-user_id (FK)&lt;/div&gt;&lt;div&gt;-UNIQUE(user_id, type)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-32" edge="1" parent="1" style="fontSize=12;html=1;endArrow=ERzeroToMany;startArrow=ERmandOne;rounded=0;entryX=0.13;entryY=-0.005;entryDx=0;entryDy=0;entryPerimeter=0;" target="ZCX_lda17CIB2RwFypBJ-30" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <Array as="points">
+              <mxPoint x="270" y="20" />
+              <mxPoint x="390" y="20" />
+            </Array>
+            <mxPoint x="270" y="-37" as="sourcePoint" />
+            <mxPoint x="380" y="50" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-33" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1:2 from users to forgot_password_otps" vertex="1">
+          <mxGeometry height="40" width="120" x="400" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-36" parent="1" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" value="password_reset_tokens" vertex="1">
+          <mxGeometry height="95" width="160" x="550" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-37" parent="ZCX_lda17CIB2RwFypBJ-36" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" value="&lt;div&gt;-id (PK)&lt;/div&gt;&lt;div&gt;-user_id (FK)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="45" width="160" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-39" edge="1" parent="1" source="ZCX_lda17CIB2RwFypBJ-2" style="fontSize=12;html=1;endArrow=ERzeroToOne;startArrow=ERmandOne;rounded=0;entryX=0.195;entryY=-0.006;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.375;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" target="ZCX_lda17CIB2RwFypBJ-36" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" />
+              <mxPoint x="430" />
+              <mxPoint x="500" />
+              <mxPoint x="540" />
+              <mxPoint x="581" />
+            </Array>
+            <mxPoint x="410" y="-50" as="sourcePoint" />
+            <mxPoint x="470.5" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZCX_lda17CIB2RwFypBJ-48" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;labelBorderColor=default;textShadow=0;spacingTop=0;spacingBottom=0;" value="&lt;div&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;u&gt;Legend&lt;/u&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;| :one&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp;&amp;lt; : many&lt;/div&gt;&lt;div&gt;o : zero/optional&lt;/div&gt;&lt;div&gt;o&amp;lt; : 0 or many&lt;/div&gt;&lt;div&gt;&amp;nbsp;I&amp;lt; : 1 or many&lt;br&gt;o| : zero or one&lt;/div&gt;&lt;div&gt;&amp;nbsp;II : one and only one&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="170" x="775" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="7pQCZTuDqFJ5YMWvlURV-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Uses crows foot notation" vertex="1">
+          <mxGeometry height="30" width="160" x="30" y="-170" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
