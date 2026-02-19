@@ -161,8 +161,8 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
       }
       else {
         let dueDateAfterString=dueDateAfterDateFieldRef.current.value;
-        let dueDateAfterStringSubtractedBy1Day=subtract1DayFromDateString(dueDateAfterString);
-        urlQueryParamsObj.append("dueDateFrom",dueDateAfterStringSubtractedBy1Day);
+        let dueDateAfterStringAddedToBy1Day=add1DayToDateString(dueDateAfterString);
+        urlQueryParamsObj.append("dueDateFrom",dueDateAfterStringAddedToBy1Day);
       }
     }
     else if(selectedDueDateFilterRadioButtonLabelText==="range") {
@@ -450,7 +450,7 @@ export default function FiltersAndSortBySetter({parent_loadingModalDialogRef,par
 
 function subtract1DayFromDateString(dateString) {
   let dateObj=new Date(`${dateString}T00:00:00Z`);
-  dateObj.setDate(dateObj.getDate()-1);      
+  dateObj.setUTCDate(dateObj.getUTCDate()-1);      
   let year=dateObj.getUTCFullYear();
   let month=dateObj.getUTCMonth()+1;
   if(`${month}`.length==1) {
@@ -462,4 +462,20 @@ function subtract1DayFromDateString(dateString) {
   }
   let dateStringSubtractedBy1Day=`${year}-${month}-${day}`; 
   return dateStringSubtractedBy1Day;
+}
+
+function add1DayToDateString(dateString) {
+  let dateObj=new Date(`${dateString}T00:00:00Z`);
+  dateObj.setUTCDate(dateObj.getUTCDate()+1);      
+  let year=dateObj.getUTCFullYear();
+  let month=dateObj.getUTCMonth()+1;
+  if(`${month}`.length==1) {
+    month=`0${month}`;
+  }
+  let day=dateObj.getUTCDate();
+  if(`${day}`.length==1) {
+    day=`0${day}`;
+  }
+  let dateStringToWhich1DayAdded=`${year}-${month}-${day}`; 
+  return dateStringToWhich1DayAdded;
 }
