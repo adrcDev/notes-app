@@ -665,7 +665,7 @@ paths:
       tags:
         - core
       description: >
-        Creates a note. All nullable note related fields are set to null and non nullable fields having default value are set with their default value.
+        Creates a new note for the user associated with the jwt access token. All nullable note related fields are set to null and non nullable fields having default value are set with their default value.
       security:
         - jwtAccessTokenInAuthorizationHeader: []
       responses:
