@@ -10,7 +10,7 @@
 - Frontend (Website) and REST API documentation (Swagger UI) deployed on [Render](https://render.com/) (static site service)
 - Backend deployed on [Render](https://render.com/) (web service)
 - Database deployed on [Neon](https://neon.com/) (PostgreSQL)
-- The backend may take a few minutes to respond on the first request due to free-tier cold start
+- First request may take up to 4 minutes due to free-tier backend and database cold start.
 
 ## Screenshots
 
