@@ -1,4 +1,4 @@
-# Notes website
+# Notes Management Application
 
 ## Deployment
 ### Links
@@ -53,7 +53,7 @@
 ## Features
 - User account creation
 - Forgot password flow
-- Simulated OTP verification flow for account creation and forgot password  
+- Simulated OTP verification flow for account creation and forgot password flow  
 - Account login and logout
 - Notes management per user
 - Create, read, update and delete notes
