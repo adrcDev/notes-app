@@ -1,4 +1,4 @@
-# Notes Management Application
+# Tasks Management Application
 
 ## Deployment
 ### Links
@@ -55,13 +55,13 @@
 - Forgot password flow
 - Simulated OTP verification flow for account creation and forgot password flow  
 - Account login and logout
-- Notes management per user
-- Create, read, update and delete notes
-- Search notes by title, description and content
-- Filter notes by status, priority and due date
-- Sort notes by due date, priority, creation timestamp and last updation timestamp
-- Pagination in notes search results (10 notes per page)
-- Rich text note editing using [Quill editor](https://quilljs.com/)
+- Tasks management per user
+- Create, read, update and delete tasks
+- Search tasks by title, description and content
+- Filter tasks by status, priority and due date
+- Sort tasks by due date, priority, creation timestamp and last updation timestamp
+- Pagination in tasks search results (10 tasks per page)
+- Rich text editing for tasks using [Quill editor](https://quilljs.com/)
 
 ## Database schema diagram
 ![Database schema diagram drawn using crows foot notation.](/db-schema/db-schema.png)
