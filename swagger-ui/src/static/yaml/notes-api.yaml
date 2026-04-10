@@ -9,8 +9,8 @@ info:
     
     If the /auth/v1/refresh endpoint also returns a repsonse message with a status of 401 despite putting a jwt refresh token obtained via /auth/v1/login or /auth/v1/refresh endpoint within the Cookie header of the request message, then it means that the jwt refresh token is expired and thus the /auth/v1/login endpoint must be used again to get a new jwt access token and a new jwt refresh token.
     
-    ## Regarding why 'todos' is used as resource name instead of 'notes'
-    The project started as a Todo application and later evolved into a Notes application with rich text support. Resource name hasn't been changed to avoid unnecessary frontend and backend refactoring.    
+    ## Regarding why 'todos' is used as resource name instead of 'tasks'
+    The project's domain name was first renamed from todos to notes and then later to tasks. Resource name hasn't been changed to avoid unnecessary frontend and backend refactoring, since the existing name does not affect functionality or API clarity. 
   version: "1"
   
 
