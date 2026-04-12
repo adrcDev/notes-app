@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Notes API
+  title: Tasks Management API
   description: |
     ## Regarding access to protected endpoints
     In order to access the protected endpoints, caller must authenticate themselves by specifying a valid jwt access token within the Authorization request header under the Bearer authentication shceme. example: Authorization: Bearer \<jwt-access-token\>. The jwt access token is obtained via the /auth/v1/login endpoint and it is short lived.
